@@ -19,6 +19,9 @@ import potteryImg from "@/assets/product-pottery.jpg";
 import basketImg from "@/assets/product-basket.jpg";
 import madhubaniImg from "@/assets/product-madhubani.jpg";
 import keyringImg from "@/assets/product-keyring.jpg";
+import toteImg from "@/assets/product-tote.jpg";
+import sikkiImg from "@/assets/product-sikki-box.jpg";
+import cushionImg from "@/assets/product-cushion.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,10 +79,19 @@ function Index() {
       <SiteHeader />
 
       <main id="main">
-        {/* ---------- Hero: the signature brand moment ---------- */}
-        <section ref={heroRef} className="relative overflow-hidden bg-primary text-[oklch(0.977_0.009_84.6)]">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 pb-20 pt-24 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-14 md:px-6 md:pb-28 md:pt-36">
-            <div>
+        {/* ---------- Hero: full-bleed editorial image, the signature brand moment ---------- */}
+        <section ref={heroRef} className="relative overflow-hidden">
+          <motion.img
+            src={IMG.working}
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            {...(reduce ? {} : { style: { y: heroY } })}
+            className="absolute inset-0 h-[114%] w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-primary/80" aria-hidden="true" />
+          <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-28 md:px-6 md:pb-32 md:pt-44">
+            <div className="max-w-2xl">
               <Reveal>
                 <img
                   src={logoWhite.url}
@@ -89,12 +101,12 @@ function Index() {
                 />
               </Reveal>
               <Reveal delay={0.08}>
-                <h1 className="mt-8 font-display text-4xl leading-[1.1] sm:text-5xl lg:text-[3.5rem]">
+                <h1 className="mt-8 font-display text-4xl leading-[1.1] text-[oklch(0.977_0.009_84.6)] sm:text-5xl lg:text-[3.5rem]">
                   {t("hero2_title")}
                 </h1>
               </Reveal>
               <Reveal delay={0.16}>
-                <p className="mt-6 max-w-lg text-base leading-relaxed opacity-85 md:text-lg">
+                <p className="mt-6 max-w-lg text-base leading-relaxed text-[oklch(0.977_0.009_84.6)]/85 md:text-lg">
                   {t("hero2_sub")}
                 </p>
               </Reveal>
@@ -120,34 +132,14 @@ function Index() {
                   </Button>
                 </div>
               </Reveal>
+              <Reveal delay={0.3}>
+                <span aria-hidden="true" className="mt-12 block h-px w-16 bg-gold" />
+              </Reveal>
             </div>
-
-            <Reveal delay={0.1} y={32}>
-              <figure className="relative mx-auto max-w-md md:max-w-none">
-                <div className="overflow-hidden">
-                  <motion.img
-                    src={IMG.working}
-                    alt={t("hero_credit")}
-                    {...(reduce ? {} : { style: { y: heroY } })}
-                    className="aspect-[4/5] w-full object-cover md:aspect-[5/6]"
-                    loading="eager"
-                  />
-                </div>
-                <img
-                  src={basketImg}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  className="absolute -bottom-6 -left-6 hidden w-36 border-4 border-primary object-cover shadow-lg md:block lg:w-44"
-                />
-                <span
-                  aria-hidden="true"
-                  className="absolute -right-3 -top-3 h-24 w-24 border border-gold/60"
-                />
-                <figcaption className="mt-3 text-xs opacity-70">{t("hero_credit")}</figcaption>
-              </figure>
-            </Reveal>
           </div>
+          <p className="relative px-4 pb-6 text-[0.68rem] uppercase tracking-[0.18em] text-[oklch(0.977_0.009_84.6)]/60 md:px-6">
+            {t("hero_credit")}
+          </p>
         </section>
 
         {/* ---------- The hands behind the craft ---------- */}
@@ -155,26 +147,26 @@ function Index() {
           <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-16 md:px-6 md:py-28">
             <Reveal>
               <div className="grid grid-cols-2 gap-4">
-                <figure className="col-span-2 overflow-hidden">
+                <figure className="col-span-2 overflow-hidden border border-border">
                   <img
-                    src={potteryImg}
-                    alt="Clay craft in the making — demonstration imagery"
+                    src={toteImg}
+                    alt="Hand-embroidered carryall in the making — demonstration imagery"
                     loading="lazy"
                     className="aspect-[16/10] w-full object-cover"
                   />
                 </figure>
-                <figure className="overflow-hidden">
+                <figure className="overflow-hidden border border-border">
                   <img
-                    src={madhubaniImg}
+                    src={sikkiImg}
                     alt=""
                     aria-hidden="true"
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover"
                   />
                 </figure>
-                <figure className="overflow-hidden">
+                <figure className="overflow-hidden border border-border">
                   <img
-                    src={runnerImg}
+                    src={cushionImg}
                     alt=""
                     aria-hidden="true"
                     loading="lazy"
@@ -232,7 +224,7 @@ function Index() {
                   <Link
                     to="/explore"
                     search={{ category: tile.category }}
-                    className={`group relative block overflow-hidden bg-muted ${tile.aspect}`}
+                    className={`group relative block overflow-hidden border border-border bg-muted transition-colors duration-300 hover:border-gold/70 ${tile.aspect}`}
                   >
                     <img
                       src={tile.img}
@@ -297,8 +289,12 @@ function Index() {
             </div>
             <div className="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {makers.map((a, i) => (
-                <Reveal key={a.id} delay={i * 0.08}>
-                  <Link to="/artisan/$id" params={{ id: a.id }} className="group block">
+                <Reveal key={a.id} delay={i * 0.08} className="h-full">
+                  <Link
+                    to="/artisan/$id"
+                    params={{ id: a.id }}
+                    className="group flex h-full flex-col border border-border bg-card p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                  >
                     <div className="relative overflow-hidden bg-muted">
                       <img
                         src={a.photo_url ?? ""}
@@ -311,20 +307,22 @@ function Index() {
                         className="absolute inset-3 border border-[oklch(0.977_0.009_84.6)]/50 transition-colors group-hover:border-gold/70"
                       />
                     </div>
-                    <p className="kicker mt-5 text-terracotta">{a.craft}</p>
-                    <h3 className="mt-2 font-display text-2xl text-foreground group-hover:text-primary">
-                      {a.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {a.shg?.region ? `${a.shg.region}` : ""}
-                    </p>
-                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                      {a.bio}
-                    </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-                      {t("makers_view")}
-                      <ArrowRight className="size-3.5" aria-hidden="true" />
-                    </span>
+                    <div className="flex grow flex-col px-2 pb-3 pt-4">
+                      <p className="kicker text-terracotta">{a.craft}</p>
+                      <h3 className="mt-2 font-display text-2xl text-foreground group-hover:text-primary">
+                        {a.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {a.shg?.region ? `${a.shg.region}` : ""}
+                      </p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                        {a.bio}
+                      </p>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                        {t("makers_view")}
+                        <ArrowRight className="size-3.5" aria-hidden="true" />
+                      </span>
+                    </div>
                   </Link>
                 </Reveal>
               ))}
@@ -431,7 +429,7 @@ function Index() {
                 </h2>
               </Reveal>
             </div>
-            <div className="mt-12 grid gap-px border border-border bg-border md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {[
                 { icon: Mic, title: t("pillar_voice_t"), body: t("pillar_voice_b") },
                 { icon: BookOpen, title: t("pillar_stories_t"), body: t("pillar_stories_b") },
@@ -439,8 +437,8 @@ function Index() {
                 { icon: Handshake, title: t("pillar_b2b_t"), body: t("pillar_b2b_b") },
               ].map((pillar, i) => (
                 <Reveal key={pillar.title} delay={i * 0.06} className="h-full">
-                  <div className="flex h-full flex-col bg-card p-8">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center border border-primary/30 text-primary">
+                  <div className="group flex h-full flex-col border border-border bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center border border-primary/30 text-primary transition-colors duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
                       <pillar.icon className="size-5" aria-hidden="true" />
                     </span>
                     <h3 className="mt-5 font-display text-xl leading-snug text-foreground">
@@ -449,6 +447,9 @@ function Index() {
                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                       {pillar.body}
                     </p>
+                    <span aria-hidden="true" className="mt-auto block pt-6">
+                      <span className="block h-px w-10 bg-gold transition-all duration-300 group-hover:w-16" />
+                    </span>
                   </div>
                 </Reveal>
               ))}
@@ -478,10 +479,10 @@ function Index() {
             </div>
             <Reveal delay={0.1}>
               <figure className="relative">
-                <div className="overflow-hidden">
+                <div className="overflow-hidden border border-border">
                   <img
-                    src={runnerImg}
-                    alt="Handwoven textiles — demonstration imagery"
+                    src={IMG.shgGroup}
+                    alt="An artisan collective with their woven craft — demonstration imagery"
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover"
                   />
@@ -497,24 +498,15 @@ function Index() {
 
         {/* ---------- Mission ---------- */}
         <section id="mission" className="scroll-mt-16 bg-primary text-[oklch(0.977_0.009_84.6)]">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:grid-cols-[1fr_1.1fr] md:items-center md:gap-16 md:px-6 md:py-28">
+          <div className="mx-auto max-w-3xl px-4 py-20 text-center md:px-6 md:py-28">
             <Reveal>
-              <figure className="overflow-hidden">
-                <img
-                  src={IMG.shgGroup}
-                  alt="A self-help-group collective with their woven craft — demonstration imagery"
-                  loading="lazy"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              </figure>
+              <span aria-hidden="true" className="mx-auto block h-px w-16 bg-gold" />
+              <p className="kicker mt-8 text-gold">{t("mission_kicker")}</p>
+              <h2 className="mt-4 font-display text-3xl md:text-5xl">{t("mission_title")}</h2>
+              <p className="mx-auto mt-6 max-w-xl leading-relaxed text-[oklch(0.977_0.009_84.6)]/85">
+                {t("mission_body")}
+              </p>
             </Reveal>
-            <div>
-              <Reveal>
-                <p className="kicker text-gold">{t("mission_kicker")}</p>
-                <h2 className="mt-4 font-display text-3xl md:text-5xl">{t("mission_title")}</h2>
-                <p className="mt-6 max-w-lg leading-relaxed opacity-85">{t("mission_body")}</p>
-              </Reveal>
-            </div>
           </div>
         </section>
 

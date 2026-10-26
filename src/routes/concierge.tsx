@@ -69,7 +69,7 @@ function tokensOf(text: string): string[] {
 
 const STATUS_BADGE: Record<FeasibilityStatus, string> = {
   potentially_feasible: "border-primary/40 bg-primary/10 text-primary",
-  feasible_with_changes: "border-amber-600/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  feasible_with_changes: "border-terracotta/40 bg-terracotta/10 text-terracotta",
   not_currently_feasible: "border-destructive/40 bg-destructive/10 text-destructive",
   insufficient_information: "border-border bg-muted text-muted-foreground",
 };
@@ -94,7 +94,7 @@ function AssessmentCard({
   const { t } = useLang();
   const d = assessment.dataUsed;
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-medium">{shgName}</p>
@@ -261,7 +261,7 @@ function RequestCard({ request }: { request: CustomRequestWithShg }) {
       : null;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
       <button
         type="button"
         className="flex w-full flex-wrap items-center justify-between gap-2 text-left"
@@ -289,7 +289,7 @@ function RequestCard({ request }: { request: CustomRequestWithShg }) {
           <p className="text-muted-foreground">{request.brief}</p>
 
           {latest && (
-            <div className="rounded-lg border border-border bg-background p-4">
+            <div className="border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">
                   {t("concierge_proposal_from", { shg: request.shg_name ?? "" })}
@@ -550,7 +550,7 @@ function ConciergePage() {
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
           {t("concierge_kicker")}
         </p>
-        <h1 className="mt-2 font-serif text-4xl">{t("concierge_title")}</h1>
+        <h1 className="mt-2 font-display text-4xl">{t("concierge_title")}</h1>
         <p className="mt-3 text-muted-foreground">{t("concierge_sub")}</p>
         <p className="mt-2 text-sm text-muted-foreground/80">{t("concierge_journey")}</p>
         <div className="mt-4">
@@ -559,11 +559,11 @@ function ConciergePage() {
       </header>
 
       {/* Start a request */}
-      <section className="mt-10 rounded-2xl border border-border bg-card p-6">
-        <h2 className="font-serif text-2xl">{t("concierge_new_title")}</h2>
+      <section className="mt-10 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+        <h2 className="font-display text-2xl">{t("concierge_new_title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("concierge_new_sub")}</p>
         <form
-          className="mt-5 grid gap-4 sm:grid-cols-2"
+          className="mt-6 grid gap-6 sm:grid-cols-2 [&_label]:mb-2 [&_label]:block [&_label]:text-sm [&_label]:font-medium [&_input]:h-12 [&_input]:border-border [&_input]:bg-background [&_textarea]:border-border [&_textarea]:bg-background"
           onSubmit={(e) => {
             e.preventDefault();
             if (!form.title.trim() || !form.brief.trim() || !form.quantity) {
@@ -574,6 +574,7 @@ function ConciergePage() {
             createMut.mutate();
           }}
         >
+          <div className="grid gap-5 border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg sm:col-span-2 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="c-title">{t("shg_proposal_name")} *</Label>
             <Input id="c-title" value={form.title} onChange={set("title")} required />
@@ -582,6 +583,8 @@ function ConciergePage() {
             <Label htmlFor="c-brief">{t("concierge_brief")} *</Label>
             <Textarea id="c-brief" value={form.brief} onChange={set("brief")} placeholder={t("concierge_brief_ph")} rows={3} required />
           </div>
+          </div>
+          <div className="grid gap-5 border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg sm:col-span-2 sm:grid-cols-2">
           <div>
             <Label htmlFor="c-occasion">{t("concierge_occasion")}</Label>
             <Input id="c-occasion" value={form.occasion} onChange={set("occasion")} />
@@ -606,6 +609,8 @@ function ConciergePage() {
             <Label htmlFor="c-pers">{t("concierge_personalisation")}</Label>
             <Input id="c-pers" value={form.personalisation} onChange={set("personalisation")} />
           </div>
+          </div>
+          <div className="grid gap-5 border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg sm:col-span-2 sm:grid-cols-2">
           <div>
             <Label htmlFor="c-qty">{t("concierge_quantity")} *</Label>
             <Input id="c-qty" type="number" min={1} value={form.quantity} onChange={set("quantity")} required />
@@ -622,6 +627,7 @@ function ConciergePage() {
             <Label htmlFor="c-dest">{t("concierge_destination")}</Label>
             <Input id="c-dest" value={form.destination} onChange={set("destination")} />
           </div>
+          </div>
           <div className="flex items-center gap-3 sm:col-span-2">
             <Button type="submit" disabled={createMut.isPending}>
               <Sparkles className="size-4" aria-hidden="true" />
@@ -635,7 +641,7 @@ function ConciergePage() {
       {/* MakePossible results for the active request */}
       {activeRequest && assessed && (
         <section className="mt-10">
-          <h2 className="font-serif text-2xl">{t("concierge_check_title")}</h2>
+          <h2 className="font-display text-2xl">{t("concierge_check_title")}</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("concierge_check_sub")}</p>
           {createdCode && (
             <p className="mt-3 flex items-center gap-2 text-sm text-primary">
@@ -662,11 +668,11 @@ function ConciergePage() {
 
       {/* Requests + proposals */}
       <section className="mt-12">
-        <h2 className="font-serif text-2xl">{t("concierge_requests_title")}</h2>
+        <h2 className="font-display text-2xl">{t("concierge_requests_title")}</h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("concierge_requests_sub")}</p>
         <div className="mt-5 space-y-3">
           {(requests ?? []).length === 0 && (
-            <p className="text-sm text-muted-foreground">{t("concierge_none_yet")}</p>
+            <p className="border border-border bg-card px-6 py-12 text-center text-sm text-muted-foreground">{t("concierge_none_yet")}</p>
           )}
           {(requests ?? []).map((r) => (
             <RequestCard key={r.id} request={r} />

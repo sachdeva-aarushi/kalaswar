@@ -49,7 +49,7 @@ function ArtisansPage() {
         <div className="mt-12 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {artisans.map((a, i) => (
             <Reveal key={a.id} delay={Math.min(i, 6) * 0.06}>
-              <Link to="/artisan/$id" params={{ id: a.id }} className="group block">
+              <Link to="/artisan/$id" params={{ id: a.id }} className="group block h-full border border-border bg-card p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <div className="overflow-hidden bg-muted">
                   <img
                     src={a.photo_url ?? ""}

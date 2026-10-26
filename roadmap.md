@@ -77,10 +77,10 @@ Source: uploaded Product Expansion Master Prompt. Audit: docs/PRODUCT_EXPANSION_
 ## Phase 9 — Premium UI/UX redesign (KALASWAR COMPLETE UI/UX REDESIGN brief, 26 Oct 2026)
 - [x] Phase 1 audit: 41 routes, existing editorial system, imagery, i18n dictionary reviewed
 - [x] Phase 2 design system: tokens updated to the brief palette (burgundy #641B32 / ivory #FAF7F1 / muted gold / sage / terracotta / rose beige), success + warning tokens, Devanagari logo asset (white + burgundy transparent variants) and favicon
-- [x] Phase 3 homepage: burgundy hero with logo + overlaid imagery, hands-behind-the-craft editorial split, craft collection tiles, featured pieces, maker profiles, craft stories (live data), four pillars, B2B section, mission, closing brand moment; trilingual copy (EN/HI/MR) for every new string; 85 tests pass, no console errors, desktop + mobile verified
-- [x] Header/footer rework: overlay nav on burgundy hero, logo imagery, refined columns
-- [ ] Phase 4 remaining shared components: refined product cards, status badges, forms, tables, empty/loading states across the design system
-- [ ] Phase 5 customer experience: explore, product detail, stories, artisan profiles, Gift Concierge restyle
-- [ ] Phase 6 artisan experience: workroom dashboard, voice-first creation, FairPrice interface
-- [ ] Phase 7 B2B experience: buyer dashboard, requests, feasibility, quotations, production tracking
-- [ ] Phase 8 validation: all routes at desktop + mobile widths, reduced-motion, console errors
+- [x] Phase 3 homepage: full-bleed image hero (artisan photograph under a burgundy overlay) with logo + trilingual copy — no flat burgundy block, no separate image screen below the hero; imagery de-duplicated so no photograph repeats anywhere on the page; bordered, hover-lifted card treatment applied to craft collection tiles, maker profiles, four pillars and product cards; centered typographic mission section; trilingual copy (EN/HI/MR) for every new string; 85 tests pass, no console errors, desktop + mobile verified
+- [x] Header/footer rework: overlay nav on the image hero, logo imagery, refined columns
+- [x] Phase 4 shared components: bordered hover-lift product and maker cards, rose-beige sectioned form panels with uniform bordered inputs (concierge, tipping, auth, B2B forms), bordered empty/loading states, semantic gold warning accents replacing stock amber
+- [x] Phase 5 customer experience: explore (search/sort/category panels), product detail maker + story + passport panels, stories index cards and detail disclosures, artisans directory and profiles, Gift Concierge sectioned request form, order tracking panels, tipping dialog, forgot/reset password
+- [x] Phase 6 artisan experience: workroom dashboard cards, voice panel, assignments, guidance, story editor; voice logic and text fallbacks untouched
+- [x] Phase 7 B2B experience: buyer workspace shell and navigation, dashboard summaries, discover, briefs, quotation versions, sample event timelines, order tracking, coordinator quote/order review surfaces
+- [x] Phase 8 validation: hydration-safe reduced-motion Reveal, desktop + mobile passes across explore/stories/artisans/concierge/B2B/artisan-space/auth with zero console errors; build OK, 85 tests pass

@@ -68,10 +68,10 @@ function CoordinatorOrdersPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background [&_[data-slot=select-trigger]]:min-h-11 [&_[data-slot=select-trigger]]:rounded-none [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("shg_b2b_orders")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("b2b_stage_title")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("shg_b2b_orders")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("b2b_stage_title")}</p>
       </header>
 
       {orders.length === 0 ? (
@@ -79,7 +79,7 @@ function CoordinatorOrdersPage() {
       ) : (
         <ul className="space-y-4">
           {orders.map((o) => (
-            <li key={o.id} className="rounded-xl border border-border bg-card p-5">
+            <li key={o.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">{o.customer_reference}</p>
@@ -163,7 +163,7 @@ function OrderTimeline({ orderId }: { orderId: string }) {
   const { data: events } = useSuspenseQuery(orderEventsQuery(orderId));
   if (events.length === 0) return null;
   return (
-    <ol className="mt-3 space-y-1 border-l border-border pl-4 text-xs text-muted-foreground">
+    <ol className="mt-5 grid gap-3 text-sm [&>li]:border [&>li]:border-border [&>li]:border-l-gold [&>li]:bg-background [&>li]:p-4 [&>li]:transition-all [&>li]:duration-300 [&>li:hover]:-translate-y-0.5 [&>li:hover]:border-primary/40 [&>li:hover]:shadow-lg [&>li:first-child]:border-l-primary">
       {[...events].reverse().map((e) => (
         <li key={e.id}>
           {new Date(e.created_at).toLocaleString()} —{" "}

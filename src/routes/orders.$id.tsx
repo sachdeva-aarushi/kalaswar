@@ -48,7 +48,7 @@ function OrderTracking() {
       <div className="min-h-screen bg-background">
         <SiteHeader />
         <main className="mx-auto max-w-2xl px-4 pb-24 pt-28">
-          <p className="text-sm text-muted-foreground">{t("ord_not_found")}</p>
+          <p className="border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground">{t("ord_not_found")}</p>
         </main>
         <SiteFooter />
       </div>
@@ -73,7 +73,7 @@ function OrderTracking() {
           <p className="mt-2 text-sm text-muted-foreground">{t("ord_sub")}</p>
         </header>
 
-        <section className="mt-8 rounded-md border border-border bg-card p-5">
+        <section className="mt-8 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-medium text-foreground">{order.product?.name}</p>
@@ -92,17 +92,17 @@ function OrderTracking() {
         </section>
 
         {/* Dispatch records — carrier tracking only when a real integration exists */}
-        <section className="mt-8 rounded-md border border-border bg-card p-5">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+        <section className="mt-8 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+          <h2 className="flex items-center gap-2 font-display text-2xl text-foreground">
             <Truck className="size-4 text-primary" aria-hidden="true" />
             {t("ord_shipment")}
           </h2>
           {shipments.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">{t("ord_none_ship")}</p>
+            <p className="mt-4 border border-border bg-secondary p-6 text-center text-sm text-muted-foreground">{t("ord_none_ship")}</p>
           ) : (
             <ul className="mt-3 space-y-2.5">
               {shipments.map((s) => (
-                <li key={s.id} className="rounded-md border border-border p-3 text-sm">
+                <li key={s.id} className="border border-border bg-background p-4 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                   <p className="font-medium capitalize text-foreground">{s.status}</p>
                   {s.carrier && (
                     <p className="text-muted-foreground">
@@ -123,7 +123,7 @@ function OrderTracking() {
         </section>
 
         {/* The order record — same timeline the coordinator records */}
-        <section className="mt-8 rounded-md border border-border bg-card p-5">
+        <section className="mt-8 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <OrderRecordTimeline orderId={order.id} />
         </section>
 

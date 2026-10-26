@@ -30,7 +30,7 @@ function OrderDetailPage() {
   if (!order) return <p className="text-sm text-muted-foreground">Not found.</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header>
         <Link to="/b2b/orders" className="text-sm text-muted-foreground underline underline-offset-4">
           <ArrowLeft className="mr-1 inline size-3.5" aria-hidden="true" />
@@ -52,12 +52,12 @@ function OrderDetailPage() {
         )}
       </header>
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base font-semibold tracking-tight">{t("b2b_stage_title")}</h2>
+      <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+        <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{t("b2b_stage_title")}</h2>
         {events.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">—</p>
         ) : (
-          <ol className="mt-3 space-y-2 border-l border-border pl-4 text-sm">
+          <ol className="mt-5 grid gap-3 text-sm [&>li]:border [&>li]:border-border [&>li]:border-l-gold [&>li]:bg-background [&>li]:p-4 [&>li]:transition-all [&>li]:duration-300 [&>li:hover]:-translate-y-0.5 [&>li:hover]:border-primary/40 [&>li:hover]:shadow-lg [&>li:first-child]:border-l-primary">
             {[...events].reverse().map((e) => (
               <li key={e.id}>
                 <span className="text-xs text-muted-foreground">{new Date(e.created_at).toLocaleString()}</span>

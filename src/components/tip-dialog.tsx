@@ -62,13 +62,13 @@ export function TipDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="border border-border bg-card p-6 sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">{t("tip_title", { name: artisanName })}</DialogTitle>
           <DialogDescription>{t("tip_sub")}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-3">
-          <div className="flex gap-2">
+        <div className="space-y-5 border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg [&_input]:h-12 [&_input]:border-border [&_input]:bg-background">
+          <div className="flex flex-wrap gap-2">
             {PRESETS.map((p) => (
               <Button
                 key={p}
@@ -76,7 +76,7 @@ export function TipDialog({
                 variant={String(p) === amount ? "default" : "outline"}
                 size="sm"
                 onClick={() => setAmount(String(p))}
-                className="flex-1"
+                className="flex-1 border border-border transition-colors hover:border-primary/40"
               >
                 ₹{p}
               </Button>

@@ -169,10 +169,10 @@ export function StoryEditorSection({
   };
 
   return (
-    <section className="rounded-lg border bg-card p-4">
-      <div className="flex items-baseline justify-between gap-3">
+    <section className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+      <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-foreground">{t("story_title")}</h2>
+          <h2 className="font-display text-2xl leading-snug text-foreground">{t("story_title")}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{t("story_sub")}</p>
         </div>
         <Button
@@ -199,7 +199,7 @@ export function StoryEditorSection({
               <button
                 type="button"
                 onClick={() => loadStory(s)}
-                className="w-full rounded-md border border-border p-3 text-left transition-colors hover:bg-accent/50"
+                className="w-full rounded-md border border-border bg-card p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-medium text-foreground">{s.title}</span>
@@ -216,7 +216,7 @@ export function StoryEditorSection({
 
       {/* Editor */}
       {editing && (
-        <div className="mt-4 space-y-4 border-t border-border pt-4">
+        <div className="mt-6 space-y-6 border-t border-border pt-6">
           <div className="space-y-1.5">
             <Label htmlFor="story-notes">{t("story_notes_label")}</Label>
             <Textarea
@@ -300,10 +300,10 @@ export function StoryEditorSection({
               <ul className="mt-2 space-y-1.5">
                 {CONSENT_TYPES.map((type) => (
                   <li key={type}>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className="flex items-center gap-3 rounded-md border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                       <input
                         type="checkbox"
-                        className="size-4 accent-[var(--color-primary)]"
+                        className="size-4 shrink-0 accent-primary"
                         checked={consentOn.has(type)}
                         onChange={(e) =>
                           consentMutation.mutate({ type, granted: e.target.checked })

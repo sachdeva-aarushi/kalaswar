@@ -63,7 +63,7 @@ function ResetPasswordPage() {
   if (!isRecovery) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-4 pt-24">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-sm">
+        <div className="w-full max-w-md border border-border bg-card p-8 text-center">
           <Wordmark size="md" />
           <p className="mt-6 text-sm text-muted-foreground">{t("auth_reset_not_recovery")}</p>
           <Button asChild variant="outline" size="sm" className="mt-6">
@@ -76,7 +76,7 @@ function ResetPasswordPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 pt-24">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
+      <div className="w-full max-w-md border border-border bg-card p-8">
         <div className="text-center">
           <Wordmark size="md" />
           <h1 className="mt-6 font-display text-2xl text-foreground">{t("auth_reset_title")}</h1>
@@ -85,7 +85,7 @@ function ResetPasswordPage() {
           <DemoNote className="mt-6">{t("auth_reset_ok")}</DemoNote>
         ) : (
           <form
-            className="mt-6 space-y-4"
+            className="mt-6 space-y-5 border border-border bg-secondary p-6 [&_input]:h-12 [&_input]:border-border [&_input]:bg-background"
             onSubmit={(e) => {
               e.preventDefault();
               if (!busy) void submit();

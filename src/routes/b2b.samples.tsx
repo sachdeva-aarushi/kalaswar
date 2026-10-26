@@ -39,10 +39,10 @@ function SamplesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background [&_[data-slot=select-trigger]]:min-h-11 [&_[data-slot=select-trigger]]:rounded-none [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("b2b_samples_title")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("b2b_sample_reapproval_note")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("b2b_samples_title")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("b2b_sample_reapproval_note")}</p>
       </header>
 
       {samples.length === 0 ? (
@@ -50,7 +50,7 @@ function SamplesPage() {
       ) : (
         <ul className="space-y-4">
           {samples.map((s) => (
-            <li key={s.id} className="rounded-xl border border-border bg-card p-5">
+            <li key={s.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">{s.quotation_request_code}</p>
@@ -74,7 +74,7 @@ function SamplesPage() {
               {s.events && s.events.length > 0 && (
                 <details className="mt-3 text-sm">
                   <summary className="cursor-pointer text-muted-foreground">{t("b2b_sample_events")}</summary>
-                  <ul className="mt-2 space-y-1 border-l border-border pl-4 text-xs text-muted-foreground">
+                  <ul className="mt-5 grid gap-3 text-xs [&>li]:border [&>li]:border-border [&>li]:border-l-gold [&>li]:bg-background [&>li]:p-3 [&>li]:transition-all [&>li]:duration-300 [&>li:hover]:-translate-y-0.5 [&>li:hover]:border-primary/40 [&>li:hover]:shadow-lg [&>li:first-child]:border-l-primary">
                     {s.events.map((e) => (
                       <li key={e.id}>
                         {new Date(e.occurred_at).toLocaleString()} — e.event_type

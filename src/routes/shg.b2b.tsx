@@ -115,10 +115,10 @@ function CoordinatorB2bPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background [&_[data-slot=select-trigger]]:min-h-11 [&_[data-slot=select-trigger]]:rounded-none [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("shg_b2b")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("shg_b2b_intro")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("shg_b2b")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("shg_b2b_intro")}</p>
       </header>
 
       {reviewable.length === 0 ? (
@@ -130,7 +130,7 @@ function CoordinatorB2bPage() {
             const validation = validateBrief(brief);
             const open = openRequest === r.id;
             return (
-              <li key={r.id} className="rounded-xl border border-border bg-card p-5">
+              <li key={r.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <button
                   type="button"
                   className="flex w-full flex-wrap items-center justify-between gap-2 text-left"
@@ -165,7 +165,7 @@ function CoordinatorB2bPage() {
                           ))}
                       </dl>
                       {typeof brief["clarification_note"] === "string" && brief["clarification_note"] && (
-                        <p className="mt-2 rounded-lg border border-border bg-background p-3">
+                        <p className="mt-2 border border-border bg-background p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                           <span className="font-medium">{t("b2b_clarification")}: </span>
                           {String(brief["clarification_note"])}
                         </p>
@@ -173,7 +173,7 @@ function CoordinatorB2bPage() {
                     </div>
 
                     {!validation.ok && (
-                      <p className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                      <p className="flex items-center gap-2 text-wine">
                         <CircleAlert className="size-4" aria-hidden="true" />
                         {t("b2b_validation_missing")}
                       </p>
@@ -185,7 +185,7 @@ function CoordinatorB2bPage() {
                         {snapshots.map((snap) => {
                           const a = assessBuyerRequest(brief, snap);
                           return (
-                            <div key={snap.shg.id} className="rounded-lg border border-border bg-background p-3">
+                            <div key={snap.shg.id} className="border border-border bg-background p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <p className="font-medium">{snap.shg.name}</p>
                                 <Badge variant="outline" className={TONE_BADGE[FEAS_TONE[a.status]]}>

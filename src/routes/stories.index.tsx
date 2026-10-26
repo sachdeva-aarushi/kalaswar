@@ -52,7 +52,7 @@ function StoriesIndex() {
         </header>
 
         {stories.length === 0 ? (
-          <p className="mt-12 text-muted-foreground">{t("stories_empty")}</p>
+          <p className="mt-12 border border-border bg-card px-6 py-16 text-center text-muted-foreground">{t("stories_empty")}</p>
         ) : (
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {stories.map((s, i) => {
@@ -63,7 +63,7 @@ function StoriesIndex() {
                   <Link
                     to="/stories/$id"
                     params={{ id: s.id }}
-                    className="group flex h-full flex-col rounded-md border border-border bg-card transition-colors hover:border-primary/50"
+                    className="group flex h-full flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
                   >
                     {s.product_image ? (
                       <img
@@ -74,7 +74,7 @@ function StoriesIndex() {
                     ) : (
                       <div className="aspect-[4/3] w-full rounded-t-md bg-muted" aria-hidden="true" />
                     )}
-                    <div className="flex flex-1 flex-col p-5">
+                    <div className="flex flex-1 flex-col p-6">
                       <h2 className="font-display text-xl leading-snug text-foreground">{s.title}</h2>
                       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                         {teaser}
