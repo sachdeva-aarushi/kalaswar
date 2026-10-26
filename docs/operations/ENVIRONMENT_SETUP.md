@@ -40,4 +40,4 @@ npm run dev      # Vite dev server with SSR
 npm test         # vitest (dictionary parity, feasibility engine, voice router)
 ```
 
-Never commit `.env`. `.env.example` in the repo root lists every variable name with no values.
+Never commit `.env`. `backend/.env.example` lists every variable name with no values.

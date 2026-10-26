@@ -9,7 +9,7 @@ Honest status of every major requirement, verified against the source on the dat
 | Marketplace browse, search, categories, price sort | done | `/`, `/explore`; browser-verified; zero broken images |
 | Artisan profiles + tipping (demo) | done | `/artisans`, `/artisan/$id`; tip records labeled demonstration |
 | Gift Concierge request form + request codes | done | `/concierge`; KCR-1003 created end-to-end in browser test |
-| MakePossible feasibility engine | done | pure, unit-tested (`src/test/makepossible.test.ts`, 12 tests); explainable reasons/missing/notes/suggested changes |
+| MakePossible feasibility engine | done | pure, unit-tested (`frontend/src/test/makepossible.test.ts`, 12 tests); explainable reasons/missing/notes/suggested changes |
 | Per-collective assessment cards + routing suggestion | done | browser-verified on `/concierge` and `/shg/requests` |
 | Coordinator request review, decline, routing | done | browser-verified; decline preserves existing structured fields |
 | Versioned proposals | done | v1 auto-increment per request; immutable spec JSON |
@@ -27,7 +27,7 @@ Honest status of every major requirement, verified against the source on the dat
 | B2B — sample workflow | done | sample events, spec-version link, coordinator stage controls, buyer feedback/approval with reapproval note |
 | B2B — order + production stages | done | order confirmation requires an accepted version; `orders.source='b2b'`, `orders.buyer_request_id`; ten-stage timeline recordable by coordinator, visible to buyer |
 | B2B — reorder | done | prefilled from prior specification with confirmed/decision state stripped; feasibility and pricing revalidated by design |
-| B2B honesty tests | 13 tests | `src/test/b2b.test.ts`: validation, deadline mapping, missing-info over assumptions, versioning rules, totals, reorder stripping |
+| B2B honesty tests | 13 tests | `frontend/src/test/b2b.test.ts`: validation, deadline mapping, missing-info over assumptions, versioning rules, totals, reorder stripping |
 | Tests | 85 passing | core + makepossible + stories + fairprice + b2b + i18n parity |
 
 ## Known gaps (documented, not hidden)
@@ -54,8 +54,8 @@ Honest status of every major requirement, verified against the source on the dat
 
 ## Test coverage
 
-- `src/test/kalaswar-core.test.ts` — EN/HI/MR dictionary parity and core data rules.
-- `src/test/makepossible.test.ts` — feasibility statuses, missing-information rule (missing info
+- `frontend/src/test/kalaswar-core.test.ts` — EN/HI/MR dictionary parity and core data rules.
+- `frontend/src/test/makepossible.test.ts` — feasibility statuses, missing-information rule (missing info
   never yields "potentially feasible"), generic-word matching guard, budget/deadline/capacity
   rules, deterministic production estimate.
-- `src/test/voice-router.test.ts` — deterministic command routing in en/hi/mr.
+- `frontend/src/test/voice-router.test.ts` — deterministic command routing in en/hi/mr.

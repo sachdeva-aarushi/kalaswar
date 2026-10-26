@@ -33,7 +33,7 @@ records and routes that already exist.
 
 | Requirement | Status | Notes |
 |---|---|---|
-| Basic cost-based estimator (materials, labour, overhead, margin) | Implemented and tested | `src/lib/price-estimate.ts` + UI in product form; refuses to suggest on missing labour |
+| Basic cost-based estimator (materials, labour, overhead, margin) | Implemented and tested | `frontend/src/lib/price-estimate.ts` + UI in product form; refuses to suggest on missing labour |
 | Full calculator: material lines with wastage, labour stages, packaging, fees %, margin vs markup | Not implemented | Needs material-line and labour-stage records |
 | Material price history / ledger with staleness flags | Not implemented | Inventory quantities exist; prices are not recorded over time |
 | Versioned cost snapshots (approved terms preserved) | Not implemented | Proposal versions exist for custom orders; product costing has no snapshots |
@@ -68,7 +68,7 @@ records and routes that already exist.
 1. Extend existing tables and conventions; new tables only for genuinely new entities
    (stories, consents, material prices, cost inputs/snapshots, buyers, buyer requests,
    quotations + versions, samples + events, production plans + events, notifications).
-2. The same costing engine (`src/lib/fairprice.ts`, deterministic, paise-integer arithmetic)
+2. The same costing engine (`frontend/src/lib/fairprice.ts`, deterministic, paise-integer arithmetic)
    powers product price estimates and B2B quotations.
 3. MakePossible stays pure deterministic code; AI never becomes the source of truth for
    feasibility, pricing, or approvals.

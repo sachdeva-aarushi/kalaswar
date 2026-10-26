@@ -8,7 +8,7 @@ Date: 2026-10-26.
 | Area | State |
 |---|---|
 | Database schema | All required entities exist in `public`: profiles, user_roles, group_memberships, artisans, shgs, buyers, buyer_requests, products, product media (products.image_url/image_public_id + media_assets), craft_stories, story_consents, artisan_skills, materials_inventory, material_price_history, product_cost_inputs, product_labour_inputs, product_cost_snapshots, custom_requests, proposals, proposal_approvals, quotations, quotation_versions, sample_requests, sample_events, orders, order_events, order_assignments, production_plans, production_events, quality_checks, shipments, shipment_events, payments, expenses, tips, product_drafts, product_signals, craft_guides, notifications, action_audit_logs. |
-| Frontend–database connection | All reads/writes go through `src/lib/data.ts` (TanStack Query options over the generated browser Supabase client). No hardcoded arrays or mock fallbacks in the data layer. |
+| Frontend–database connection | All reads/writes go through `frontend/src/lib/data.ts` (TanStack Query options over the generated browser Supabase client). No hardcoded arrays or mock fallbacks in the data layer. |
 | Business logic | MakePossible (deterministic, unit-tested), FairPrice engine (deterministic cost snapshots), versioned quotations with preserved accepted terms, order-event timeline, story consent model, ten-stage production recording. |
 | Seed data | Migration `0000` seeds interconnected demonstration data with fixed UUIDs; `0005` adds demo orders. Applied once through the migration journal (naturally idempotent). |
 | Cloudinary | Unsigned upload flow (`VITE_CLOUDINARY_CLOUD_NAME=navinfpx`, `VITE_CLOUDINARY_UPLOAD_PRESET=kalaswar_product_images`), real upload verified, secure_url + public_id persisted to `products`. API secret never used client-side. |
@@ -54,7 +54,7 @@ Migration `0010_production_auth_rbac.sql` adds authenticated, role/membership-sc
 - **Phase 4 (schema)** — equivalent well-designed tables already existed; nothing duplicated.
 - **Phase 6/7 (seed)** — see `docs/SEED_DATA_GUIDE.md`.
 - **Phase 8 (data access)** — all modules listed in the phase already read/write persisted records; loading/empty/error states exist on the surfaces; no silent mock fallback.
-- **Phase 9 (business logic)** — all specified transitions already implemented and unit-tested (see `src/test/`).
+- **Phase 9 (business logic)** — all specified transitions already implemented and unit-tested (see `frontend/src/test/`).
 - **Phase 10 (Cloudinary/env)** — configured and verified; `.env.example` contains placeholders only; real credentials are not committed.
 
 ## 4. Statuses
@@ -72,7 +72,7 @@ Migration `0010_production_auth_rbac.sql` adds authenticated, role/membership-sc
 
 ## 5. Test results (actually executed)
 
-- `bunx vitest run src/test` → **11 files / 85 tests, all passed** (core, MakePossible, stories/consents, FairPrice, B2B, earnings, demand, risk, routing).
+- `bunx vitest run frontend/src/test` → **11 files / 85 tests, all passed** (core, MakePossible, stories/consents, FairPrice, B2B, earnings, demand, risk, routing).
 - `bunx tsgo --noEmit` → clean.
 - Build → OK.
 - Browser-verified: signup → profile + role rows created; sign-in page, forgot-password page, reset-password page render; header session affordance reflects state.

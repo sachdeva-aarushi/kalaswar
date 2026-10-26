@@ -28,6 +28,7 @@ import { Route as B2bOrdersRouteImport } from './routes/b2b.orders'
 import { Route as B2bQuotesRouteImport } from './routes/b2b.quotes'
 import { Route as B2bRequestRouteImport } from './routes/b2b.request'
 import { Route as B2bSamplesRouteImport } from './routes/b2b.samples'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ShgIndexRouteImport } from './routes/shg.index'
@@ -39,6 +40,7 @@ import { Route as ShgInventoryRouteImport } from './routes/shg.inventory'
 import { Route as ShgOrdersRouteImport } from './routes/shg.orders'
 import { Route as ShgPaymentsRouteImport } from './routes/shg.payments'
 import { Route as ShgPricingRouteImport } from './routes/shg.pricing'
+import { Route as ShgProductionRouteImport } from './routes/shg.production'
 import { Route as ShgProductsRouteImport } from './routes/shg.products'
 import { Route as ShgReportsRouteImport } from './routes/shg.reports'
 import { Route as ShgRequestsRouteImport } from './routes/shg.requests'
@@ -148,6 +150,11 @@ const B2bSamplesRoute = B2bSamplesRouteImport.update({
   path: '/samples',
   getParentRoute: () => B2bRoute,
 } as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
@@ -201,6 +208,11 @@ const ShgPaymentsRoute = ShgPaymentsRouteImport.update({
 const ShgPricingRoute = ShgPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => ShgRoute,
+} as any)
+const ShgProductionRoute = ShgProductionRouteImport.update({
+  id: '/production',
+  path: '/production',
   getParentRoute: () => ShgRoute,
 } as any)
 const ShgProductsRoute = ShgProductsRouteImport.update({
@@ -298,11 +310,13 @@ export interface FileRoutesByFullPath {
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/pricing': typeof ShgPricingRoute
+  '/shg/production': typeof ShgProductionRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
   '/b2b/': typeof B2bIndexRoute
+  '/orders/': typeof OrdersIndexRoute
   '/shg/': typeof ShgIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
@@ -338,11 +352,13 @@ export interface FileRoutesByTo {
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/pricing': typeof ShgPricingRoute
+  '/shg/production': typeof ShgProductionRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
   '/b2b': typeof B2bIndexRoute
+  '/orders': typeof OrdersIndexRoute
   '/shg': typeof ShgIndexRoute
   '/stories': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
@@ -384,11 +400,13 @@ export interface FileRoutesById {
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/pricing': typeof ShgPricingRoute
+  '/shg/production': typeof ShgProductionRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
   '/b2b/': typeof B2bIndexRoute
+  '/orders/': typeof OrdersIndexRoute
   '/shg/': typeof ShgIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
@@ -431,11 +449,13 @@ export interface FileRouteTypes {
     | '/shg/orders'
     | '/shg/payments'
     | '/shg/pricing'
+    | '/shg/production'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
     | '/b2b/'
+    | '/orders/'
     | '/shg/'
     | '/stories/'
     | '/api/public/assistant'
@@ -471,11 +491,13 @@ export interface FileRouteTypes {
     | '/shg/orders'
     | '/shg/payments'
     | '/shg/pricing'
+    | '/shg/production'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
     | '/b2b'
+    | '/orders'
     | '/shg'
     | '/stories'
     | '/api/public/assistant'
@@ -516,11 +538,13 @@ export interface FileRouteTypes {
     | '/shg/orders'
     | '/shg/payments'
     | '/shg/pricing'
+    | '/shg/production'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
     | '/b2b/'
+    | '/orders/'
     | '/shg/'
     | '/stories/'
     | '/api/public/assistant'
@@ -548,6 +572,7 @@ export interface RootRouteChildren {
   ArtisanIdRoute: typeof ArtisanIdRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
+  OrdersIndexRoute: typeof OrdersIndexRoute
   ApiPublicAssistantRoute: typeof ApiPublicAssistantRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
   ApiPublicTtsRoute: typeof ApiPublicTtsRoute
@@ -688,6 +713,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof B2bSamplesRouteImport
       parentRoute: typeof B2bRoute
     }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/orders/$id'
@@ -763,6 +795,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/shg/pricing'
       preLoaderRoute: typeof ShgPricingRouteImport
+      parentRoute: typeof ShgRoute
+    }
+    '/shg/production': {
+      id: '/shg/production'
+      path: '/production'
+      fullPath: '/shg/production'
+      preLoaderRoute: typeof ShgProductionRouteImport
       parentRoute: typeof ShgRoute
     }
     '/shg/products': {
@@ -920,6 +959,7 @@ interface ShgRouteChildren {
   ShgOrdersRoute: typeof ShgOrdersRoute
   ShgPaymentsRoute: typeof ShgPaymentsRoute
   ShgPricingRoute: typeof ShgPricingRoute
+  ShgProductionRoute: typeof ShgProductionRoute
   ShgProductsRoute: typeof ShgProductsRoute
   ShgReportsRoute: typeof ShgReportsRoute
   ShgRequestsRoute: typeof ShgRequestsRoute
@@ -935,6 +975,7 @@ const ShgRouteChildren: ShgRouteChildren = {
   ShgOrdersRoute: ShgOrdersRoute,
   ShgPaymentsRoute: ShgPaymentsRoute,
   ShgPricingRoute: ShgPricingRoute,
+  ShgProductionRoute: ShgProductionRoute,
   ShgProductsRoute: ShgProductsRoute,
   ShgReportsRoute: ShgReportsRoute,
   ShgRequestsRoute: ShgRequestsRoute,
@@ -971,6 +1012,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArtisanIdRoute: ArtisanIdRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
+  OrdersIndexRoute: OrdersIndexRoute,
   ApiPublicAssistantRoute: ApiPublicAssistantRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
   ApiPublicTtsRoute: ApiPublicTtsRoute,

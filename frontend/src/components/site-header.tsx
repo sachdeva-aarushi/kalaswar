@@ -22,6 +22,7 @@ const NAV = [
   { to: "/explore", key: "nav_explore" },
   { to: "/artisans", key: "nav_artisans" },
   { to: "/stories", key: "nav_stories" },
+  { to: "/orders", key: "nav_orders" },
   { to: "/b2b", key: "nav_b2b" },
   { to: "/", hash: "mission", key: "nav_mission" },
 ] as const;

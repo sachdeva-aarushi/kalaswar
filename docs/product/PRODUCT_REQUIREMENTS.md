@@ -20,7 +20,7 @@ languages) with customers, with the minimum necessary dependence on Self-Help Gr
    command router are always available as fallbacks — voice is never the only path.
 2. **Gift Concierge + MakePossible.** Customers describe occasion, recipient, craft, materials,
    personalisation, quantity, budget, deadline and destination. A deterministic, evidence-based
-   engine (`src/lib/makepossible.ts`) checks the request against each collective's *recorded*
+   engine (`frontend/src/lib/makepossible.ts`) checks the request against each collective's *recorded*
    skills, materials, monthly capacity, active workload and comparable prices, and returns one of
    four statuses with reasons: `potentially_feasible`, `feasible_with_changes`,
    `not_currently_feasible`, `insufficient_information`. Unknowns are reported as missing — never
@@ -37,7 +37,7 @@ languages) with customers, with the minimum necessary dependence on Self-Help Gr
    UPI ID. Kalaswar displays the QR and records demonstration payment rows; it never processes or
    verifies money.
 7. **Ranking.** SHG clusters are ranked by on-time delivery plus earnings fairness.
-8. **Localization.** Single dictionary i18n in `src/lib/i18n.tsx` covering English, Hindi and
+8. **Localization.** Single dictionary i18n in `frontend/src/lib/i18n.tsx` covering English, Hindi and
    Marathi; every English key must exist in HI and MR (enforced by test).
 9. **Demonstration honesty.** All demo data is visibly labelled; nothing simulates success that is
    not actually happening (e.g. unconfigured Cloudinary shows a configuration error, never a fake

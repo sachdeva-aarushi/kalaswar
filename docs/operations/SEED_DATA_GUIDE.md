@@ -8,7 +8,7 @@
 
 ## Idempotency strategy
 
-The seed runs exactly once because it ships as a Drizzle migration: the journal records it, and re-running the toolset skips applied entries. All seeded rows use fixed, stable UUIDs (e.g. SHG ids `11111111-0000-…`, artisan ids `22222222-0000-…`, `DEMO_ARTISAN_ID` in `src/lib/constants.ts` anchors the artisan experience), so any future additive seed can upsert on the same keys without duplicating products, organisations, materials, requests, or orders.
+The seed runs exactly once because it ships as a Drizzle migration: the journal records it, and re-running the toolset skips applied entries. All seeded rows use fixed, stable UUIDs (e.g. SHG ids `11111111-0000-…`, artisan ids `22222222-0000-…`, `DEMO_ARTISAN_ID` in `frontend/src/lib/constants.ts` anchors the artisan experience), so any future additive seed can upsert on the same keys without duplicating products, organisations, materials, requests, or orders.
 
 **Never** run a destructive demo reset against production data: reseeding must only be additive (upsert by fixed id), never DELETE/TRUNCATE of live rows.
 

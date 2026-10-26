@@ -1080,6 +1080,8 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          updated_at: string | null
+          updated_by: string | null
         }
         Insert: {
           artisan_id: string
@@ -1092,6 +1094,8 @@ export type Database = {
           image_url?: string | null
           name: string
           price: number
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Update: {
           artisan_id?: string
@@ -1104,6 +1108,8 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: [
           {

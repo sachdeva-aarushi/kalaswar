@@ -4,9 +4,9 @@
 
 - **Frontend + backend:** TanStack Start v1 (React 19, Vite 7), SSR for public routes,
   client-only for protected shells. App-internal server logic uses `createServerFn`; external
-  endpoints (STT, TTS, assistant) are TanStack server routes under `src/routes/api/public/*`.
+  endpoints (STT, TTS, assistant) are TanStack server routes under `frontend/src/routes/api/public/*`.
 - **Database:** Lovable Cloud (managed Supabase). All application tables live in `public`;
-  access is via the generated browser client (`src/integrations/supabase/client`) so Row Level
+  access is via the generated browser client (`frontend/src/integrations/supabase/client`) so Row Level
   Security always applies. No admin client is used anywhere in app code.
 - **AI:** Lovable AI Gateway server-side (`LOVABLE_API_KEY`) for speech-to-text, assistant
   completions with tools, and streamed text-to-speech.
@@ -14,7 +14,7 @@
 ## Module map
 
 ```
-src/
+frontend/src/
   lib/
     i18n.tsx          single dictionary, EN/HI/MR, parity enforced by test
     types.ts          handcrafted domain types mirroring the DB
@@ -33,7 +33,7 @@ src/
 
 ## Data flow decisions
 
-1. **Single data layer.** All reads/writes go through `src/lib/data.ts` query options over the
+1. **Single data layer.** All reads/writes go through `frontend/src/lib/data.ts` query options over the
    generated browser client. RLS is the authorization boundary; there is no privileged read
    anywhere in app code.
 2. **Feasibility is code, not AI.** `assessFeasibility` is a pure function over a collective

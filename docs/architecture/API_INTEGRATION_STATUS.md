@@ -4,7 +4,7 @@ Status of every external or platform integration, as implemented today.
 
 ## Lovable Cloud (managed Supabase) — live
 
-- Generated browser client with RLS for all app reads/writes (`src/lib/data.ts`).
+- Generated browser client with RLS for all app reads/writes (`frontend/src/lib/data.ts`).
 - Server publishable client inside `/api/public/assistant` for public assistant reads
   (`SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY`, opaque-key `apikey` header, no session storage).
 - Auth scaffolding (profiles, user_roles, has_role, signup trigger) deployed; login UI not wired.
@@ -24,7 +24,7 @@ provider credentials are configured; none should be invented.
 ## Cloudinary — real but unconfigured
 
 - Client-side **unsigned** upload in the product form reading `VITE_CLOUDINARY_CLOUD_NAME` and
-  `VITE_CLOUDINARY_UPLOAD_PRESET` (`src/lib/constants.ts`).
+  `VITE_CLOUDINARY_UPLOAD_PRESET` (`frontend/src/lib/constants.ts`).
 - When unset: the UI shows a configuration error and never simulates success.
 - Production recommendation: signed uploads with a constrained preset (see DEPLOYMENT_GUIDE.md).
 
