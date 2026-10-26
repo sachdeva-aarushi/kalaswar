@@ -12,9 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtisanSpaceRouteImport } from './routes/artisan-space'
 import { Route as ArtisansRouteImport } from './routes/artisans'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ShgRouteImport } from './routes/shg'
 import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
@@ -65,6 +68,11 @@ const ArtisansRoute = ArtisansRouteImport.update({
   path: '/artisans',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const B2bRoute = B2bRouteImport.update({
   id: '/b2b',
   path: '/b2b',
@@ -78,6 +86,16 @@ const ConciergeRoute = ConciergeRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShgRoute = ShgRouteImport.update({
@@ -255,9 +273,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/auth': typeof AuthRoute
   '/b2b': typeof B2bRouteWithChildren
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shg': typeof ShgRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
@@ -297,8 +318,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/auth': typeof AuthRoute
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/artisan/$id': typeof ArtisanIdRoute
   '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
   '/b2b/discover': typeof B2bDiscoverRoute
@@ -335,9 +359,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/auth': typeof AuthRoute
   '/b2b': typeof B2bRouteWithChildren
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shg': typeof ShgRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
@@ -379,9 +406,12 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/auth'
     | '/b2b'
     | '/concierge'
     | '/explore'
+    | '/forgot-password'
+    | '/reset-password'
     | '/shg'
     | '/stories'
     | '/artisan/$id'
@@ -421,8 +451,11 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/auth'
     | '/concierge'
     | '/explore'
+    | '/forgot-password'
+    | '/reset-password'
     | '/artisan/$id'
     | '/b2b/buyer-profile'
     | '/b2b/discover'
@@ -458,9 +491,12 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/auth'
     | '/b2b'
     | '/concierge'
     | '/explore'
+    | '/forgot-password'
+    | '/reset-password'
     | '/shg'
     | '/stories'
     | '/artisan/$id'
@@ -501,9 +537,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArtisanSpaceRoute: typeof ArtisanSpaceRoute
   ArtisansRoute: typeof ArtisansRoute
+  AuthRoute: typeof AuthRoute
   B2bRoute: typeof B2bRouteWithChildren
   ConciergeRoute: typeof ConciergeRoute
   ExploreRoute: typeof ExploreRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ShgRoute: typeof ShgRouteWithChildren
   StoriesRoute: typeof StoriesRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
@@ -537,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArtisansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/b2b': {
       id: '/b2b'
       path: '/b2b'
@@ -556,6 +602,20 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shg': {
@@ -900,9 +960,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtisanSpaceRoute: ArtisanSpaceRoute,
   ArtisansRoute: ArtisansRoute,
+  AuthRoute: AuthRoute,
   B2bRoute: B2bRouteWithChildren,
   ConciergeRoute: ConciergeRoute,
   ExploreRoute: ExploreRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ShgRoute: ShgRouteWithChildren,
   StoriesRoute: StoriesRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,

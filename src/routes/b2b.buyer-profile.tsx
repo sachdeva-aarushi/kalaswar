@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, Info } from "lucide-react";
 
 import { useLang } from "@/lib/i18n";
@@ -39,9 +40,11 @@ function BuyerProfilePage() {
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const saveMut = useMutation({
-    mutationFn: () =>
-      upsertBuyer({
+    mutationFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      return upsertBuyer({
         ...(existing?.id ? { id: existing.id } : {}),
+        ...(auth?.user ? { user_id: auth.user.id } : {}),
         org_name: form.org_name,
         category: form.category,
         contact_name: form.contact_name,
@@ -49,7 +52,8 @@ function BuyerProfilePage() {
         contact_phone: form.contact_phone,
         region: form.region,
         intended_use: form.intended_use,
-      }),
+      });
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["buyers"] });
       void queryClient.invalidateQueries({ queryKey: ["buyerRequests"] });

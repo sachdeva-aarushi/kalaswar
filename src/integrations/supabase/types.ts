@@ -175,6 +175,7 @@ export type Database = {
           intended_use: string | null
           org_name: string
           region: string | null
+          user_id: string | null
           verification_status: string
         }
         Insert: {
@@ -187,6 +188,7 @@ export type Database = {
           intended_use?: string | null
           org_name: string
           region?: string | null
+          user_id?: string | null
           verification_status?: string
         }
         Update: {
@@ -199,6 +201,7 @@ export type Database = {
           intended_use?: string | null
           org_name?: string
           region?: string | null
+          user_id?: string | null
           verification_status?: string
         }
         Relationships: []
@@ -1117,16 +1120,25 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          onboarding_status: string
+          preferred_language: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
           display_name?: string | null
           id: string
+          onboarding_status?: string
+          preferred_language?: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
           display_name?: string | null
           id?: string
+          onboarding_status?: string
+          preferred_language?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1614,9 +1626,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_org_artisan: {
+        Args: { _artisan_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_shg_coordinator: {
+        Args: { _shg_id: string; _user_id: string }
+        Returns: boolean
+      }
+      owns_buyer: {
+        Args: { _buyer_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "coordinator" | "artisan" | "customer"
+      app_role: "admin" | "coordinator" | "artisan" | "customer" | "buyer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1744,7 +1768,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "coordinator", "artisan", "customer"],
+      app_role: ["admin", "coordinator", "artisan", "customer", "buyer"],
     },
   },
 } as const

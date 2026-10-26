@@ -71,6 +71,13 @@
       "when": 1792997424064,
       "tag": "0009_b2b_order_link",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792999378526,
+      "tag": "0010_production_auth_rbac",
+      "breakpoints": true
     }
   ]
 }

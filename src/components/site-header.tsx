@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Menu, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { getSessionUser, performSignOut, type SessionUser } from "@/lib/auth-client";
 import { useLang } from "@/lib/i18n";
 import { Wordmark } from "@/components/wordmark";
 import { LanguageSelect } from "@/components/language-select";
@@ -22,6 +25,54 @@ const NAV = [
   { to: "/artisans", key: "nav_artisans" },
   { to: "/", hash: "mission", key: "nav_mission" },
 ] as const;
+
+function AccountArea({ compact = false }: { compact?: boolean }) {
+  const { t } = useLang();
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [ready, setReady] = useState(false);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let alive = true;
+    getSessionUser().then((u) => {
+      if (alive) {
+        setUser(u);
+        setReady(true);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!ready) return null;
+
+  if (!user) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link to="/auth" search={{ redirect: undefined }}>{t("nav_signin")}</Link>
+      </Button>
+    );
+  }
+
+  return (
+    <div className={`flex items-center gap-2 ${compact ? "px-3" : ""}`}>
+      <span className="max-w-36 truncate text-sm text-foreground/80" title={user.name ?? user.email}>
+        {user.name ?? user.email}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => void performSignOut(queryClient, navigate)}
+        aria-label={t("nav_signout")}
+      >
+        <LogOut className="size-4" aria-hidden="true" />
+        <span className="hidden lg:inline">{t("nav_signout")}</span>
+      </Button>
+    </div>
+  );
+}
 
 export function SiteHeader() {
   const { t } = useLang();
@@ -65,6 +116,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-1 md:flex">
+          <AccountArea />
+          <Separator orientation="vertical" className="mx-2 h-5" />
           <LanguageSelect />
           <Separator orientation="vertical" className="mx-2 h-5" />
           <Button asChild variant="ghost" size="sm">
@@ -111,6 +164,10 @@ export function SiteHeader() {
               >
                 {t("nav_forSHGs")}
               </Link>
+              <Separator className="my-3" />
+              <div className="px-3">
+                <AccountArea compact />
+              </div>
               <div className="mt-3 px-3">
                 <LanguageSelect />
               </div>

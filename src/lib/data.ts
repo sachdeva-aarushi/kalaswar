@@ -1609,6 +1609,7 @@ export const buyersQuery = () =>
 
 export interface BuyerInput {
   id?: string;
+  user_id?: string | null;
   org_name: string;
   category?: string | null;
   contact_name?: string | null;
@@ -1621,6 +1622,7 @@ export interface BuyerInput {
 export async function upsertBuyer(input: BuyerInput): Promise<Buyer> {
   const payload = {
     ...(input.id ? { id: input.id } : {}),
+    ...(input.user_id ? { user_id: input.user_id } : {}),
     org_name: input.org_name.trim(),
     category: input.category?.trim() || null,
     contact_name: input.contact_name?.trim() || null,
