@@ -514,6 +514,14 @@ const en: Record<string, string> = {
   demand_none: "No demand signals recorded yet. They appear as customers explore.",
   product_save: "Save for later",
   signal_saved: "Saved — recorded as a demand signal.",
+  plan_overdue: "Behind",
+  plan_week: "This week",
+  plan_later: "Later",
+  plan_done: "Completed",
+  app_note_ph: "What step did you finish? Speak or type — recorded as-is.",
+  app_note_send: "Record",
+  note_recorded: "Recorded",
+  event_artisan_note: "Artisan progress note",
 };
 
 const hi: Record<string, string> = {
@@ -1013,6 +1021,14 @@ const hi: Record<string, string> = {
   demand_none: "अभी कोई मांग संकेत दर्ज नहीं। ग्राहक देखते ही दिखेंगे।",
   product_save: "बाद के लिए सेव करें",
   signal_saved: "सेव हुआ — मांग संकेत के रूप में दर्ज।",
+  plan_overdue: "पीछे",
+  plan_week: "इस सप्ताह",
+  plan_later: "बाद में",
+  plan_done: "पूरा हुआ",
+  app_note_ph: "कौन-सा चरण पूरा हुआ? बोलें या लिखें — जैसा है वैसा दर्ज होगा।",
+  app_note_send: "दर्ज करें",
+  note_recorded: "दर्ज हुआ",
+  event_artisan_note: "कारीगर की प्रगति टिप्पणी",
 };
 
 const mr: Record<string, string> = {
@@ -1512,6 +1528,14 @@ const mr: Record<string, string> = {
   demand_none: "अजून कोणता मागणी संकेत नोंदवला नाही. ग्राहक पाहताच दिसतील.",
   product_save: "नंतरसाठी सेव्ह करा",
   signal_saved: "सेव्ह झाले — मागणी संकेत म्हणून नोंदवले.",
+  plan_overdue: "मागे",
+  plan_week: "या आठवड्यात",
+  plan_later: "नंतर",
+  plan_done: "पूर्ण झाले",
+  app_note_ph: "कोणता टप्पा पूर्ण झाला? बोला की लिहा — जसे आहे तसे नोंदवले जाईल.",
+  app_note_send: "नोंदवा",
+  note_recorded: "नोंदवले",
+  event_artisan_note: "कारागीर प्रगती टिप्पणी",
 };
 
 export const dictionaries: Record<Lang, Record<string, string>> = { en, hi, mr };

@@ -12,7 +12,9 @@ import {
   artisanSummaryQuery,
   artisansQuery,
   craftGuidesQuery,
+  recordArtisanNote,
 } from "@/lib/data";
+import { planAssignedWork, type PlanOrder } from "@/lib/artisan-plan";
 import { matchCraftGuides } from "@/lib/guides";
 import { formatINR } from "@/lib/money";
 import { routeCommand, type VoiceIntent } from "@/lib/voice-router";
@@ -79,17 +81,19 @@ export function ArtisanApp() {
     [guides, artisan?.craft],
   );
 
-  /** Active assignments — the day's work with quantities and due dates. */
-  const activeWork = useMemo(() => {
-    const active = (orders ?? []).filter(
-      (o) => o.status !== "delivered",
-    );
-    return active.sort(
-      (a, b) =>
-        new Date(a.expected_dispatch_at ?? "2999-01-01").getTime() -
-        new Date(b.expected_dispatch_at ?? "2999-01-01").getTime(),
-    );
-  }, [orders]);
+  /** Weekly plan — buckets come only from recorded dispatch dates and status. */
+  const plan = useMemo(
+    () =>
+      planAssignedWork(
+        (orders ?? []).map((o) => ({
+          id: o.id,
+          status: o.status,
+          expected_dispatch_at: o.expected_dispatch_at,
+          quantity: o.quantity,
+        })),
+      ),
+    [orders],
+  );
 
   /** The agent can move her to another screen by itself, mid-conversation. */
   const handleNavigate = useCallback(
@@ -361,7 +365,7 @@ export function ArtisanApp() {
         </div>
       </section>
 
-      {/* ---------- My work: assignments ---------- */}
+      {/* ---------- My work: weekly plan ---------- */}
       <section
         id="sec-assignments"
         aria-label={t("app_work_title")}
@@ -369,36 +373,56 @@ export function ArtisanApp() {
       >
         <h2 className="text-base font-semibold text-foreground">{t("app_work_title")}</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">{t("app_work_sub")}</p>
-        <ul className="mt-3 space-y-2.5">
-          {activeWork.length === 0 && (
-            <li className="text-sm text-muted-foreground">{t("app_none")}</li>
-          )}
-          {activeWork.slice(0, 6).map((o) => {
-            const latest = o.assignments?.[0];
-            return (
-              <li key={o.id} className="rounded-md border border-border p-3">
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="truncate font-medium text-foreground">
-                    {o.product?.name} × {o.quantity}
-                  </p>
-                  <span className="shrink-0 text-xs text-muted-foreground">{o.customer_reference}</span>
-                </div>
-                <dl className="mt-1 flex gap-4 text-xs text-muted-foreground">
-                  <div className="flex gap-1">
-                    <dt>{t("app_work_due")}:</dt>
-                    <dd className="text-foreground">{formatDate(o.expected_dispatch_at)}</dd>
-                  </div>
-                  {latest && (
-                    <div className="flex gap-1">
-                      <dt>{t("app_work_assigned")}:</dt>
-                      <dd className="text-foreground">{formatDate(latest.assigned_at)}</dd>
-                    </div>
-                  )}
-                </dl>
-              </li>
-            );
-          })}
-        </ul>
+        {(
+          [
+            ["overdue", "plan_overdue", "text-terracotta"],
+            ["thisWeek", "plan_week", "text-foreground"],
+            ["later", "plan_later", "text-muted-foreground"],
+            ["done", "plan_done", "text-muted-foreground"],
+          ] as const
+        ).map(([key, label, tone]) => {
+          const ids = new Set(plan[key].map((p: PlanOrder) => p.id));
+          const items = (orders ?? []).filter((o) => ids.has(o.id));
+          if (items.length === 0) return null;
+          return (
+            <div key={key} className="mt-4">
+              <p className={cn("text-xs font-semibold uppercase tracking-wide", tone)}>
+                {t(label)} · {items.length}
+              </p>
+              <ul className="mt-2 space-y-2.5">
+                {items.map((o) => {
+                  const latest = o.assignments?.[0];
+                  return (
+                    <li key={o.id} className="rounded-md border border-border p-3">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="truncate font-medium text-foreground">
+                          {o.product?.name} × {o.quantity}
+                        </p>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {o.customer_reference}
+                        </span>
+                      </div>
+                      <dl className="mt-1 flex gap-4 text-xs text-muted-foreground">
+                        <div className="flex gap-1">
+                          <dt>{t("app_work_due")}:</dt>
+                          <dd className="text-foreground">{formatDate(o.expected_dispatch_at)}</dd>
+                        </div>
+                        {latest && (
+                          <div className="flex gap-1">
+                            <dt>{t("app_work_assigned")}:</dt>
+                            <dd className="text-foreground">{formatDate(latest.assigned_at)}</dd>
+                          </div>
+                        )}
+                      </dl>
+                      {key !== "done" && <ArtisanNoteRow orderId={o.id} />}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
+        {(orders ?? []).length === 0 && <p className="mt-3 text-sm text-muted-foreground">{t("app_none")}</p>}
       </section>
 
       {/* ---------- Order sections ---------- */}
@@ -601,3 +625,41 @@ export function ArtisanApp() {
 }
 
 export type { Lang };
+
+/** Per-assignment progress note — recorded verbatim on the order record. */
+function ArtisanNoteRow({ orderId }: { orderId: string }) {
+  const { t } = useLang();
+  const [note, setNote] = useState("");
+  const [done, setDone] = useState(false);
+  return (
+    <form
+      className="mt-2 flex gap-2"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const text = note.trim();
+        if (!text) return;
+        try {
+          await recordArtisanNote(orderId, text);
+          setNote("");
+          setDone(true);
+        } catch {
+          setDone(false);
+        }
+      }}
+    >
+      <Input
+        value={note}
+        onChange={(e) => {
+          setNote(e.target.value);
+          setDone(false);
+        }}
+        placeholder={t("app_note_ph")}
+        className="h-8 text-xs"
+        aria-label={t("app_note_ph")}
+      />
+      <Button type="submit" variant="outline" size="sm" className="h-8 shrink-0 text-xs" disabled={!note.trim()}>
+        {done ? t("note_recorded") : t("app_note_send")}
+      </Button>
+    </form>
+  );
+}

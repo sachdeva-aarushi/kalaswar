@@ -236,6 +236,14 @@ async function recordOrderEvent(orderId: string, eventType: string, note?: strin
   }
 }
 
+/** The artisan speaks or types a progress note — recorded verbatim, never paraphrased. */
+export async function recordArtisanNote(orderId: string, note: string): Promise<void> {
+  const { error } = await supabase
+    .from("order_events")
+    .insert({ order_id: orderId, event_type: "artisan_note", note });
+  if (error) throw new Error(error.message);
+}
+
 export async function assignOrder(
   orderId: string,
   artisanId: string,

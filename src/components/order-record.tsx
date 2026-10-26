@@ -18,6 +18,7 @@ const EVENT_KEYS: Record<string, string> = {
   quality_rework: "event_quality_rework",
   dispatched: "event_dispatched",
   shipment_packed: "event_shipment_packed",
+  artisan_note: "event_artisan_note",
 };
 
 /**
