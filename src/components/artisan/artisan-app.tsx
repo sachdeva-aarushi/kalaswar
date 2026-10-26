@@ -264,58 +264,6 @@ export function ArtisanApp() {
         <DemoBadge />
       </div>
 
-      <h1 className="mt-8 font-display text-4xl leading-tight text-foreground md:text-5xl">
-        {t("app_greeting")}, {artisan?.name ?? "…"}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {artisan?.craft}
-        {artisan?.shg ? ` · ${artisan.shg.name}` : ""}
-      </p>
-
-      {/* Demonstration viewer selector */}
-      <div className="mt-4 flex items-center gap-2">
-        <span className="shrink-0 text-sm text-muted-foreground">{t("app_select")}</span>
-        <Select value={artisanId} onValueChange={setArtisanId}>
-          <SelectTrigger className="h-11 flex-1 border-border bg-card text-sm" aria-label={t("app_select")}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {(artisanList ?? []).map((a) => (
-              <SelectItem key={a.id} value={a.id}>
-                {a.name} — {a.craft}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* ---------- What to do next ---------- */}
-      <section
-        aria-label={t("app_next_title")}
-        className="mt-8 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
-      >
-        <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_next_title")}</h2>
-        {nextSteps.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("app_next_none")}</p>
-        ) : (
-          <ul className="mt-4 space-y-2.5">
-            {nextSteps.map((s) => (
-              <li key={s.intent}>
-                <button
-                  type="button"
-                  onClick={() => setFocus(s.intent)}
-                  className="w-full rounded-md border border-border bg-background p-4 text-left text-sm text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
-                >
-                  {s.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <NotificationsPanel audience="artisan" audienceRef={artisanId} className="mt-4" />
-
       {/* ---------- Voice panel ---------- */}
       <section
         aria-label={t("app_mic")}
@@ -416,6 +364,58 @@ export function ArtisanApp() {
           </div>
         </div>
       </section>
+
+      <h1 className="mt-8 font-display text-4xl leading-tight text-foreground md:text-5xl">
+        {t("app_greeting")}, {artisan?.name ?? "…"}
+      </h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {artisan?.craft}
+        {artisan?.shg ? ` · ${artisan.shg.name}` : ""}
+      </p>
+
+      {/* Demonstration viewer selector */}
+      <div className="mt-4 flex items-center gap-2">
+        <span className="shrink-0 text-sm text-muted-foreground">{t("app_select")}</span>
+        <Select value={artisanId} onValueChange={setArtisanId}>
+          <SelectTrigger className="h-11 flex-1 border-border bg-card text-sm" aria-label={t("app_select")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {(artisanList ?? []).map((a) => (
+              <SelectItem key={a.id} value={a.id}>
+                {a.name} — {a.craft}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* ---------- What to do next ---------- */}
+      <section
+        aria-label={t("app_next_title")}
+        className="mt-8 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+      >
+        <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_next_title")}</h2>
+        {nextSteps.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("app_next_none")}</p>
+        ) : (
+          <ul className="mt-4 space-y-2.5">
+            {nextSteps.map((s) => (
+              <li key={s.intent}>
+                <button
+                  type="button"
+                  onClick={() => setFocus(s.intent)}
+                  className="w-full rounded-md border border-border bg-background p-4 text-left text-sm text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                >
+                  {s.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <NotificationsPanel audience="artisan" audienceRef={artisanId} className="mt-4" />
 
       {/* ---------- My work: weekly plan ---------- */}
       <section

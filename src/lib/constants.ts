@@ -18,8 +18,8 @@ export const CATEGORIES = [
   "Toys & Little Things",
 ] as const;
 
-/** The demonstration artisan signed into the artisan experience by default. */
-export const DEMO_ARTISAN_ID = "22222222-0000-0000-0000-000000000001";
+/** The demonstration artisan signed into the artisan experience by default (Meena Kumari). */
+export const DEMO_ARTISAN_ID = "11111111-0000-0000-0000-000000000004";
 
 export const CLOUDINARY_CLOUD_NAME: string | undefined =
   import.meta.env["VITE_CLOUDINARY_CLOUD_NAME"];
