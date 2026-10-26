@@ -619,19 +619,28 @@ export async function sendRequestToShg(requestId: string, shgId: string): Promis
 }
 
 export async function declineRequest(requestId: string, reason: string): Promise<void> {
-  const { data, error } = await supabase
+  const existing = await supabase
+    .from("custom_requests")
+    .select("structured")
+    .eq("id", requestId)
+    .maybeSingle();
+  if (existing.error) throw new Error(existing.error.message);
+  const structured = {
+    ...(((existing.data as { structured: Record<string, unknown> | null } | null)?.structured) ?? {}),
+    decline_reason: reason,
+  } as Json;
+  const { error } = await supabase
     .from("custom_requests")
     .update({
       status: "declined",
-      structured: { decline_reason: reason } as Json,
+      structured,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", requestId)
-    .select("structured")
-    .single();
+    .eq("id", requestId);
   if (error) throw new Error(error.message);
   await auditAction("decline_request", "custom_requests", requestId, { reason });
 }
+
 
 export interface ProposalInput {
   request_id: string;

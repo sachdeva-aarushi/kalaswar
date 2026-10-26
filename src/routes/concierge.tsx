@@ -5,6 +5,7 @@ import { Sparkles, Send, CheckCircle2, CircleAlert, Info } from "lucide-react";
 
 import { useLang } from "@/lib/i18n";
 import { DemoBadge } from "@/components/demo-note";
+import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -529,6 +530,7 @@ function ConciergePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 pb-20 pt-24 md:px-6">
+      <SiteHeader />
       <header className="max-w-2xl">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
           {t("concierge_kicker")}
