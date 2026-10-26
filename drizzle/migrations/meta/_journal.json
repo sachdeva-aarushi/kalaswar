@@ -29,6 +29,13 @@
       "when": 1792935669328,
       "tag": "0003_kalaswar_product_drafts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792991874532,
+      "tag": "0004_kalaswar_makepossible_concierge",
+      "breakpoints": true
     }
   ]
 }

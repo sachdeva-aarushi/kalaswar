@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_audit_logs: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          entity: string | null
+          entity_id: string | null
+          id: string
+          payload: Json | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Relationships: []
+      }
+      artisan_skills: {
+        Row: {
+          artisan_id: string
+          created_at: string
+          id: string
+          level: string
+          notes: string | null
+          skill: string
+        }
+        Insert: {
+          artisan_id: string
+          created_at?: string
+          id?: string
+          level?: string
+          notes?: string | null
+          skill: string
+        }
+        Update: {
+          artisan_id?: string
+          created_at?: string
+          id?: string
+          level?: string
+          notes?: string | null
+          skill?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_skills_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisans: {
         Row: {
           bio: string
@@ -54,6 +119,268 @@ export type Database = {
             columns: ["shg_id"]
             isOneToOne: false
             referencedRelation: "shgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craft_guides: {
+        Row: {
+          category: string | null
+          craft: string
+          created_at: string
+          id: string
+          language: string
+          source: string
+          steps: Json
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          craft: string
+          created_at?: string
+          id?: string
+          language?: string
+          source?: string
+          steps?: Json
+          title: string
+        }
+        Update: {
+          category?: string | null
+          craft?: string
+          created_at?: string
+          id?: string
+          language?: string
+          source?: string
+          steps?: Json
+          title?: string
+        }
+        Relationships: []
+      }
+      custom_requests: {
+        Row: {
+          brief: string
+          created_at: string
+          customer_reference: string
+          id: string
+          language: string
+          request_code: string
+          shg_id: string | null
+          status: string
+          structured: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          brief: string
+          created_at?: string
+          customer_reference: string
+          id?: string
+          language?: string
+          request_code: string
+          shg_id?: string | null
+          status?: string
+          structured?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          brief?: string
+          created_at?: string
+          customer_reference?: string
+          id?: string
+          language?: string
+          request_code?: string
+          shg_id?: string | null
+          status?: string
+          structured?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_requests_shg_id_fkey"
+            columns: ["shg_id"]
+            isOneToOne: false
+            referencedRelation: "shgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          artisan_id: string | null
+          category: string
+          id: string
+          note: string | null
+          order_id: string | null
+          recorded_at: string
+          recorded_by: string | null
+          shg_id: string
+        }
+        Insert: {
+          amount: number
+          artisan_id?: string | null
+          category: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          shg_id: string
+        }
+        Update: {
+          amount?: number
+          artisan_id?: string | null
+          category?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          shg_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_shg_id_fkey"
+            columns: ["shg_id"]
+            isOneToOne: false
+            referencedRelation: "shgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_memberships: {
+        Row: {
+          artisan_id: string | null
+          created_at: string
+          id: string
+          member_role: string
+          shg_id: string
+          user_id: string | null
+        }
+        Insert: {
+          artisan_id?: string | null
+          created_at?: string
+          id?: string
+          member_role?: string
+          shg_id: string
+          user_id?: string | null
+        }
+        Update: {
+          artisan_id?: string | null
+          created_at?: string
+          id?: string
+          member_role?: string
+          shg_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_memberships_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_memberships_shg_id_fkey"
+            columns: ["shg_id"]
+            isOneToOne: false
+            referencedRelation: "shgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials_inventory: {
+        Row: {
+          id: string
+          low_stock_threshold: number | null
+          name: string
+          quantity: number
+          shg_id: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          low_stock_threshold?: number | null
+          name: string
+          quantity?: number
+          shg_id: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          low_stock_threshold?: number | null
+          name?: string
+          quantity?: number
+          shg_id?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_inventory_shg_id_fkey"
+            columns: ["shg_id"]
+            isOneToOne: false
+            referencedRelation: "shgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_assets: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          public_id: string
+          purpose: string
+          secure_url: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          public_id: string
+          purpose?: string
+          secure_url: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          public_id?: string
+          purpose?: string
+          secure_url?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -135,7 +462,9 @@ export type Database = {
           customer_reference: string
           expected_dispatch_at: string | null
           id: string
+          is_custom: boolean
           product_id: string
+          proposal_id: string | null
           quantity: number
           status: string
         }
@@ -144,7 +473,9 @@ export type Database = {
           customer_reference: string
           expected_dispatch_at?: string | null
           id?: string
+          is_custom?: boolean
           product_id: string
+          proposal_id?: string | null
           quantity?: number
           status?: string
         }
@@ -153,7 +484,9 @@ export type Database = {
           customer_reference?: string
           expected_dispatch_at?: string | null
           id?: string
+          is_custom?: boolean
           product_id?: string
+          proposal_id?: string | null
           quantity?: number
           status?: string
         }
@@ -163,6 +496,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -313,10 +653,141 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      proposal_approvals: {
+        Row: {
+          approved_at: string
+          approver_role: string
+          id: string
+          proposal_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_role: string
+          id?: string
+          proposal_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_role?: string
+          id?: string
+          proposal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_approvals_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposals: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          request_id: string
+          spec: Json
+          status: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          request_id: string
+          spec?: Json
+          status?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          request_id?: string
+          spec?: Json
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_checks: {
+        Row: {
+          artisan_id: string | null
+          checked_at: string
+          checked_by: string | null
+          id: string
+          notes: string | null
+          order_id: string
+          result: string
+        }
+        Insert: {
+          artisan_id?: string | null
+          checked_at?: string
+          checked_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          result: string
+        }
+        Update: {
+          artisan_id?: string | null
+          checked_at?: string
+          checked_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_checks_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checks_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shgs: {
         Row: {
           created_at: string
           id: string
+          monthly_capacity: number | null
           name: string
           preferred_language: string
           region: string
@@ -325,6 +796,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          monthly_capacity?: number | null
           name: string
           preferred_language?: string
           region: string
@@ -333,12 +805,83 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          monthly_capacity?: number | null
           name?: string
           preferred_language?: string
           region?: string
           upi_id?: string | null
         }
         Relationships: []
+      }
+      shipment_events: {
+        Row: {
+          event_type: string
+          id: string
+          note: string | null
+          occurred_at: string
+          shipment_id: string
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          shipment_id: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          shipment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_events_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          id: string
+          order_id: string
+          provider: string | null
+          status: string
+          tracking_ref: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          provider?: string | null
+          status?: string
+          tracking_ref?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          provider?: string | null
+          status?: string
+          tracking_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tips: {
         Row: {
@@ -372,15 +915,39 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "coordinator" | "artisan" | "customer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -507,6 +1074,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "coordinator", "artisan", "customer"],
+    },
   },
 } as const

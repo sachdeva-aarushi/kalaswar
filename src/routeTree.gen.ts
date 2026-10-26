@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtisanSpaceRouteImport } from './routes/artisan-space'
 import { Route as ArtisansRouteImport } from './routes/artisans'
+import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ShgRouteImport } from './routes/shg'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
@@ -22,6 +23,7 @@ import { Route as ShgOrdersRouteImport } from './routes/shg.orders'
 import { Route as ShgPaymentsRouteImport } from './routes/shg.payments'
 import { Route as ShgProductsRouteImport } from './routes/shg.products'
 import { Route as ShgReportsRouteImport } from './routes/shg.reports'
+import { Route as ShgRequestsRouteImport } from './routes/shg.requests'
 import { Route as ApiPublicAssistantRouteImport } from './routes/api/public/assistant'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicTtsRouteImport } from './routes/api/public/tts'
@@ -39,6 +41,11 @@ const ArtisanSpaceRoute = ArtisanSpaceRouteImport.update({
 const ArtisansRoute = ArtisansRouteImport.update({
   id: '/artisans',
   path: '/artisans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConciergeRoute = ConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -91,6 +98,11 @@ const ShgReportsRoute = ShgReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => ShgRoute,
 } as any)
+const ShgRequestsRoute = ShgRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => ShgRoute,
+} as any)
 const ApiPublicAssistantRoute = ApiPublicAssistantRouteImport.update({
   id: '/api/public/assistant',
   path: '/api/public/assistant',
@@ -111,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
@@ -120,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
+  '/shg/requests': typeof ShgRequestsRoute
   '/shg/': typeof ShgIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -129,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/artisan/$id': typeof ArtisanIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -137,6 +152,7 @@ export interface FileRoutesByTo {
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
+  '/shg/requests': typeof ShgRequestsRoute
   '/shg': typeof ShgIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -147,6 +163,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
@@ -156,6 +173,7 @@ export interface FileRoutesById {
   '/shg/payments': typeof ShgPaymentsRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
+  '/shg/requests': typeof ShgRequestsRoute
   '/shg/': typeof ShgIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -167,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/concierge'
     | '/explore'
     | '/shg'
     | '/artisan/$id'
@@ -176,6 +195,7 @@ export interface FileRouteTypes {
     | '/shg/payments'
     | '/shg/products'
     | '/shg/reports'
+    | '/shg/requests'
     | '/shg/'
     | '/api/public/assistant'
     | '/api/public/stt'
@@ -185,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/concierge'
     | '/explore'
     | '/artisan/$id'
     | '/product/$id'
@@ -193,6 +214,7 @@ export interface FileRouteTypes {
     | '/shg/payments'
     | '/shg/products'
     | '/shg/reports'
+    | '/shg/requests'
     | '/shg'
     | '/api/public/assistant'
     | '/api/public/stt'
@@ -202,6 +224,7 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/concierge'
     | '/explore'
     | '/shg'
     | '/artisan/$id'
@@ -211,6 +234,7 @@ export interface FileRouteTypes {
     | '/shg/payments'
     | '/shg/products'
     | '/shg/reports'
+    | '/shg/requests'
     | '/shg/'
     | '/api/public/assistant'
     | '/api/public/stt'
@@ -221,6 +245,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArtisanSpaceRoute: typeof ArtisanSpaceRoute
   ArtisansRoute: typeof ArtisansRoute
+  ConciergeRoute: typeof ConciergeRoute
   ExploreRoute: typeof ExploreRoute
   ShgRoute: typeof ShgRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
@@ -251,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/artisans'
       fullPath: '/artisans'
       preLoaderRoute: typeof ArtisansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concierge': {
+      id: '/concierge'
+      path: '/concierge'
+      fullPath: '/concierge'
+      preLoaderRoute: typeof ConciergeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -323,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShgReportsRouteImport
       parentRoute: typeof ShgRoute
     }
+    '/shg/requests': {
+      id: '/shg/requests'
+      path: '/requests'
+      fullPath: '/shg/requests'
+      preLoaderRoute: typeof ShgRequestsRouteImport
+      parentRoute: typeof ShgRoute
+    }
     '/api/public/assistant': {
       id: '/api/public/assistant'
       path: '/api/public/assistant'
@@ -353,6 +392,7 @@ interface ShgRouteChildren {
   ShgPaymentsRoute: typeof ShgPaymentsRoute
   ShgProductsRoute: typeof ShgProductsRoute
   ShgReportsRoute: typeof ShgReportsRoute
+  ShgRequestsRoute: typeof ShgRequestsRoute
   ShgIndexRoute: typeof ShgIndexRoute
 }
 
@@ -362,6 +402,7 @@ const ShgRouteChildren: ShgRouteChildren = {
   ShgPaymentsRoute: ShgPaymentsRoute,
   ShgProductsRoute: ShgProductsRoute,
   ShgReportsRoute: ShgReportsRoute,
+  ShgRequestsRoute: ShgRequestsRoute,
   ShgIndexRoute: ShgIndexRoute,
 }
 
@@ -371,6 +412,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtisanSpaceRoute: ArtisanSpaceRoute,
   ArtisansRoute: ArtisansRoute,
+  ConciergeRoute: ConciergeRoute,
   ExploreRoute: ExploreRoute,
   ShgRoute: ShgRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,

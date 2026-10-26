@@ -19,6 +19,8 @@ export interface Shg {
   region: string;
   preferred_language: string;
   upi_id: string | null;
+  /** Pieces per month the collective recorded; null = unknown. */
+  monthly_capacity: number | null;
   created_at: string;
 }
 
@@ -107,6 +109,148 @@ export interface OrderEvent {
 
 export interface OrderEventWithRef extends OrderEvent {
   order_reference?: string | null;
+}
+
+/* ---------- Workroom records (skills, inventory, guides) ---------- */
+
+export interface ArtisanSkill {
+  id: string;
+  artisan_id: string;
+  skill: string;
+  level: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface MaterialRecord {
+  id: string;
+  shg_id: string;
+  name: string;
+  unit: string;
+  quantity: number;
+  low_stock_threshold: number | null;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export interface CraftGuide {
+  id: string;
+  title: string;
+  craft: string;
+  category: string | null;
+  language: string;
+  steps: { title: string; detail: string }[];
+  source: string;
+  created_at: string;
+}
+
+/* ---------- Gift Concierge ---------- */
+
+export type CustomRequestStatus =
+  | "draft"
+  | "submitted"
+  | "under_review"
+  | "accepted"
+  | "declined"
+  | "proposed"
+  | "confirmed"
+  | "cancelled";
+
+export interface CustomRequest {
+  id: string;
+  request_code: string;
+  customer_reference: string;
+  shg_id: string | null;
+  title: string;
+  brief: string;
+  structured: Record<string, unknown>;
+  status: CustomRequestStatus;
+  language: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProposalSpec {
+  name?: string | undefined;
+  description?: string | undefined;
+  materials?: string | undefined;
+  personalisation?: string | undefined;
+  quantity?: number | undefined;
+  price_per_unit_inr?: number | undefined;
+  currency?: string | undefined;
+  total_inr?: number | undefined;
+  production_days?: number | undefined;
+  dispatch_terms?: string | undefined;
+  cancellation_terms?: string | undefined;
+  changes_from_request?: string | undefined;
+  decline_reason?: string | undefined;
+}
+
+export interface Proposal {
+  id: string;
+  request_id: string;
+  version: number;
+  spec: ProposalSpec;
+  status: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface ProposalApproval {
+  id: string;
+  proposal_id: string;
+  approver_role: "customer" | "coordinator";
+  approved_at: string;
+}
+
+export interface QualityCheck {
+  id: string;
+  order_id: string;
+  artisan_id: string | null;
+  result: string;
+  notes: string | null;
+  checked_by: string | null;
+  checked_at: string;
+}
+
+export interface Shipment {
+  id: string;
+  order_id: string;
+  status: string;
+  carrier: string | null;
+  tracking_ref: string | null;
+  provider: string | null;
+  created_at: string;
+}
+
+export interface ShipmentEvent {
+  id: string;
+  shipment_id: string;
+  event_type: string;
+  note: string | null;
+  occurred_at: string;
+}
+
+export interface Expense {
+  id: string;
+  shg_id: string;
+  artisan_id: string | null;
+  order_id: string | null;
+  category: string;
+  amount: number;
+  note: string | null;
+  recorded_by: string | null;
+  recorded_at: string;
+}
+
+export interface MediaAsset {
+  id: string;
+  product_id: string | null;
+  public_id: string;
+  secure_url: string;
+  purpose: string;
+  uploaded_by: string | null;
+  created_at: string;
 }
 
 /* Joined shapes used by the UI */
