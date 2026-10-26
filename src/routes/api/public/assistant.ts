@@ -8,6 +8,7 @@ import {
   createLovableAiGatewayRunIdFetch,
   getLovableAiGatewayRunId,
 } from "@/lib/ai/gateway.server";
+import { stripSpokenIds } from "@/lib/spoken";
 
 /**
  * POST /api/public/assistant — the artisan's voice/text agent.
@@ -230,13 +231,22 @@ function systemPrompt(ctx: ArtisanContext, lang: string): string {
       ? `Her self-help group is ${ctx.artisan.shg.name} (${ctx.artisan.shg.region}).`
       : "",
     "",
-    "ALWAYS answer in this language: " + language + ". Use only very simple words and short sentences,",
-    "as if speaking to someone holding a phone, possibly for the first time. Be warm and encouraging.",
+    "LANGUAGE — THE MOST IMPORTANT RULE:",
+    "- Listen to the language she is speaking and ALWAYS reply in that same language.",
+    "- She may speak Hindi or Marathi even while the app text shows English — reply in HER language,",
+    "  written in Devanagari for Hindi and Marathi. Never switch to English just because the app",
+    "  text is English.",
+    "- Only when her message language is genuinely unclear, fall back to " + language + ".",
+    "Use only very simple words and short sentences, as if speaking to someone holding a phone,",
+    "possibly for the first time. Be warm and encouraging.",
     "Money is in Indian rupees (₹).",
     "",
     "RULES:",
     "- Use the tools to read her live data. Never invent order numbers, dates or amounts.",
     "- If something shows zero, say it plainly and gently.",
+    "- Never read out IDs, product codes or order references (like KSW-1053 or long codes) — they",
+    "  are hard to hear and mean nothing to her. Refer to orders and products by name instead,",
+    "  for example 'your peacock cushion cover order'. Dates, amounts and counts are fine.",
     "- When she asks about anything on another screen, call navigate_to first, then tell her what she",
     "  will now see and what to do next.",
     "- Keep normal answers under four short sentences unless she asks for detail.",
@@ -519,7 +529,7 @@ export const Route = createFileRoute("/api/public/assistant")({
             },
           });
 
-          const reply = (await result.text).trim();
+          const reply = stripSpokenIds((await result.text).trim());
           if (!reply) return Response.json({ error: "The assistant gave no answer." }, { status: 502 });
           return Response.json({ reply, navigate });
         } catch (error) {

@@ -3,6 +3,7 @@ import type { Lang } from "@/lib/i18n";
 import { recordWav } from "@/lib/record-wav";
 import { streamSpeech } from "@/lib/stream-speech";
 import { speak, clearSpeech } from "@/lib/speech";
+import { detectSpokenLang } from "@/lib/spoken";
 
 export type AssistantStatus = "idle" | "recording" | "transcribing" | "thinking" | "speaking";
 export type AssistantError = "unsupported" | "permission" | "listen" | "assistant";
@@ -96,14 +97,17 @@ export function useVoiceAssistant({ lang, artisanId, onNavigate }: Options) {
       historyRef.current = [...historyRef.current, ...turn].slice(-12);
       setReply(data.reply);
       if (data.navigate) navigateRef.current?.(data.navigate.screen, data.navigate.productId);
+      // The voice follows the reply she hears, not the app's display language:
+      // she may speak Hindi while the interface text is English.
+      const replyLang = detectSpokenLang(data.reply, langRef.current);
       setStatus("speaking");
       speechAbort.current = new AbortController();
       try {
-        await streamSpeech(data.reply, langRef.current, speechAbort.current.signal);
+        await streamSpeech(data.reply, replyLang, speechAbort.current.signal);
       } catch (speechErr) {
         if ((speechErr as Error)?.name === "AbortError") throw speechErr;
         // Browser synthesis fallback — the answer text is always visible too.
-        speak(data.reply, langRef.current);
+        speak(data.reply, replyLang);
       }
       setStatus("idle");
       // Hands-free: open the microphone again so she can simply keep talking.
@@ -129,7 +133,12 @@ export function useVoiceAssistant({ lang, artisanId, onNavigate }: Options) {
       const file = await recorder.stop();
       const form = new FormData();
       form.append("file", file);
+      // Hint every supported language (interface language first): she may speak
+      // Hindi while the interface text is English, so transcription must detect.
       form.append("languages", langRef.current);
+      for (const code of ["en", "hi", "mr"] as const) {
+        if (code !== langRef.current) form.append("languages", code);
+      }
       const res = await fetch("/api/public/stt", { method: "POST", body: form });
       if (!res.ok) throw new Error(`stt ${res.status}`);
       const data = (await res.json()) as { text?: string; error?: string };
