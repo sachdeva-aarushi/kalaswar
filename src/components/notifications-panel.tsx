@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Bell, CheckCheck } from "lucide-react";
 
-import { useLang, statusLabel } from "@/lib/i18n";
+import { useLang } from "@/lib/i18n";
 import { markNotificationsRead, notificationsQuery } from "@/lib/data";
 import { formatDate } from "@/lib/money";
 import { Button } from "@/components/ui/button";
@@ -96,7 +96,7 @@ export function NotificationsPanel({
               </div>
               {n.body && (
                 <p className="mt-1 text-muted-foreground">
-                  {n.event_type === "order_status" ? statusLabel(t, n.body ?? "") : n.body}
+                  {n.body}
                 </p>
               )}
               {n.link && (
