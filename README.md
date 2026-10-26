@@ -17,7 +17,7 @@
 
 ---
 
-![Kalaswar Platform](docs/images/hero-preview.png)
+![Kalaswar Platform](docs/product/hero-preview.png)
 
 ## Contents
 
