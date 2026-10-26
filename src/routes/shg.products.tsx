@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
 import { artisansQuery, ordersQuery, productsQuery, saveProduct } from "@/lib/data";
 import { CATEGORIES } from "@/lib/constants";
+import { estimatePrice } from "@/lib/price-estimate";
 import { formatINR } from "@/lib/money";
 import type { ProductWithArtisan } from "@/lib/types";
 import { CloudinaryUploader, type UploadedImage } from "@/components/cloudinary-upload";
@@ -302,6 +303,10 @@ function ProductFormDialog({
               </Select>
             </div>
           </div>
+          {/* Transparent price estimation — arithmetic on her own figures */}
+          <PriceEstimator
+            onUse={(v) => setPrice(String(v))}
+          />
           <div className="space-y-1.5">
             <Label htmlFor="pf-artisan">{t("f_artisan")}</Label>
             <Select value={artisanId} onValueChange={setArtisanId}>
@@ -338,5 +343,132 @@ function ProductFormDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function PriceEstimator({ onUse }: { onUse: (value: number) => void }) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  const [materials, setMaterials] = useState("");
+  const [hours, setHours] = useState("");
+  const [rate, setRate] = useState("");
+  const [overhead, setOverhead] = useState("10");
+  const [margin, setMargin] = useState("30");
+
+  const estimate = estimatePrice({
+    materialsCost: Number(materials) || 0,
+    labourHours: Number(hours) || 0,
+    labourRatePerHour: Number(rate) || 0,
+    overheadPercent: Number(overhead) || 0,
+    marginPercent: Number(margin) || 0,
+  });
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-fit text-sm font-medium text-primary underline-offset-4 hover:underline"
+      >
+        {t("est_title")}
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-border p-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm font-medium text-foreground">{t("est_title")}</p>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          {t("f_cancel")}
+        </button>
+      </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">{t("est_sub")}</p>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="est-materials" className="text-xs">{t("est_materials")}</Label>
+          <Input
+            id="est-materials"
+            inputMode="decimal"
+            className="h-9"
+            value={materials}
+            onChange={(e) => setMaterials(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="est-hours" className="text-xs">{t("est_hours")}</Label>
+          <Input
+            id="est-hours"
+            inputMode="decimal"
+            className="h-9"
+            value={hours}
+            onChange={(e) => setHours(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="est-rate" className="text-xs">{t("est_rate")}</Label>
+          <Input
+            id="est-rate"
+            inputMode="decimal"
+            className="h-9"
+            value={rate}
+            onChange={(e) => setRate(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label htmlFor="est-overhead" className="text-xs">{t("est_overhead")}</Label>
+            <Input
+              id="est-overhead"
+              inputMode="decimal"
+              className="h-9"
+              value={overhead}
+              onChange={(e) => setOverhead(e.target.value.replace(/[^0-9.]/g, ""))}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="est-margin" className="text-xs">{t("est_margin")}</Label>
+            <Input
+              id="est-margin"
+              inputMode="decimal"
+              className="h-9"
+              value={margin}
+              onChange={(e) => setMargin(e.target.value.replace(/[^0-9.]/g, ""))}
+            />
+          </div>
+        </div>
+      </div>
+      {estimate.valid ? (
+        <div className="mt-3 rounded-md bg-secondary p-3">
+          <p className="font-display text-2xl tabular-nums text-foreground">
+            {formatINR(estimate.suggested)}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("est_floor")}: {formatINR(estimate.floor)} · {t("est_materials")} {formatINR(estimate.materials)} · {t("est_rate")} {formatINR(estimate.labour)}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("est_basis", { o: overhead, m: margin })}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => {
+              onUse(estimate.suggested);
+              setOpen(false);
+            }}
+          >
+            {t("est_use", { n: estimate.suggested })}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-3 text-xs text-terracotta">{t("est_missing")}</p>
+      )}
+    </div>
   );
 }

@@ -412,6 +412,32 @@ const en: Record<string, string> = {
   exp_record: "Record expense",
   exp_recorded: "Expense recorded.",
   export_expenses: "Export expenses CSV",
+
+  /* Artisan work + guidance */
+  app_work_title: "My work",
+  app_work_sub: "Assigned pieces with quantities and due dates.",
+  app_work_due: "Due",
+  app_work_assigned: "Assigned",
+  app_guides_title: "Craft guidance",
+  app_guides_sub: "Recorded how-to steps for your craft.",
+  app_guides_none: "No recorded guide matches your craft yet — ask your coordinator.",
+  app_guides_steps: "{n} steps",
+  app_guides_recorded: "Recorded guide",
+  app_guides_lang: "Language",
+
+  /* Price estimation */
+  est_title: "Estimate price",
+  est_sub: "Cost-based arithmetic on your own figures — you choose the final price.",
+  est_materials: "Materials cost (₹)",
+  est_hours: "Hours of work per piece",
+  est_rate: "Wage rate per hour (₹)",
+  est_overhead: "Overhead (%)",
+  est_margin: "Margin (%)",
+  est_suggested: "Suggested price",
+  est_floor: "Cost floor (no margin)",
+  est_use: "Use ₹{n}",
+  est_missing: "Enter materials cost and labour (hours × rate) to estimate.",
+  est_basis: "Materials + labour + {o}% overhead, then {m}% margin. No market claim — compare with recorded listings if you wish.",
 };
 
 const hi: Record<string, string> = {
@@ -814,6 +840,30 @@ const hi: Record<string, string> = {
   exp_record: "ख़र्च दर्ज करें",
   exp_recorded: "ख़र्च दर्ज हुआ।",
   export_expenses: "ख़र्च CSV निर्यात करें",
+
+  app_work_title: "मेरा काम",
+  app_work_sub: "सौंपे गए टुकड़े — मात्रा और तारीख़ के साथ।",
+  app_work_due: "तारीख़",
+  app_work_assigned: "सौंपा गया",
+  app_guides_title: "शिल्प मार्गदर्शन",
+  app_guides_sub: "आपके शिल्प के दर्ज तरीक़े-कदम।",
+  app_guides_none: "अभी आपके शिल्प से मिलता कोई दर्शित मार्गदर्शन नहीं — संयोजक से पूछें।",
+  app_guides_steps: "{n} कदम",
+  app_guides_recorded: "दर्शित मार्गदर्शन",
+  app_guides_lang: "भाषा",
+
+  est_title: "क़ीमत आँकें",
+  est_sub: "आपके अपने आँकड़ों पर सीधी गणना — अंतिम क़ीमत आप तय करें।",
+  est_materials: "सामग्री की लागत (₹)",
+  est_hours: "हर टुकड़े पर घंटों का काम",
+  est_rate: "प्रति घंटा मज़दूरी (₹)",
+  est_overhead: "ऊपरी ख़र्च (%)",
+  est_margin: "बढ़त (%)",
+  est_suggested: "सुझाई क़ीमत",
+  est_floor: "लागत-फ़र्श (बढ़त के बिना)",
+  est_use: "₹{n} इस्तेमाल करें",
+  est_missing: "आँकने के लिए सामग्री लागत और श्रम (घंटे × दर) भरें।",
+  est_basis: "सामग्री + श्रम + {o}% ऊपरी ख़र्च, फिर {m}% बढ़त। कोई बाज़ार-दावा नहीं — दर्ज वस्तुओं से मिला जा सकता है।",
 };
 
 const mr: Record<string, string> = {
@@ -1216,6 +1266,30 @@ const mr: Record<string, string> = {
   exp_record: "खर्च नोंदवा",
   exp_recorded: "खर्च नोंदवला.",
   export_expenses: "खर्च CSV निर्यात",
+
+  app_work_title: "माझं काम",
+  app_work_sub: "दिलेले तुकडे — संख्या आणि तारखेसह.",
+  app_work_due: "तारीख",
+  app_work_assigned: "दिले",
+  app_guides_title: "कौशल्य मार्गदर्शन",
+  app_guides_sub: "तुमच्या कौशल्यासाठी नोंदवलेले पायऱ्या.",
+  app_guides_none: "अजून तुमच्या कौशल्याशी जुळणारे नोंदवलेले मार्गदर्शन नाही — समन्वयकाला विचारा.",
+  app_guides_steps: "{n} पायऱ्या",
+  app_guides_recorded: "नोंदवलेले मार्गदर्शन",
+  app_guides_lang: "भाषा",
+
+  est_title: "किंमत आकारा",
+  est_sub: "तुमच्या स्वतःच्या आकड्यांवर सरळ गणना — अंतिम किंमत तुम्ही ठरवा.",
+  est_materials: "साहित्य खर्च (₹)",
+  est_hours: "प्रत्येक तुकड्यावर तासांचे काम",
+  est_rate: "तासाला मजुरी (₹)",
+  est_overhead: "वरील खर्च (%)",
+  est_margin: "फरक (%)",
+  est_suggested: "सुचवलेली किंमत",
+  est_floor: "खर्च-तळ (फरकाशिवाय)",
+  est_use: "₹{n} वापरा",
+  est_missing: "आकारणीसाठी साहित्य खर्च आणि श्रम (तास × दर) भरा.",
+  est_basis: "साहित्य + श्रम + {o}% वरील खर्च, नंतर {m}% फरक. बाजार-दावा नाही — नोंदवलेल्या वस्तूंशी तुलना करू शकता.",
 };
 
 export const dictionaries: Record<Lang, Record<string, string>> = { en, hi, mr };

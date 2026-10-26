@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
@@ -11,7 +11,9 @@ import {
   artisanQuery,
   artisanSummaryQuery,
   artisansQuery,
+  craftGuidesQuery,
 } from "@/lib/data";
+import { matchCraftGuides } from "@/lib/guides";
 import { formatINR } from "@/lib/money";
 import { routeCommand, type VoiceIntent } from "@/lib/voice-router";
 import { clearSpeech, speak } from "@/lib/speech";
@@ -70,6 +72,24 @@ export function ArtisanApp() {
   });
 
   const counts = summary?.counts;
+
+  const { data: guides } = useQuery(craftGuidesQuery());
+  const matchedGuides = useMemo(
+    () => matchCraftGuides(guides ?? [], artisan?.craft ?? ""),
+    [guides, artisan?.craft],
+  );
+
+  /** Active assignments — the day's work with quantities and due dates. */
+  const activeWork = useMemo(() => {
+    const active = (orders ?? []).filter(
+      (o) => o.status !== "delivered",
+    );
+    return active.sort(
+      (a, b) =>
+        new Date(a.expected_dispatch_at ?? "2999-01-01").getTime() -
+        new Date(b.expected_dispatch_at ?? "2999-01-01").getTime(),
+    );
+  }, [orders]);
 
   /** The agent can move her to another screen by itself, mid-conversation. */
   const handleNavigate = useCallback(
@@ -341,6 +361,46 @@ export function ArtisanApp() {
         </div>
       </section>
 
+      {/* ---------- My work: assignments ---------- */}
+      <section
+        id="sec-assignments"
+        aria-label={t("app_work_title")}
+        className="mt-6 rounded-lg border bg-card p-4"
+      >
+        <h2 className="text-base font-semibold text-foreground">{t("app_work_title")}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">{t("app_work_sub")}</p>
+        <ul className="mt-3 space-y-2.5">
+          {activeWork.length === 0 && (
+            <li className="text-sm text-muted-foreground">{t("app_none")}</li>
+          )}
+          {activeWork.slice(0, 6).map((o) => {
+            const latest = o.assignments?.[0];
+            return (
+              <li key={o.id} className="rounded-md border border-border p-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="truncate font-medium text-foreground">
+                    {o.product?.name} × {o.quantity}
+                  </p>
+                  <span className="shrink-0 text-xs text-muted-foreground">{o.customer_reference}</span>
+                </div>
+                <dl className="mt-1 flex gap-4 text-xs text-muted-foreground">
+                  <div className="flex gap-1">
+                    <dt>{t("app_work_due")}:</dt>
+                    <dd className="text-foreground">{formatDate(o.expected_dispatch_at)}</dd>
+                  </div>
+                  {latest && (
+                    <div className="flex gap-1">
+                      <dt>{t("app_work_assigned")}:</dt>
+                      <dd className="text-foreground">{formatDate(latest.assigned_at)}</dd>
+                    </div>
+                  )}
+                </dl>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
       {/* ---------- Order sections ---------- */}
       <div className="mt-6 space-y-4">
         {FOCUSABLE.map(({ intent, section, status }) => {
@@ -455,6 +515,44 @@ export function ArtisanApp() {
             </dl>
           )}
           <DemoNote className="mt-2">{t("app_earnings_note")}</DemoNote>
+        </section>
+
+        {/* Craft guidance — recorded guides matched to her craft */}
+        <section className="rounded-lg border bg-card p-4">
+          <h2 className="text-base font-semibold text-foreground">{t("app_guides_title")}</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">{t("app_guides_sub")}</p>
+          {matchedGuides.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">{t("app_guides_none")}</p>
+          ) : (
+            <ul className="mt-3 space-y-2.5">
+              {matchedGuides.map((g) => (
+                <li key={g.id}>
+                  <details className="rounded-md border border-border p-3">
+                    <summary className="cursor-pointer text-sm font-medium text-foreground">
+                      {g.title}
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        {t("app_guides_steps", { n: g.steps.length })} · {g.language}
+                      </span>
+                    </summary>
+                    <ol className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                      {g.steps.map((s, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="shrink-0 font-medium text-primary">{i + 1}.</span>
+                          <span>
+                            <span className="font-medium text-foreground">{s.title}</span>
+                            {s.detail ? ` — ${s.detail}` : ""}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                    <p className="mt-2 text-[0.7rem] uppercase tracking-wide text-muted-foreground">
+                      {t("app_guides_recorded")} · {g.source}
+                    </p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {/* Recent updates */}
