@@ -35,7 +35,7 @@ kalaswar/
 │   ├── product/                   Requirements, implementation, and audit records
 │   └── operations/                Deployment, environment setup, and seed data guides
 └── (tooling configs)              package.json, vite.config.ts, tsconfig.json,
-                                   vitest.config.ts, eslint.config.js, .prettierrc,
+                                   vitest.config.ts, eslint.config.js,
                                    components.json, bunfig.toml, bun.lock
 ```
 
