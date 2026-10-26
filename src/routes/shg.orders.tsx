@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
-import { ChevronDown, ScrollText } from "lucide-react";
+import { ChevronDown, ScrollText, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLang } from "@/lib/i18n";
-import { artisansQuery, assignOrder, ordersQuery, updateOrderStatus } from "@/lib/data";
+import {
+  artisansQuery,
+  assignOrder,
+  ordersQuery,
+  recordQualityCheck,
+  recordShipment,
+  updateOrderStatus,
+} from "@/lib/data";
+import { assessOrderRisk } from "@/lib/risk";
 import { formatDate } from "@/lib/money";
 import { ORDER_STATUSES, type OrderStatus, type OrderWithDetails } from "@/lib/types";
 import { StatusBadge } from "@/components/status-badge";
@@ -42,6 +50,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+
+/** Deterministic radar from recorded dates and assignments — see src/lib/risk.ts. */
+function riskOf(o: OrderWithDetails) {
+  return assessOrderRisk(
+    { status: o.status, expected_dispatch_at: o.expected_dispatch_at, assigned: Boolean(o.artisan) },
+    { today: new Date(), leadDays: 3 },
+  );
+}
 
 export const Route = createFileRoute("/shg/orders")({
   head: () => ({ meta: [{ title: "Orders — Coordinator Workspace — Kalaswar" }] }),
@@ -61,6 +78,8 @@ function ShgOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [assigning, setAssigning] = useState<OrderWithDetails | null>(null);
+  const [qcOrder, setQcOrder] = useState<OrderWithDetails | null>(null);
+  const [shipOrder, setShipOrder] = useState<OrderWithDetails | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const statusMutation = useMutation({
@@ -162,7 +181,10 @@ function ShgOrders() {
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{o.quantity}</TableCell>
                 <TableCell>
-                  <StatusBadge status={o.status} />
+                  <span className="flex items-center gap-1.5">
+                    <StatusBadge status={o.status} />
+                    <RiskDot order={o} />
+                  </span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                   {formatDate(o.expected_dispatch_at)}
@@ -176,6 +198,22 @@ function ShgOrders() {
                       onClick={() => setExpandedId(expandedId === o.id ? null : o.id)}
                     >
                       <ScrollText className="size-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={t("qc_title")}
+                      onClick={() => setQcOrder(o)}
+                    >
+                      <ShieldCheck className="size-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={t("ship_title")}
+                      onClick={() => setShipOrder(o)}
+                    >
+                      <Truck className="size-4" aria-hidden="true" />
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => setAssigning(o)}>
                       {o.artisan ? t("reassign") : t("assign")}
@@ -243,7 +281,7 @@ function ShgOrders() {
             <p className="text-sm text-muted-foreground">
               {t("tbl_dispatch")}: {formatDate(o.expected_dispatch_at)}
             </p>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -251,6 +289,22 @@ function ShgOrders() {
                 onClick={() => setExpandedId(expandedId === o.id ? null : o.id)}
               >
                 <ScrollText className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t("qc_title")}
+                onClick={() => setQcOrder(o)}
+              >
+                <ShieldCheck className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t("ship_title")}
+                onClick={() => setShipOrder(o)}
+              >
+                <Truck className="size-4" aria-hidden="true" />
               </Button>
               <Button variant="outline" size="sm" onClick={() => setAssigning(o)}>
                 {o.artisan ? t("reassign") : t("assign")}
@@ -293,7 +347,155 @@ function ShgOrders() {
           onClose={() => setAssigning(null)}
         />
       )}
+      {qcOrder && <QcDialog order={qcOrder} onClose={() => setQcOrder(null)} />}
+      {shipOrder && <DispatchDialog order={shipOrder} onClose={() => setShipOrder(null)} />}
     </div>
+  );
+}
+
+/** Radar dot: amber outline for a warning, solid terracotta when overdue. */
+function RiskDot({ order }: { order: OrderWithDetails }) {
+  const { t } = useLang();
+  const risk = riskOf(order);
+  if (risk.level === "low") return null;
+  const reason = risk.reasons
+    .map((r) => (r === "due_soon" ? t("risk_due_soon", { n: risk.daysRemaining ?? 0, plural: (risk.daysRemaining ?? 0) === 1 ? "" : "s" }) : t(`risk_${r}`)))
+    .join(" · ");
+  return (
+    <span
+      role="img"
+      aria-label={reason}
+      title={reason}
+      className={cn(
+        "size-2 shrink-0 rounded-full",
+        risk.level === "high" ? "bg-terracotta" : "border-2 border-terracotta bg-transparent",
+      )}
+    />
+  );
+}
+
+function QcDialog({ order, onClose }: { order: OrderWithDetails; onClose: () => void }) {
+  const { t } = useLang();
+  const queryClient = useQueryClient();
+  const [result, setResult] = useState("pass");
+  const [notes, setNotes] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      recordQualityCheck({
+        order_id: order.id,
+        result,
+        notes: notes.trim() ? notes.trim() : null,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orderEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["orderEventsAll"] });
+      queryClient.invalidateQueries({ queryKey: ["orderQualityChecks"] });
+      toast.success(t("qc_done"));
+      onClose();
+    },
+    onError: () => toast.error(t("common_error")),
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">{t("qc_title")}</DialogTitle>
+          <DialogDescription>
+            {order.customer_reference} · {order.product?.name} × {order.quantity}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-1.5">
+          <label htmlFor="qc-result" className="text-sm font-medium">{t("qc_result")}</label>
+          <Select value={result} onValueChange={setResult}>
+            <SelectTrigger id="qc-result" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pass">{t("qc_pass")}</SelectItem>
+              <SelectItem value="rework">{t("qc_rework")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="qc-notes" className="text-sm font-medium">{t("qc_notes")}</label>
+          <Input id="qc-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+        <DialogFooter>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+            {mutation.isPending ? t("f_saving") : t("qc_record")}
+          </Button>
+          <Button variant="ghost" onClick={onClose}>{t("f_cancel")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DispatchDialog({ order, onClose }: { order: OrderWithDetails; onClose: () => void }) {
+  const { t } = useLang();
+  const queryClient = useQueryClient();
+  const [status, setStatus] = useState("dispatched");
+  const [carrier, setCarrier] = useState("");
+  const [trackingRef, setTrackingRef] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      recordShipment({
+        order_id: order.id,
+        status,
+        carrier: carrier.trim() ? carrier.trim() : null,
+        tracking_ref: trackingRef.trim() ? trackingRef.trim() : null,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orderEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["orderEventsAll"] });
+      queryClient.invalidateQueries({ queryKey: ["orderShipments"] });
+      toast.success(t("ship_done"));
+      onClose();
+    },
+    onError: () => toast.error(t("common_error")),
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">{t("ship_title")}</DialogTitle>
+          <DialogDescription>
+            {order.customer_reference} · {order.product?.name} × {order.quantity}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-1.5">
+          <label htmlFor="ship-status" className="text-sm font-medium">{t("ship_status")}</label>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger id="ship-status" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="packed">{t("ship_packed")}</SelectItem>
+              <SelectItem value="dispatched">{t("ship_dispatched")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="ship-carrier" className="text-sm font-medium">{t("ship_carrier")}</label>
+          <Input id="ship-carrier" value={carrier} onChange={(e) => setCarrier(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="ship-tracking" className="text-sm font-medium">{t("ship_tracking")}</label>
+          <Input id="ship-tracking" value={trackingRef} onChange={(e) => setTrackingRef(e.target.value)} />
+        </div>
+        <p className="text-xs text-muted-foreground">{t("ship_demo")}</p>
+        <DialogFooter>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+            {mutation.isPending ? t("f_saving") : t("ship_record")}
+          </Button>
+          <Button variant="ghost" onClick={onClose}>{t("f_cancel")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

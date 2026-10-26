@@ -14,6 +14,10 @@ const EVENT_KEYS: Record<string, string> = {
   delivered: "event_delivered",
   delayed: "event_delayed",
   payment: "event_payment",
+  quality_pass: "event_quality_pass",
+  quality_rework: "event_quality_rework",
+  dispatched: "event_dispatched",
+  shipment_packed: "event_shipment_packed",
 };
 
 /**

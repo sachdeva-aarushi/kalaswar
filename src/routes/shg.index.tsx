@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLang, statusLabel } from "@/lib/i18n";
 import { allOrderEventsQuery, artisansQuery, ordersQuery, paymentsQuery, shgsQuery } from "@/lib/data";
 import { computeShgRanking } from "@/lib/ranking";
+import { assessOrderRisk } from "@/lib/risk";
 import { formatDate } from "@/lib/money";
 import { DemoNote } from "@/components/demo-note";
 import type { OrderStatus } from "@/lib/types";
@@ -38,6 +39,17 @@ function ShgOverview() {
   );
 
   const count = (s: OrderStatus) => orders.filter((o) => o.status === s).length;
+
+  const risks = orders
+    .map((o) => ({
+      o,
+      r: assessOrderRisk(
+        { status: o.status, expected_dispatch_at: o.expected_dispatch_at, assigned: Boolean(o.artisan) },
+        { today: new Date(), leadDays: 3 },
+      ),
+    }))
+    .filter(({ r }) => r.level !== "low")
+    .sort((a, b) => Number(b.r.level === "high") - Number(a.r.level === "high"));
   const activeArtisans = new Set(
     orders
       .filter((o) => o.status === "in_production" || o.status === "ready_for_dispatch")
@@ -92,6 +104,54 @@ function ShgOverview() {
             <p className="mt-1.5 text-sm text-muted-foreground">{k.label}</p>
           </div>
         ))}
+      </section>
+
+      {/* Production risk radar — deterministic flags, reasons always shown */}
+      <section className="mt-10">
+        <h2 className="font-display text-2xl text-foreground">{t("risk_title")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("risk_sub")}</p>
+        <ul className="mt-4 space-y-3">
+          {risks.map(({ o, r }) => (
+            <li
+              key={o.id}
+              className={`rounded-md border bg-card p-4 ${
+                r.level === "high" ? "border-terracotta/50" : "border-border"
+              }`}
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="font-medium text-foreground">
+                  {o.customer_reference} · {o.product?.name} × {o.quantity}
+                </p>
+                <span
+                  className={`rounded-sm px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide ${
+                    r.level === "high"
+                      ? "bg-terracotta text-primary-foreground"
+                      : "border border-terracotta text-terracotta"
+                  }`}
+                >
+                  {r.level === "high" ? t("risk_high") : t("risk_medium")}
+                </span>
+              </div>
+              <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-terracotta">
+                {r.reasons.map((reason) => (
+                  <li key={reason}>
+                    {reason === "due_soon"
+                      ? t("risk_due_soon", { n: r.daysRemaining ?? 0, plural: (r.daysRemaining ?? 0) === 1 ? "" : "s" })
+                      : t(`risk_${reason}`)}
+                  </li>
+                ))}
+                <li className="text-muted-foreground">
+                  {t("tbl_dispatch")}: {formatDate(o.expected_dispatch_at)}
+                </li>
+              </ul>
+            </li>
+          ))}
+          {risks.length === 0 && (
+            <li className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
+              {t("risk_none")}
+            </li>
+          )}
+        </ul>
       </section>
 
       <section className="mt-10">

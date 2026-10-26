@@ -30,6 +30,8 @@ import type {
   Proposal,
   ProposalApproval,
   ProposalSpec,
+  QualityCheck,
+  Shipment,
   Shg,
   Tip,
 } from "./types";
@@ -967,3 +969,135 @@ export async function fetchExpenses(): Promise<ExpenseWithShg[]> {
 
 export const expensesAllQuery = () =>
   queryOptions({ queryKey: ["expensesAll"], queryFn: fetchExpenses });
+
+/* ---------- Coordinator inventory management ---------- */
+
+export interface MaterialWithShg {
+  id: string;
+  shg_id: string;
+  name: string;
+  unit: string;
+  quantity: number;
+  low_stock_threshold: number | null;
+  updated_at: string;
+  updated_by: string | null;
+  shg_name?: string | null;
+}
+
+export async function fetchMaterials(): Promise<MaterialWithShg[]> {
+  const { data, error } = await supabase
+    .from("materials_inventory")
+    .select("*, shgs(name)")
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as (MaterialWithShg & { shgs: { name: string } | null })[]).map(
+    (m) => ({ ...m, shg_name: m.shgs?.name ?? null, shgs: undefined }),
+  );
+}
+
+export const materialsAllQuery = () =>
+  queryOptions({ queryKey: ["materialsAll"], queryFn: fetchMaterials });
+
+export async function createMaterial(input: {
+  shg_id: string;
+  name: string;
+  unit: string;
+  quantity: number;
+  low_stock_threshold?: number | null;
+}): Promise<void> {
+  const { error } = await supabase.from("materials_inventory").insert({
+    shg_id: input.shg_id,
+    name: input.name.trim(),
+    unit: input.unit.trim() || "unit",
+    quantity: input.quantity,
+    low_stock_threshold: input.low_stock_threshold ?? null,
+    updated_by: "Coordinator — demonstration",
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateMaterial(
+  id: string,
+  patch: { quantity?: number; low_stock_threshold?: number | null },
+): Promise<void> {
+  const { error } = await supabase
+    .from("materials_inventory")
+    .update({
+      ...(patch.quantity !== undefined && { quantity: patch.quantity }),
+      ...(patch.low_stock_threshold !== undefined && { low_stock_threshold: patch.low_stock_threshold }),
+      updated_at: new Date().toISOString(),
+      updated_by: "Coordinator — demonstration",
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/* ---------- Dispatch records ---------- */
+
+export async function recordShipment(input: {
+  order_id: string;
+  status: string;
+  carrier?: string | null;
+  tracking_ref?: string | null;
+  note?: string | null;
+}): Promise<void> {
+  const { data, error } = await supabase
+    .from("shipments")
+    .insert({
+      order_id: input.order_id,
+      status: input.status,
+      carrier: input.carrier ?? null,
+      tracking_ref: input.tracking_ref ?? null,
+      provider: null,
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  try {
+    await supabase.from("shipment_events").insert({
+      shipment_id: (data as { id: string }).id,
+      event_type: input.status,
+      note: input.note ?? null,
+    });
+  } catch {
+    /* shipment events are best-effort in demonstration mode */
+  }
+  await recordOrderEvent(
+    input.order_id,
+    input.status === "dispatched" ? "dispatched" : `shipment_${input.status}`,
+    [input.carrier, input.tracking_ref].filter(Boolean).join(" · ") || input.note || undefined,
+  );
+  await auditAction("record_shipment", "shipments", input.order_id, { status: input.status });
+}
+
+export async function fetchOrderQualityChecks(orderId: string): Promise<QualityCheck[]> {
+  const { data, error } = await supabase
+    .from("quality_checks")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("checked_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as QualityCheck[];
+}
+
+export async function fetchOrderShipments(orderId: string): Promise<Shipment[]> {
+  const { data, error } = await supabase
+    .from("shipments")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as Shipment[];
+}
+
+export const orderQualityChecksQuery = (orderId: string) =>
+  queryOptions({
+    queryKey: ["orderQualityChecks", orderId],
+    queryFn: () => fetchOrderQualityChecks(orderId),
+  });
+
+export const orderShipmentsQuery = (orderId: string) =>
+  queryOptions({
+    queryKey: ["orderShipments", orderId],
+    queryFn: () => fetchOrderShipments(orderId),
+  });

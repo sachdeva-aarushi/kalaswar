@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { Handshake, LayoutDashboard, Package, PackageSearch, ScrollText, Users, Wallet } from "lucide-react";
+import { Boxes, Handshake, LayoutDashboard, Package, PackageSearch, ScrollText, Users, Wallet } from "lucide-react";
 
 import { useLang } from "@/lib/i18n";
 import { Wordmark } from "@/components/wordmark";
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/shg", labelKey: "shg_overview", icon: LayoutDashboard, exact: true },
   { to: "/shg/orders", labelKey: "shg_orders", icon: PackageSearch },
   { to: "/shg/requests", labelKey: "shg_requests", icon: Handshake },
+  { to: "/shg/inventory", labelKey: "shg_inventory", icon: Boxes },
   { to: "/shg/artisans", labelKey: "shg_artisans", icon: Users },
   { to: "/shg/products", labelKey: "shg_products", icon: Package },
   { to: "/shg/payments", labelKey: "shg_payments", icon: Wallet },
