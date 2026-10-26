@@ -522,6 +522,13 @@ const en: Record<string, string> = {
   app_note_send: "Record",
   note_recorded: "Recorded",
   event_artisan_note: "Artisan progress note",
+  capacity_title: "Capacity planning",
+  capacity_sub: "Pieces each collective can finish per month — feasibility checks judge requests against this recorded figure.",
+  capacity_active_now: "Active work on record right now: {n} pieces.",
+  capacity_unset: "Not recorded",
+  capacity_input_label: "Monthly capacity for {shg}",
+  capacity_save: "Save",
+  capacity_saved: "Capacity recorded — future feasibility checks use it.",
 };
 
 const hi: Record<string, string> = {
@@ -1029,6 +1036,13 @@ const hi: Record<string, string> = {
   app_note_send: "दर्ज करें",
   note_recorded: "दर्ज हुआ",
   event_artisan_note: "कारीगर की प्रगति टिप्पणी",
+  capacity_title: "क्षमता योजना",
+  capacity_sub: "हर संगठन हर महीने जितने टुकड़े पूरे कर सकता है — संभाव्यता-जाँच इसी दर्ज आँकड़े से निर्णय लेती है।",
+  capacity_active_now: "अभी दर्ज सक्रिय काम: {n} टुकड़े।",
+  capacity_unset: "दर्ज नहीं",
+  capacity_input_label: "{shg} की मासिक क्षमता",
+  capacity_save: "सेव करें",
+  capacity_saved: "क्षमता दर्ज — आगे की जाँच इसी से निर्णय लेंगी।",
 };
 
 const mr: Record<string, string> = {
@@ -1536,6 +1550,13 @@ const mr: Record<string, string> = {
   app_note_send: "नोंदवा",
   note_recorded: "नोंदवले",
   event_artisan_note: "कारागीर प्रगती टिप्पणी",
+  capacity_title: "क्षमता नियोजन",
+  capacity_sub: "प्रत्येक संघटना दरमहा जिते तुकडे पूर्ण करू शकते — शक्यता-तपासणी याच नोंदवलेल्या आकड्यावरून निर्णय घेते.",
+  capacity_active_now: "सध्या नोंदवलेले सक्रिय काम: {n} तुकडे.",
+  capacity_unset: "नोंदवले नाही",
+  capacity_input_label: "{shg} ची दरमहा क्षमता",
+  capacity_save: "सेव्ह करा",
+  capacity_saved: "क्षमता नोंदवली — पुढील तपासण्या याच वापरतील.",
 };
 
 export const dictionaries: Record<Lang, Record<string, string>> = { en, hi, mr };

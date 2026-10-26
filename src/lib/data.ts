@@ -505,6 +505,7 @@ export async function fetchCollectiveSnapshots(): Promise<CollectiveSnapshot[]> 
   const [shgsRes, artisansRes, skillsRes, materialsRes, workload, productsRes] =
     await Promise.all([
       supabase.from("shgs").select("id, name, monthly_capacity"),
+
       supabase.from("artisans").select("id, shg_id"),
       supabase.from("artisan_skills").select("artisan_id, skill, level, notes"),
       supabase
@@ -549,6 +550,38 @@ export async function fetchCollectiveSnapshots(): Promise<CollectiveSnapshot[]> 
       comparablePrices: { min: 0, avg: 0, max: 0, count: 0 },
     }),
   );
+}
+
+/* ---------- Collective capacity recording ---------- */
+
+export interface ShgCapacity {
+  id: string;
+  name: string;
+  monthly_capacity: number | null;
+}
+
+export async function fetchShgCapacity(): Promise<ShgCapacity[]> {
+  const { data, error } = await supabase
+    .from("shgs")
+    .select("id, name, monthly_capacity")
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as ShgCapacity[];
+}
+
+export const shgCapacityQuery = () =>
+  queryOptions({ queryKey: ["shgCapacity"], queryFn: fetchShgCapacity });
+
+export async function updateShgCapacity(
+  shgId: string,
+  monthlyCapacity: number | null,
+): Promise<void> {
+  const { error } = await supabase
+    .from("shgs")
+    .update({ monthly_capacity: monthlyCapacity })
+    .eq("id", shgId);
+  if (error) throw new Error(error.message);
+  await auditAction("update_shg_capacity", "shgs", shgId, { monthly_capacity: monthlyCapacity });
 }
 
 /** Recorded comparable prices for a category, attached to a snapshot for the engine. */
