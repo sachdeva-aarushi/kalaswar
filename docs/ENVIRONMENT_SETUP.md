@@ -17,12 +17,14 @@ external deployment would need.
 | Variable | Set by | Used by | Purpose |
 |---|---|---|---|
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` | Lovable Cloud (auto-gen `.env`) | generated client | database access with RLS |
-| `VITE_CLOUDINARY_CLOUD_NAME` | you (Cloudinary dashboard) | product image upload | unsigned upload target |
-| `VITE_CLOUDINARY_UPLOAD_PRESET` | you (Cloudinary dashboard) | product image upload | unsigned upload preset |
+| `VITE_CLOUDINARY_CLOUD_NAME` | you (Cloudinary dashboard) | product image upload | unsigned upload target — CONFIGURED (`navinfpx`) |
+| `VITE_CLOUDINARY_UPLOAD_PRESET` | you (Cloudinary dashboard) | product image upload | unsigned upload preset — CONFIGURED (`kalaswar_product_images`, unsigned, JPG/PNG/WEBP, 10 MB cap client-side) |
 
 ## What you must configure yourself
 
-1. **Cloudinary (image uploads).** Create a free Cloudinary account, note the cloud name, create
+1. **Cloudinary (image uploads).** CONFIGURED for this project: unsigned preset
+   `kalaswar_product_images` on cloud `navinfpx`, allowed formats JPG/PNG/WEBP. The API secret is
+   never used client-side. Create a free Cloudinary account, note the cloud name, create
    an *unsigned* upload preset, and set the two `VITE_CLOUDINARY_*` values via Lovable's secret/
    environment settings. Until then the product form shows a clear "not configured" message.
    Production should switch to a signed upload flow with a constrained preset.
