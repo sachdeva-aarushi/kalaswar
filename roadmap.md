@@ -64,7 +64,7 @@ Pages/data-layer tools that exist in code but are wired into no page:
 ## Phase 9 — Product Expansion: four pillars (in progress)
 Source: uploaded Product Expansion Master Prompt. Audit: docs/PRODUCT_EXPANSION_AUDIT.md.
 - [x] Foundation: audit doc; expansion migration (material price history, product cost inputs + labour stages + versioned snapshots, craft stories + consents, buyers, buyer requests, quotations + versions, sample requests + events, production plans + events, notifications) with labelled demo RLS
-- [ ] Pillar 3 — FairPrice Engine: deterministic calculator (material lines with wastage, labour stages, packaging, overhead, fees %, margin vs markup, paise-integer arithmetic, missing-input honesty) + coordinator pricing page with versioned snapshots + material price history
+- [x] Pillar 3 — FairPrice Engine: deterministic calculator (material lines with wastage, labour stages, packaging, overhead, fees %, margin vs markup, paise-integer arithmetic, missing-input honesty) + coordinator pricing page with versioned snapshots + material price history
 - [ ] Pillar 2 — Living Craft Stories: story editor (voice/text, AI-organised, maker approves), consent controls, Craft Passport upgrade, published stories on product pages
 - [ ] Pillar 4 — B2B Studio: buyer onboarding + structured brief, MakePossible for briefs, coordinator review, versioned quotations, sample workflow, buyer dashboard + reorder revalidation
 - [ ] Pillar 1 additions — artisan "what to do next" home aggregation; edit actor/timestamp tracking

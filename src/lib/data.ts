@@ -1214,3 +1214,179 @@ export async function fetchProductShipments(productId: string): Promise<Shipment
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as Shipment[];
 }
+
+/* ---------- FairPrice Engine: material prices, cost inputs, versioned snapshots ---------- */
+
+export interface MaterialPriceEntry {
+  id: string;
+  shg_id: string;
+  material_id: string | null;
+  material_name: string;
+  unit: string | null;
+  unit_price_inr: number;
+  source: string | null;
+  note: string | null;
+  recorded_by: string | null;
+  recorded_at: string;
+}
+
+export interface CostSnapshotRecord {
+  id: string;
+  product_id: string;
+  version: number;
+  currency: string;
+  breakdown: Record<string, unknown>;
+  created_by: string | null;
+  created_at: string;
+}
+
+export async function fetchMaterialPrices(): Promise<MaterialPriceEntry[]> {
+  const { data, error } = await supabase
+    .from("material_price_history")
+    .select("*")
+    .order("recorded_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as MaterialPriceEntry[];
+}
+
+export const materialPricesQuery = () =>
+  queryOptions({ queryKey: ["materialPrices"], queryFn: fetchMaterialPrices });
+
+export async function recordMaterialPrice(input: {
+  shg_id: string;
+  material_id?: string | null;
+  material_name: string;
+  unit?: string | null;
+  unit_price_inr: number;
+  source?: string | null;
+  note?: string | null;
+}): Promise<void> {
+  const { error } = await supabase.from("material_price_history").insert({
+    shg_id: input.shg_id,
+    material_id: input.material_id ?? null,
+    material_name: input.material_name.trim(),
+    unit: input.unit ?? null,
+    unit_price_inr: input.unit_price_inr,
+    source: input.source ?? null,
+    note: input.note ?? null,
+    recorded_by: "Coordinator — demonstration",
+  });
+  if (error) throw new Error(error.message);
+  await auditAction("record_material_price", "material_price_history", input.shg_id, {
+    material: input.material_name,
+    price: input.unit_price_inr,
+  });
+}
+
+export async function fetchProductCostInputs(productId: string) {
+  const { data, error } = await supabase
+    .from("product_cost_inputs")
+    .select("*")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as {
+    id: string;
+    product_id: string;
+    shg_id: string | null;
+    material_name: string;
+    quantity_per_unit: number;
+    unit: string | null;
+    unit_cost_inr: number;
+    wastage_percent: number;
+  }[];
+}
+
+export async function fetchProductLabourInputs(productId: string) {
+  const { data, error } = await supabase
+    .from("product_labour_inputs")
+    .select("*")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as {
+    id: string;
+    product_id: string;
+    stage_name: string;
+    hours_per_unit: number;
+    rate_inr_per_hour: number | null;
+    rate_source: string | null;
+  }[];
+}
+
+/** Replace a product's material cost lines (demonstration-mode write). */
+export async function saveProductCostInputs(
+  productId: string,
+  shgId: string | null,
+  lines: { material_name: string; quantity_per_unit: number; unit: string | null; unit_cost_inr: number; wastage_percent: number }[],
+): Promise<void> {
+  const del = await supabase.from("product_cost_inputs").delete().eq("product_id", productId);
+  if (del.error) throw new Error(del.error.message);
+  if (lines.length === 0) return;
+  const ins = await supabase.from("product_cost_inputs").insert(
+    lines.map((l) => ({
+      product_id: productId,
+      shg_id: shgId,
+      material_name: l.material_name.trim(),
+      quantity_per_unit: l.quantity_per_unit,
+      unit: l.unit,
+      unit_cost_inr: l.unit_cost_inr,
+      wastage_percent: l.wastage_percent,
+    })),
+  );
+  if (ins.error) throw new Error(ins.error.message);
+}
+
+/** Replace a product's labour stages (demonstration-mode write). */
+export async function saveProductLabourInputs(
+  productId: string,
+  stages: { stage_name: string; hours_per_unit: number; rate_inr_per_hour: number | null; rate_source: string | null }[],
+): Promise<void> {
+  const del = await supabase.from("product_labour_inputs").delete().eq("product_id", productId);
+  if (del.error) throw new Error(del.error.message);
+  if (stages.length === 0) return;
+  const ins = await supabase.from("product_labour_inputs").insert(
+    stages.map((s) => ({
+      product_id: productId,
+      stage_name: s.stage_name.trim(),
+      hours_per_unit: s.hours_per_unit,
+      rate_inr_per_hour: s.rate_inr_per_hour,
+      rate_source: s.rate_source ?? null,
+    })),
+  );
+  if (ins.error) throw new Error(ins.error.message);
+}
+
+export async function fetchProductCostSnapshots(productId: string): Promise<CostSnapshotRecord[]> {
+  const { data, error } = await supabase
+    .from("product_cost_snapshots")
+    .select("*")
+    .eq("product_id", productId)
+    .order("version", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as CostSnapshotRecord[];
+}
+
+export const productCostSnapshotsQuery = (productId: string) =>
+  queryOptions({
+    queryKey: ["productCostSnapshots", productId],
+    queryFn: () => fetchProductCostSnapshots(productId),
+  });
+
+/** Store an immutable cost snapshot at the next version number. */
+export async function saveCostSnapshot(
+  productId: string,
+  breakdown: Record<string, unknown>,
+): Promise<void> {
+  const existing = await fetchProductCostSnapshots(productId);
+  const nextVersion = existing.reduce((max, s) => Math.max(max, s.version), 0) + 1;
+  const { error } = await supabase.from("product_cost_snapshots").insert({
+    product_id: productId,
+    version: nextVersion,
+    currency: "INR",
+    breakdown: breakdown as unknown as Json,
+    created_by: "Coordinator — demonstration",
+  });
+  if (error) throw new Error(error.message);
+  await auditAction("save_cost_snapshot", "product_cost_snapshots", productId, { version: nextVersion });
+}

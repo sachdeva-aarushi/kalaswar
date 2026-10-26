@@ -23,6 +23,7 @@ import { Route as ShgArtisansRouteImport } from './routes/shg.artisans'
 import { Route as ShgInventoryRouteImport } from './routes/shg.inventory'
 import { Route as ShgOrdersRouteImport } from './routes/shg.orders'
 import { Route as ShgPaymentsRouteImport } from './routes/shg.payments'
+import { Route as ShgPricingRouteImport } from './routes/shg.pricing'
 import { Route as ShgProductsRouteImport } from './routes/shg.products'
 import { Route as ShgReportsRouteImport } from './routes/shg.reports'
 import { Route as ShgRequestsRouteImport } from './routes/shg.requests'
@@ -100,6 +101,11 @@ const ShgPaymentsRoute = ShgPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => ShgRoute,
 } as any)
+const ShgPricingRoute = ShgPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => ShgRoute,
+} as any)
 const ShgProductsRoute = ShgProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
+  '/shg/pricing': typeof ShgPricingRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
+  '/shg/pricing': typeof ShgPricingRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
+  '/shg/pricing': typeof ShgPricingRoute
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
+    | '/shg/pricing'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
+    | '/shg/pricing'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
+    | '/shg/pricing'
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
@@ -380,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShgPaymentsRouteImport
       parentRoute: typeof ShgRoute
     }
+    '/shg/pricing': {
+      id: '/shg/pricing'
+      path: '/pricing'
+      fullPath: '/shg/pricing'
+      preLoaderRoute: typeof ShgPricingRouteImport
+      parentRoute: typeof ShgRoute
+    }
     '/shg/products': {
       id: '/shg/products'
       path: '/products'
@@ -430,6 +449,7 @@ interface ShgRouteChildren {
   ShgInventoryRoute: typeof ShgInventoryRoute
   ShgOrdersRoute: typeof ShgOrdersRoute
   ShgPaymentsRoute: typeof ShgPaymentsRoute
+  ShgPricingRoute: typeof ShgPricingRoute
   ShgProductsRoute: typeof ShgProductsRoute
   ShgReportsRoute: typeof ShgReportsRoute
   ShgRequestsRoute: typeof ShgRequestsRoute
@@ -441,6 +461,7 @@ const ShgRouteChildren: ShgRouteChildren = {
   ShgInventoryRoute: ShgInventoryRoute,
   ShgOrdersRoute: ShgOrdersRoute,
   ShgPaymentsRoute: ShgPaymentsRoute,
+  ShgPricingRoute: ShgPricingRoute,
   ShgProductsRoute: ShgProductsRoute,
   ShgReportsRoute: ShgReportsRoute,
   ShgRequestsRoute: ShgRequestsRoute,
