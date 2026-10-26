@@ -73,3 +73,14 @@ Source: uploaded Product Expansion Master Prompt. Audit: docs/PRODUCT_EXPANSION_
 - [x] Supabase backend setup (per KALASWAR_COMPLETE_SUPABASE_BACKEND markdown): email/password auth enabled; /auth sign-up+sign-in, /forgot-password, /reset-password routes with EN/HI/MR copy; header session affordance + root session listener; profiles extended (preferred_language, onboarding_status); buyer role added; signup trigger grants customer/buyer only; membership helpers is_shg_coordinator/owns_buyer/is_org_artisan; migration 0010 adds authenticated role/membership-scoped RLS for all private surfaces (demo anon policies retained by design); docs/SUPABASE_IMPLEMENTATION_AUDIT.md + docs/SEED_DATA_GUIDE.md
 - [ ] Production hardening — remove demonstration anon-write policies and gate /shg/* + /artisan-space behind authentication before serving real users
 - [ ] Verification — tests for every honesty rule, e2e workflow, responsive + access-control checks, docs updated
+
+## Phase 9 — Premium UI/UX redesign (KALASWAR COMPLETE UI/UX REDESIGN brief, 26 Oct 2026)
+- [x] Phase 1 audit: 41 routes, existing editorial system, imagery, i18n dictionary reviewed
+- [x] Phase 2 design system: tokens updated to the brief palette (burgundy #641B32 / ivory #FAF7F1 / muted gold / sage / terracotta / rose beige), success + warning tokens, Devanagari logo asset (white + burgundy transparent variants) and favicon
+- [x] Phase 3 homepage: burgundy hero with logo + overlaid imagery, hands-behind-the-craft editorial split, craft collection tiles, featured pieces, maker profiles, craft stories (live data), four pillars, B2B section, mission, closing brand moment; trilingual copy (EN/HI/MR) for every new string; 85 tests pass, no console errors, desktop + mobile verified
+- [x] Header/footer rework: overlay nav on burgundy hero, logo imagery, refined columns
+- [ ] Phase 4 remaining shared components: refined product cards, status badges, forms, tables, empty/loading states across the design system
+- [ ] Phase 5 customer experience: explore, product detail, stories, artisan profiles, Gift Concierge restyle
+- [ ] Phase 6 artisan experience: workroom dashboard, voice-first creation, FairPrice interface
+- [ ] Phase 7 B2B experience: buyer dashboard, requests, feasibility, quotations, production tracking
+- [ ] Phase 8 validation: all routes at desktop + mobile widths, reduced-motion, console errors
