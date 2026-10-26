@@ -1,0 +1,21 @@
+<!-- LOVABLE:BEGIN -->
+> [!IMPORTANT]
+> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
+> published git history — force pushing, or rebasing/amending/squashing commits
+> that are already pushed — as it rewrites history on Lovable's side and the
+> user will likely lose their project history.
+>
+> Commits you push to the connected branch sync back to Lovable and show up in
+> the editor, so keep the branch in a working state.
+<!-- LOVABLE:END -->
+
+# Kalaswar — project decisions
+
+- Demo-mode data access: all public tables allow anon reads; orders/assignments/products/tips allow anon writes so the demonstration journey (assign, upload, tip) works without auth. RLS policies label this clearly; production needs real auth + scoped policies before publishing to real users.
+- Cloudinary image upload is a real unsigned-upload workflow reading `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET`. When unset, the UI shows a configuration error and never simulates success. Production should switch to a server-signed upload flow (API secret stays server-side).
+- Voice: primary pipeline records a complete WAV in-browser → `/api/public/stt` → `/api/public/assistant` (Lovable AI on the server: model, prompt, tools; may return a `navigate` screen action the client follows) → streamed TTS from `/api/public/tts`; browser speech synthesis is the playback fallback and the pure `routeCommand` router (unit-tested, en/hi/mr) answers whenever the assistant is unreachable. Voice is never the only path — text fallback always present; audio is uploaded for transcription only, never stored.
+- Languages: single dictionary i18n in `src/lib/i18n.tsx` (en/hi/mr); Hindi and Marathi must cover every English key (enforced by test).
+- UPI payments: QR codes are generated client-side from the collective's own UPI ID; Kalaswar displays the QR but never processes or verifies money — payment rows and order events are clearly labelled demonstration records.
+- Order steps auto-append to `order_events` (best-effort) inside `assignOrder`/`updateOrderStatus`/`recordPayment` in the data layer; the timeline UI and CSV exports read from it.
+- Seeded demonstration data uses fixed UUIDs; `DEMO_ARTISAN_ID` in `src/lib/constants.ts` anchors the artisan experience. Demo imagery/records must stay visibly labeled as demonstration.
+- Data layer lives in `src/lib/data.ts` as TanStack Query options over the generated browser Supabase client (RLS applies); no admin client is used anywhere.

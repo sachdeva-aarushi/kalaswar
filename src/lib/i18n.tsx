@@ -1,0 +1,967 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type Lang = "en" | "hi" | "mr";
+
+const en: Record<string, string> = {
+  nav_explore: "Explore Crafts",
+  nav_artisans: "Meet the Artisans",
+  nav_mission: "Our Mission",
+  nav_forArtisans: "For Artisans",
+  nav_forSHGs: "For SHGs",
+  nav_menu: "Menu",
+  nav_close: "Close",
+
+  hero_kicker: "The voice of Indian craft",
+  hero_title: "Every craft has a story. Every woman deserves to be heard.",
+  hero_sub:
+    "Discover the women behind India's living crafts. Explore handmade work, hear their stories, and support the communities keeping these traditions alive.",
+  hero_cta_explore: "Explore the Crafts",
+  hero_cta_artisans: "Meet the Artisans",
+  hero_credit: "Women artisans at work — demonstration imagery",
+
+  crafts_kicker: "Craft discovery",
+  crafts_title: "Living crafts, made by hand",
+  crafts_sub:
+    "Woven grass, painted pigment, thrown clay and stitched thread — each collection comes from one collective, one region, one set of hands.",
+  crafts_explore_all: "Explore all crafts",
+
+  makers_kicker: "Meet the makers",
+  makers_title: "The hands behind the work",
+  makers_sub:
+    "Fictional demonstration profiles of the women whose work you see here. Every piece names its maker.",
+  makers_view: "View her work",
+  makers_region: "Region",
+  makers_collective: "Collective",
+
+  works_kicker: "How Kalaswar works",
+  works_title: "One platform, three experiences",
+  works_step1_t: "Artisans, in their own voice",
+  works_step1_b:
+    "A simple, voice-first interface. An artisan asks about her orders, payments or earnings in her own language and hears an immediate answer — no dashboard required.",
+  works_step2_t: "Coordinators keep the work moving",
+  works_step2_b:
+    "Self-help-group coordinators assign orders, track production and dispatch, record payments, add products, and export records — one shared view of the collective's work.",
+  works_step3_t: "Customers meet the maker",
+  works_step3_b:
+    "Every product carries its maker's name, craft and story. Discovery begins with the person, not the price.",
+
+  mission_kicker: "Our mission",
+  mission_title: "Fair representation is the product.",
+  mission_body:
+    "Kalaswar exists so that a woman selling at a village fair and a woman browsing in a city can meet in the same place — with her name on the work, her price on the record, and her voice in the room. Every artisan deserves to be seen, heard, and fairly represented.",
+
+  closing_title: "Begin with a craft. Or bring your collective.",
+  closing_customers_sub:
+    "Follow a single piece from the weaver's hands to your home — and know the woman who made it.",
+  closing_shg_sub:
+    "Self-help groups can bring their production, orders and records onto Kalaswar.",
+  closing_cta_customers: "Explore Crafts",
+  closing_cta_shg: "Open the coordinator workspace",
+
+  explore_title: "Explore Crafts",
+  explore_sub:
+    "Handmade pieces from demonstration self-help-group collectives. Every piece names its maker.",
+  explore_search: "Search crafts, makers, materials…",
+  explore_all: "All crafts",
+  explore_sort: "Sort",
+  sort_price_asc: "Price: low to high",
+  sort_price_desc: "Price: high to low",
+  explore_results: "{n} pieces",
+  explore_empty: "No pieces match your search yet.",
+
+  available: "Available",
+  unavailable: "Made to order",
+  by: "by",
+
+  product_inquire: "Inquire about this piece",
+  product_support: "Support the maker",
+  product_story: "Her story",
+  product_maker: "About the maker",
+  product_view_profile: "View full profile",
+  product_unavailable_note:
+    "This piece is currently made to order. Inquire to arrange it.",
+  product_inquire_note:
+    "Inquiries open a note to the coordinating group. This demonstration build does not send messages.",
+
+  demo_badge: "Demonstration",
+  demo_note: "Demonstration record — sample data; no real transaction takes place.",
+
+  tip_title: "Support {name}",
+  tip_sub: "A small gesture that helps her work travel further.",
+  tip_amount: "Amount (₹)",
+  tip_send: "Record support",
+  tip_success: "Thank you — your support was recorded in this demonstration.",
+  tip_note: "Payments are not processed in this demonstration build.",
+
+  artisans_title: "Meet the Artisans",
+  artisans_sub:
+    "Demonstration profiles of women artisans and their self-help-group collectives.",
+  artisans_craft: "Craft",
+  artisans_region: "Region",
+  artisans_collective: "Collective",
+  artisans_works: "Her work",
+  artisans_private:
+    "Personal contact details are never published on Kalaswar.",
+
+  app_greeting: "Namaste",
+  app_select: "Viewing as",
+  app_voice_hint: "Tap the microphone and ask about your work",
+  app_listening: "Listening…",
+  app_processing: "Understanding…",
+  app_thinking: "Thinking…",
+  app_retry: "Tap the microphone to try again",
+  app_transcript: "You said",
+  app_type_placeholder: "Or type your question…",
+  app_send: "Ask",
+  app_mic: "Microphone",
+  app_no_support:
+    "Voice input is not available in this browser. You can type your question below instead.",
+  app_permission:
+    "Microphone access was blocked. Allow it in your browser settings, or type below.",
+  app_error_voice: "Sorry, I could not hear that clearly. Please try again.",
+  app_error_assistant: "I could not reach the assistant. Please try again.",
+  app_pending: "Pending orders",
+  app_in_production: "In production",
+  app_ready: "Ready for dispatch",
+  app_delivered: "Delivered",
+  app_payments: "Payments",
+  app_payments_note: "Customer payments and payouts to artisans — demonstration records.",
+  app_updates: "Recent updates",
+  app_earnings: "Earnings",
+  app_earnings_note: "Recorded tips and delivered orders — demonstration figures.",
+  app_none: "Nothing here yet.",
+  app_help_title: "What you can ask",
+  app_help_body:
+    "Ask in your own words, in your own language — pending, production, ready or delivered orders · earnings · payments · when will I be paid · how do I upload a product · switch to English, Hindi or Marathi · help",
+  app_data_note: "Records from the demonstration database.",
+  app_voice_on: "Voice on",
+  app_end: "End conversation",
+
+  resp_pending: "You have {n} pending order{plural}.",
+  resp_in_production: "{n} of your orders {verb} in production.",
+  resp_ready: "{n} order{plural} {verb} ready for dispatch.",
+  resp_delivered: "{n} order{plural} {verb} delivered.",
+  resp_earnings: "Your recorded earnings are {amount}.",
+  resp_payments: "Your payment records are shown in the payments section below.",
+  resp_help: "You can ask about your orders, payments or earnings — in your own words.",
+  resp_unknown: "I did not catch that. You can ask about your orders, payments or earnings.",
+  resp_language_en: "Switched to English.",
+  resp_language_hi: "Hindi chalu hai.",
+  resp_language_mr: "मराठी सुरू आहे.",
+
+  status_pending: "Pending",
+  status_in_production: "In production",
+  status_ready_for_dispatch: "Ready for dispatch",
+  status_delivered: "Delivered",
+  status_delayed: "Delayed",
+
+  shg_overview: "Overview",
+  shg_orders: "Orders",
+  shg_artisans: "Artisans",
+  shg_products: "Products",
+  shg_payments: "Payments",
+  shg_reports: "Reports",
+  shg_workspace: "Coordinator workspace",
+  shg_demo: "Demonstration access — not production-secured",
+
+  kpi_total: "Total orders",
+  kpi_awaiting: "Awaiting assignment",
+  kpi_production: "In production",
+  kpi_ready: "Ready for dispatch",
+  kpi_delayed: "Delayed",
+  kpi_artisans: "Active artisans",
+  kpi_activity: "Recent activity",
+
+  tbl_ref: "Reference",
+  tbl_product: "Product",
+  tbl_artisan: "Artisan",
+  tbl_qty: "Qty",
+  tbl_status: "Status",
+  tbl_dispatch: "Expected dispatch",
+  tbl_actions: "Actions",
+  tbl_direction: "Type",
+  tbl_amount: "Amount",
+
+  orders_search: "Search by reference or product…",
+  orders_all: "All statuses",
+  assign: "Assign",
+  reassign: "Reassign",
+  unassigned: "Unassigned",
+  assigned_to: "Assigned to",
+  assign_title: "Assign order {ref}",
+  assign_pick: "Choose an artisan",
+  assign_save: "Assign order",
+  assign_success: "Order {ref} assigned to {name}.",
+  assign_error: "Could not assign the order. Please try again.",
+
+  mark_production: "Start production",
+  mark_ready: "Mark ready",
+  mark_delivered: "Mark delivered",
+  mark_delayed: "Mark delayed",
+  status_update_success: "Order {ref} updated.",
+
+  artisans_workload: "Assigned units",
+  artisans_active: "Active assignments",
+  artisans_none: "No active assignments",
+
+  products_new: "New product",
+  products_edit: "Edit product",
+  f_name: "Name",
+  f_description: "Description",
+  f_price: "Price (₹)",
+  f_category: "Category",
+  f_artisan: "Artisan",
+  f_availability: "Available for order",
+  f_image: "Image",
+  f_save: "Save product",
+  f_cancel: "Cancel",
+  f_saving: "Saving…",
+  f_created: "Product created — it now appears in the marketplace.",
+  f_updated: "Product updated.",
+  f_error: "Could not save the product. Please try again.",
+
+  upload_choose: "Upload image",
+  upload_change: "Replace image",
+  upload_progress: "Uploading… {p}%",
+  upload_success: "Image uploaded.",
+  upload_fail: "Upload failed. Please try again.",
+  upload_invalid: "Please choose a JPG, PNG or WebP image under 10 MB.",
+  upload_config:
+    "Image upload is not configured. Add a Cloudinary cloud name and an upload preset to enable it.",
+
+  pay_upi: "Pay with UPI",
+  pay_upi_sub: "Scan with any UPI app to pay the collective directly.",
+  pay_to: "Payment goes to",
+  pay_open_app: "Open UPI app",
+  pay_not_configured:
+    "This collective has not added its UPI ID yet. The coordinator can add it in the workspace.",
+  pay_demo_note:
+    "Demonstration: the UPI ID is sample data. Kalaswar shows the QR but does not verify the payment.",
+  pay_qr_alt: "UPI QR code",
+  pay_record: "Record payment",
+  pay_in: "Customer payment",
+  pay_out: "Payout to artisan",
+  pay_order: "Order",
+  pay_artisan: "Artisan",
+  pay_none: "No payments recorded yet.",
+  pay_recorded: "Payment recorded.",
+  pay_status_recorded: "Recorded",
+  pay_status_paid: "Paid",
+  f_upi: "UPI ID",
+  f_upi_note: "Customer QR payments go to this UPI ID.",
+  f_upi_save: "Save UPI ID",
+  upi_saved: "UPI ID saved.",
+  upi_invalid: "Enter a valid UPI ID, like name@bank.",
+
+  events_title: "Order record",
+  events_sub: "Every step of this order, recorded as it happened.",
+  event_placed: "Placed",
+  event_assigned: "Assigned",
+  event_in_production: "Production started",
+  event_ready_for_dispatch: "Ready for dispatch",
+  event_delayed: "Marked delayed",
+  event_delivered: "Delivered",
+  event_payment: "Payment recorded",
+  view_record: "Record",
+  export_events: "Export order records CSV",
+  export_payments: "Export payments CSV",
+
+  rank_title: "Collective ranking",
+  rank_sub: "On-time delivery and earnings fairness for every collective.",
+  rank_ontime: "On-time delivery",
+  rank_fairness: "Earnings fairness",
+  rank_score: "Score",
+  rank_note: "Demonstration score from current records; it moves as orders move.",
+  rank_ontime_sub: "Delivered within the promised date",
+  rank_fairness_sub: "Share of earned value recorded as paid to artisans",
+
+  reports_title: "Reports & exports",
+  reports_sub: "Download the records currently shown in the workspace.",
+  export_orders: "Export orders CSV",
+  export_artisans: "Export artisans CSV",
+  export_products: "Export products CSV",
+  export_done: "Download started.",
+  reports_note: "Exports contain the same records and fields as the workspace views.",
+
+  common_loading: "Loading…",
+  common_error: "Something went wrong.",
+  common_retry: "Try again",
+  common_all: "All",
+  language: "Language",
+  back_home: "Back to home",
+  view_all: "View all",
+  footer_demo:
+    "Demonstration build. All artisans, products, orders and figures are fictional demonstration records.",
+};
+
+const hi: Record<string, string> = {
+  nav_explore: "शिल्प देखें",
+  nav_artisans: "कारीगरों से मिलें",
+  nav_mission: "हमारा उद्देश्य",
+  nav_forArtisans: "कारीगरों के लिए",
+  nav_forSHGs: "समूहों के लिए",
+  nav_menu: "मेनू",
+  nav_close: "बंद करें",
+
+  hero_kicker: "भारतीय शिल्प की आवाज़",
+  hero_title: "हर शिल्प की एक कहानी है। हर स्त्री की आवाज़ हक़दार है।",
+  hero_sub:
+    "भारत की जीवंत शिल्प-परंपराओं के पीछे की स्त्रियों को जानिए। हस्तनिर्मित कारीगरी देखें, उनकी कहानियाँ सुनें, और इन परंपराओं को जीवित रखने वाले समुदायों का साथ दें।",
+  hero_cta_explore: "शिल्प देखें",
+  hero_cta_artisans: "कारीगरों से मिलें",
+  hero_credit: "काम करती हुई कारीगर — प्रदर्शन चित्र",
+
+  crafts_kicker: "शिल्प खोज",
+  crafts_title: "हाथ से बनी जीवंत कारीगरी",
+  crafts_sub:
+    "बुनी घास, रंगी रंग, गूँथी मिट्टी और सिला धागा — हर संग्रह एक समूह, एक क्षेत्र और एक जोड़ी हाथों से आता है।",
+  crafts_explore_all: "सभी शिल्प देखें",
+
+  makers_kicker: "कारीगरों से मिलिए",
+  makers_title: "काम के पीछे के हाथ",
+  makers_sub:
+    "यहाँ दिखने वाले काम के पीछे की स्त्रियों की काल्पनिक प्रदर्शन प्रोफ़ाइल। हर वस्तु अपनी बनाने वाले का नाम बताती है।",
+  makers_view: "उनका काम देखें",
+  makers_region: "क्षेत्र",
+  makers_collective: "समूह",
+
+  works_kicker: "कलास्वर कैसे काम करता है",
+  works_title: "एक मंच, तीन अनुभव",
+  works_step1_t: "कारीगर, अपनी आवाज़ में",
+  works_step1_b:
+    "एक सरल, आवाज़-आधारित इंटरफ़ेस। कारीगर अपने ऑर्डर, भुगतान या कमाई के बारे में अपनी भाषा में पूछती है और तुरंत उत्तर सुनती है — किसी डैशबोर्ड की ज़रूरत नहीं।",
+  works_step2_t: "संयोजक काम आगे बढ़ाते हैं",
+  works_step2_b:
+    "स्वयं-सहायता-समूह के संयोजक ऑर्डर बाँटते हैं, उत्पादन और रवानगी देखते हैं, भुगतान दर्ज करते हैं, उत्पाद जोड़ते हैं और रिकॉर्ड निर्यात करते हैं — समूह के काम का एक साझा दृश्य।",
+  works_step3_t: "ग्राहक कारीगर से मिलते हैं",
+  works_step3_b:
+    "हर वस्तु अपनी बनाने वाले का नाम, शिल्प और कहानी साथ लाती है। खोज व्यक्ति से शुरू होती है, क़ीमत से नहीं।",
+
+  mission_kicker: "हमारा उद्देश्य",
+  mission_title: "न्यायपूर्ण प्रतिनिधित्व ही उत्पाद है।",
+  mission_body:
+    "कलास्वर इसलिए है ताकि गाँव के मेले में बैठी स्त्री और शहर में खरीदारी करती स्त्री एक ही जगह मिल सकें — काम पर उसका नाम, रिकॉर्ड पर उसकी क़ीमत और कमरे में उसकी आवाज़। हर कारीगर देखी, सुनी और न्यायपूर्वक प्रस्तुत जाने की हक़दार है।",
+
+  closing_title: "एक शिल्प से शुरुआत करें। या अपना समूह लाएँ।",
+  closing_customers_sub:
+    "एक वस्तु का सफ़र बुनकर के हाथों से आपके घर तक देखें — और उन स्त्री को जानें जिन्होंने उसे बनाया।",
+  closing_shg_sub:
+    "स्वयं-सहायता-समूह अपना उत्पादन, ऑर्डर और रिकॉर्ड कलास्वर पर ला सकते हैं।",
+  closing_cta_customers: "शिल्प देखें",
+  closing_cta_shg: "संयोजक कार्यक्षेत्र खोलें",
+
+  explore_title: "शिल्प देखें",
+  explore_sub:
+    "प्रदर्शन स्वयं-सहायता-समूहों की हस्तनिर्मित वस्तुएँ। हर वस्तु अपनी कारीगर का नाम बताती है।",
+  explore_search: "शिल्प, कारीगर, सामग्री खोजें…",
+  explore_all: "सभी शिल्प",
+  explore_sort: "क्रम",
+  sort_price_asc: "क़ीमत: कम से ज़्यादा",
+  sort_price_desc: "क़ीमत: ज़्यादा से कम",
+  explore_results: "{n} वस्तुएँ",
+  explore_empty: "अभी कोई वस्तु आपकी खोज से मेल नहीं खाती।",
+
+  available: "उपलब्ध",
+  unavailable: "ऑर्डर पर बनता है",
+  by: "कारीगर",
+
+  product_inquire: "इस वस्तु के बारे में पूछें",
+  product_support: "कारीगर का समर्थन करें",
+  product_story: "उनकी कहानी",
+  product_maker: "कारीगर के बारे में",
+  product_view_profile: "पूरी प्रोफ़ाइल देखें",
+  product_unavailable_note:
+    "यह वस्तु अभी ऑर्डर पर बनती है। व्यवस्था के लिए पूछें।",
+  product_inquire_note:
+    "पूछताछ समूह के संयोजक तक पहुँचती है। यह प्रदर्शन बिल्ड संदेश नहीं भेजता।",
+
+  demo_badge: "प्रदर्शन",
+  demo_note: "प्रदर्शन रिकॉर्ड — नमूना डेटा; कोई वास्तविक लेन-देन नहीं।",
+
+  tip_title: "{name} का समर्थन करें",
+  tip_sub: "एक छोटा इसारा जो उनके काम को आगे तक ले जाता है।",
+  tip_amount: "राशि (₹)",
+  tip_send: "समर्थन दर्ज करें",
+  tip_success: "धन्यवाद — आपका समर्थन इस प्रदर्शन में दर्ज हुआ।",
+  tip_note: "इस प्रदर्शन बिल्ड में भुगतान संसाधित नहीं होते।",
+
+  artisans_title: "कारीगरों से मिलिए",
+  artisans_sub:
+    "स्त्री कारीगरों और उनके स्वयं-सहायता-समूहों की प्रदर्शन प्रोफ़ाइल।",
+  artisans_craft: "शिल्प",
+  artisans_region: "क्षेत्र",
+  artisans_collective: "समूह",
+  artisans_works: "उनका काम",
+  artisans_private:
+    "व्यक्तिगत संपर्क विवरण कलास्वर पर कभी प्रकाशित नहीं होते।",
+
+  app_greeting: "नमस्ते",
+  app_select: "के रूप में देख रहे हैं",
+  app_voice_hint: "माइक्रोफ़ोन दबाएँ और अपने काम के बारे में पूछें",
+  app_listening: "सुन रहे हैं…",
+  app_processing: "समझ रहे हैं…",
+  app_thinking: "सोच रही हूँ…",
+  app_retry: "फिर कोशिश करने के लिए माइक्रोफ़ोन दबाएँ",
+  app_transcript: "आपने कहा",
+  app_type_placeholder: "या अपना सवाल लिखें…",
+  app_send: "पूछें",
+  app_mic: "माइक्रोफ़ोन",
+  app_no_support:
+    "इस ब्राउज़र में आवाज़ से इनपुट उपलब्ध नहीं है। आप नीचे अपना सवाल लिख सकती हैं।",
+  app_permission:
+    "माइक्रोफ़ोन की अनुमति रोक दी गई। ब्राउज़र सेटिंग में अनुमति दें, या नीचे लिखें।",
+  app_error_voice: "क्षमा करें, साफ़ सुनाई नहीं दिया। कृपया फिर कोशिश करें।",
+  app_error_assistant: "सहायक तक नहीं पहुँच पाई। कृपया फिर कोशिश करें।",
+  app_pending: "लंबित ऑर्डर",
+  app_in_production: "उत्पादन में",
+  app_ready: "रवानगी के लिए तैयार",
+  app_delivered: "डिलीवर हुए",
+  app_payments: "भुगतान",
+  app_payments_note: "ग्राहक भुगतान और कारीगरों को दिए गए भुगतान — प्रदर्शन रिकॉर्ड।",
+  app_updates: "हाल के अपडेट",
+  app_earnings: "कमाई",
+  app_earnings_note: "दर्ज समर्थन और डिलीवर ऑर्डर — प्रदर्शन आँकड़े।",
+  app_none: "अभी यहाँ कुछ नहीं है।",
+  app_help_title: "आप क्या पूछ सकती हैं",
+  app_help_body:
+    "अपने शब्दों में, अपनी भाषा में पूछें — लंबित, उत्पादन, तैयार या डिलीवर ऑर्डर · कमाई · भुगतान · मुझे कब भुगतान मिलेगा · उत्पाद कैसे अपलोड करूँ · अंग्रेज़ी, हिंदी या मराठी में बदलें · मदद",
+  app_data_note: "प्रदर्शन डेटाबेस के रिकॉर्ड।",
+  app_voice_on: "आवाज़ चालू",
+  app_end: "बातचीत समाप्त करें",
+
+  resp_pending: "आपके {n} लंबित ऑर्डर हैं।",
+  resp_in_production: "आपके {n} ऑर्डर उत्पादन में हैं।",
+  resp_ready: "{n} ऑर्डर रवानगी के लिए तैयार हैं।",
+  resp_delivered: "{n} ऑर्डर डिलीवर हुए हैं।",
+  resp_earnings: "आपकी दर्ज कमाई {amount} है।",
+  resp_payments: "भुगतान की नोंदें नीचे भुगतान खंड में दिखती हैं।",
+  resp_help: "आप अपने ऑर्डर, भुगतान या कमाई के बारे में — अपने शब्दों में पूछ सकती हैं।",
+  resp_unknown: "मैं समझ नहीं पाई। आप अपने ऑर्डर, भुगतान या कमाई के बारे में पूछ सकती हैं।",
+  resp_language_en: "Switched to English.",
+  resp_language_hi: "हिंदी चालू है।",
+  resp_language_mr: "मराठी सुरू आहे.",
+
+  status_pending: "लंबित",
+  status_in_production: "उत्पादन में",
+  status_ready_for_dispatch: "रवानगी के लिए तैयार",
+  status_delivered: "डिलीवर",
+  status_delayed: "विलंबित",
+
+  shg_overview: "अवलोकन",
+  shg_orders: "ऑर्डर",
+  shg_artisans: "कारीगर",
+  shg_products: "उत्पाद",
+  shg_payments: "भुगतान",
+  shg_reports: "रिपोर्ट",
+  shg_workspace: "संयोजक कार्यक्षेत्र",
+  shg_demo: "प्रदर्शन पहुँच — उत्पादन-सुरक्षित नहीं",
+
+  kpi_total: "कुल ऑर्डर",
+  kpi_awaiting: "असाइनमेंट प्रतीक्षा",
+  kpi_production: "उत्पादन में",
+  kpi_ready: "रवानगी हेतु तैयार",
+  kpi_delayed: "विलंबित",
+  kpi_artisans: "सक्रिय कारीगर",
+  kpi_activity: "हाल की गतिविधि",
+
+  tbl_ref: "संदर्भ",
+  tbl_product: "उत्पाद",
+  tbl_artisan: "कारीगर",
+  tbl_qty: "मात्रा",
+  tbl_status: "स्थिति",
+  tbl_dispatch: "अपेक्षित रवानगी",
+  tbl_actions: "कार्य",
+  tbl_direction: "प्रकार",
+  tbl_amount: "राशि",
+
+  orders_search: "संदर्भ या उत्पाद से खोजें…",
+  orders_all: "सभी स्थितियाँ",
+  assign: "असाइन करें",
+  reassign: "पुनः असाइन करें",
+  unassigned: "असाइन नहीं",
+  assigned_to: "असाइन",
+  assign_title: "ऑर्डर {ref} असाइन करें",
+  assign_pick: "एक कारीगर चुनें",
+  assign_save: "ऑर्डर असाइन करें",
+  assign_success: "ऑर्डर {ref} को {name} को असाइन किया गया।",
+  assign_error: "ऑर्डर असाइन नहीं हो सका। कृपया फिर कोशिश करें।",
+
+  mark_production: "उत्पादन शुरू करें",
+  mark_ready: "तैयार चिह्नित करें",
+  mark_delivered: "डिलीवर चिह्नित करें",
+  mark_delayed: "विलंबित चिह्नित करें",
+  status_update_success: "ऑर्डर {ref} अपडेट हुआ।",
+
+  artisans_workload: "असाइन इकाइयाँ",
+  artisans_active: "सक्रिय असाइनमेंट",
+  artisans_none: "कोई सक्रिय असाइनमेंट नहीं",
+
+  products_new: "नया उत्पाद",
+  products_edit: "उत्पाद संपादित करें",
+  f_name: "नाम",
+  f_description: "विवरण",
+  f_price: "क़ीमत (₹)",
+  f_category: "श्रेणी",
+  f_artisan: "कारीगर",
+  f_availability: "ऑर्डर के लिए उपलब्ध",
+  f_image: "चित्र",
+  f_save: "उत्पाद सहेजें",
+  f_cancel: "रद्द करें",
+  f_saving: "सहेज रहे हैं…",
+  f_created: "उत्पाद बना — अब बाज़ार में दिखता है।",
+  f_updated: "उत्पाद अपडेट हुआ।",
+  f_error: "उत्पाद सहेजा नहीं जा सका। कृपया फिर कोशिश करें।",
+
+  upload_choose: "चित्र अपलोड करें",
+  upload_change: "चित्र बदलें",
+  upload_progress: "अपलोड हो रहा है… {p}%",
+  upload_success: "चित्र अपलोड हुआ।",
+  upload_fail: "अपलोड असफल। कृपया फिर कोशिश करें।",
+  upload_invalid: "कृपया 10 MB से कम JPG, PNG या WebP चित्र चुनें।",
+  upload_config:
+    "चित्र अपलोड कॉन्फ़िगर नहीं है। सक्रिय करने के लिए Cloudinary का क्लाउड नाम और अपलोड प्रीसेट जोड़ें।",
+
+  pay_upi: "UPI से भुगतान करें",
+  pay_upi_sub: "किसी भी UPI ऐप से यह QR स्कैन करें और राशि सीधे समूह को भेजें।",
+  pay_to: "भुगतान जाता है",
+  pay_open_app: "UPI ऐप खोलें",
+  pay_not_configured:
+    "इस समूह ने अभी UPI आईडी नहीं जोड़ी है। संयोजक इसे कार्यक्षेत्र में जोड़ सकते हैं।",
+  pay_demo_note:
+    "प्रदर्शन: UPI आईडी नमूना डेटा है। कलास्वर QR दिखाता है, भुगतान सत्यापित नहीं करता।",
+  pay_qr_alt: "UPI क्यूआर कोड",
+  pay_record: "भुगतान दर्ज करें",
+  pay_in: "ग्राहक भुगतान",
+  pay_out: "कारीगर को भुगतान",
+  pay_order: "ऑर्डर",
+  pay_artisan: "कारीगर",
+  pay_none: "अभी कोई भुगतान दर्ज नहीं है।",
+  pay_recorded: "भुगतान दर्ज हुआ।",
+  pay_status_recorded: "दर्ज",
+  pay_status_paid: "दिया गया",
+  f_upi: "UPI आईडी",
+  f_upi_note: "ग्राहकों का QR भुगतान इसी UPI आईडी पर जाता है।",
+  f_upi_save: "UPI आईडी सहेजें",
+  upi_saved: "UPI आईडी सहेजी गई।",
+  upi_invalid: "मान्य UPI आईडी लिखें, जैसे naam@bank।",
+
+  events_title: "ऑर्डर रिकॉर्ड",
+  events_sub: "इस ऑर्डर का हर चरण, जैसा हुआ वैसा दर्ज।",
+  event_placed: "ऑर्डर दर्ज हुआ",
+  event_assigned: "असाइन हुआ",
+  event_in_production: "उत्पादन शुरू",
+  event_ready_for_dispatch: "रवानगी हेतु तैयार",
+  event_delayed: "विलंबित चिह्नित",
+  event_delivered: "डिलीवर हुआ",
+  event_payment: "भुगतान दर्ज हुआ",
+  view_record: "रिकॉर्ड देखें",
+  export_events: "ऑर्डर रिकॉर्ड CSV निर्यात करें",
+  export_payments: "भुगतान CSV निर्यात करें",
+
+  rank_title: "समूह रैंकिंग",
+  rank_sub: "हर समूह के लिए समय पर डिलीवरी और कमाई की न्यायपूर्णता।",
+  rank_ontime: "समय पर डिलीवरी",
+  rank_fairness: "कमाई की न्यायपूर्णता",
+  rank_score: "स्कोर",
+  rank_note: "मौजूदा रिकॉर्ड से बना प्रदर्शन स्कोर; ऑर्डर चलते रहने पर बदलता है।",
+  rank_ontime_sub: "ठहराई गई तारीख के भीतर डिलीवर हुए ऑर्डर",
+  rank_fairness_sub: "कमाए गए मूल्य का कारीगरों को दिया गया हिस्सा",
+
+  reports_title: "रिपोर्ट और निर्यात",
+  reports_sub: "कार्यक्षेत्र में अभी दिखने वाले रिकॉर्ड डाउनलोड करें।",
+  export_orders: "ऑर्डर CSV निर्यात करें",
+  export_artisans: "कारीगर CSV निर्यात करें",
+  export_products: "उत्पाद CSV निर्यात करें",
+  export_done: "डाउनलोड शुरू हुआ।",
+  reports_note: "निर्यात में वही रिकॉर्ड और फ़ील्ड हैं जो कार्यक्षेत्र दृश्यों में हैं।",
+
+  common_loading: "लोड हो रहा है…",
+  common_error: "कुछ गड़बड़ हो गई।",
+  common_retry: "फिर कोशिश करें",
+  common_all: "सभी",
+  language: "भाषा",
+  back_home: "होम पर जाएँ",
+  view_all: "सभी देखें",
+  footer_demo:
+    "प्रदर्शन बिल्ड। सभी कारीगर, उत्पाद, ऑर्डर और आँकड़े काल्पनिक प्रदर्शन रिकॉर्ड हैं।",
+};
+
+const mr: Record<string, string> = {
+  nav_explore: "शिल्प पाहा",
+  nav_artisans: "कारीगरांना भेटा",
+  nav_mission: "आमचे ध्येय",
+  nav_forArtisans: "कारीगरांसाठी",
+  nav_forSHGs: "समूहांसाठी",
+  nav_menu: "मेनू",
+  nav_close: "बंद करा",
+
+  hero_kicker: "भारतीय शिल्पाचा आवाज",
+  hero_title: "प्रत्येक शिल्पामागे एक गोष्ट आहे. प्रत्येक स्त्रीला ऐकण्याचा हक्क आहे.",
+  hero_sub:
+    "भारतातील जिवंत शिल्पपरंपरांमागील स्त्रियांना ओळखा. हस्तनिर्मित कलाकृती पाहा, त्यांच्या गोष्टी ऐका, आणि या परंपरा जपणाऱ्या समुदायांना पाठिंबा द्या.",
+  hero_cta_explore: "शिल्प पाहा",
+  hero_cta_artisans: "कारीगरांना भेटा",
+  hero_credit: "काम करणाऱ्या कारीगर — प्रदर्शन छायाचित्र",
+
+  crafts_kicker: "शिल्प शोध",
+  crafts_title: "हाताने तयार केलेली जिवंत शिल्पे",
+  crafts_sub:
+    "विणलेले गवत, रंगवलेले रंग, घडवलेली माती आणि शिवलेला धागा — प्रत्येक संग्रह एका समूहाकडून, एका प्रदेशातून, एका जोडी हातांतून येतो.",
+  crafts_explore_all: "सर्व शिल्प पाहा",
+
+  makers_kicker: "कारीगरांना ओळखा",
+  makers_title: "कामामागील हात",
+  makers_sub:
+    "येथे दिसणाऱ्या कामामागील स्त्रियांची काल्पनिक प्रदर्शन प्रोफाइल. प्रत्येक कलाकृती तिच्या निर्मात्याचे नाव सांगते.",
+  makers_view: "तिचे काम पाहा",
+  makers_region: "प्रदेश",
+  makers_collective: "समूह",
+
+  works_kicker: "कलास्वर कसे चालते",
+  works_title: "एक वेदिका, तीन अनुभव",
+  works_step1_t: "कारीगर, तिच्या आवाजात",
+  works_step1_b:
+    "एक साधी, आवाजावर चालणारी पद्धत. कारीगर आपले ऑर्डर, देयके किंवा कमाई आपल्या भाषेत विचारते आणि तत्काळ उत्तर ऐकते — कोणत्याही डॅशबोर्डची गरज नाही.",
+  works_step2_t: "समन्वयक काम पुढे नेतात",
+  works_step2_b:
+    "स्वयंसहाय्यता गटाचे समन्वयक ऑर्डर वाटतात, उत्पादन व रवानगी पाहतात, देयके नोंदवतात, उत्पादने जोडतात आणि नोंदी निर्यात करतात — गटाच्या कामाचा एक सामायिक दृष्टिकोन.",
+  works_step3_t: "ग्राहक कारीगरांना भेटतात",
+  works_step3_b:
+    "प्रत्येक कलाकृती तिच्या निर्मात्याचे नाव, शिल्प आणि गोष्ट घेऊन येते. शोध किंमतीपासून नव्हे, तर व्यक्तीपासून सुरू होतो.",
+
+  mission_kicker: "आमचे ध्येय",
+  mission_title: "न्याय्य प्रतिनिधित्व हेच उत्पादन आहे.",
+  mission_body:
+    "कलास्वर असे बनवले आहे की गावातील मेळ्यात बसणारी स्त्री आणि शहरात खरेदी करणारी स्त्री एकाच जागी भेटू शकतील — कामावर तिचे नाव, नोंदीत तिची किंमत आणि खोलीत तिचा आवाज. प्रत्येक कारीगर पाहिली जाणे, ऐकली जाणे आणि न्याय्यपणे मांडली जाणे याची हकदार आहे.",
+
+  closing_title: "एका शिल्पापासून सुरुवात करा. किंवा आपला समूह आणा.",
+  closing_customers_sub:
+    "एका कलाकृतीचा प्रवास विणकराच्या हातापासून तुमच्या घरापर्यंत पाहा — आणि ती बनवणाऱ्या स्त्रीला ओळखा.",
+  closing_shg_sub:
+    "स्वयंसहाय्यता गट आपले उत्पादन, ऑर्डर आणि नोंदी कलास्वरवर आणू शकतात.",
+  closing_cta_customers: "शिल्प पाहा",
+  closing_cta_shg: "समन्वयक कार्यक्षेत्र उघडा",
+
+  explore_title: "शिल्प पाहा",
+  explore_sub:
+    "प्रदर्शन स्वयंसहाय्यता गटांतील हस्तनिर्मित कलाकृती. प्रत्येक कलाकृती तिच्या कारीगराचे नाव सांगते.",
+  explore_search: "शिल्प, कारीगर, सामग्री शोधा…",
+  explore_all: "सर्व शिल्प",
+  explore_sort: "क्रम",
+  sort_price_asc: "किंमत: कमी ते जास्त",
+  sort_price_desc: "किंमत: जास्त ते कमी",
+  explore_results: "{n} कलाकृती",
+  explore_empty: "अजून कोणतीही कलाकृती तुमच्या शोधाशी जुळत नाही.",
+
+  available: "उपलब्ध",
+  unavailable: "ऑर्डरवर तयार होते",
+  by: "कारीगर",
+
+  product_inquire: "या कलाकृतीबद्दल चौकशी करा",
+  product_support: "कारीगराला पाठिंबा द्या",
+  product_story: "तिची गोष्ट",
+  product_maker: "कारीगराबद्दल",
+  product_view_profile: "संपूर्ण प्रोफाइल पाहा",
+  product_unavailable_note:
+    "ही कलाकृती सध्या ऑर्डरवर तयार होते. आयोजनासाठी चौकशी करा.",
+  product_inquire_note:
+    "चौकशी समूहाच्या समन्वयकापर्यंत पोहोचते. हा प्रदर्शन बिल्ड संदेश पाठवत नाही.",
+
+  demo_badge: "प्रदर्शन",
+  demo_note: "प्रदर्शन नोंद — नमुना डेटा; कोणतेही खरे व्यवहार होत नाहीत.",
+
+  tip_title: "{name} यांना पाठिंबा द्या",
+  tip_sub: "एक छोटा इशारा जो तिचे काम पुढे नेतो.",
+  tip_amount: "रक्कम (₹)",
+  tip_send: "पाठिंबा नोंदवा",
+  tip_success: "धन्यवाद — तुमचा पाठिंबा या प्रदर्शनात नोंदवला गेला.",
+  tip_note: "या प्रदर्शन बिल्डमध्ये देयके प्रक्रिया केली जात नाहीत.",
+
+  artisans_title: "कारीगरांना भेटा",
+  artisans_sub:
+    "स्त्री कारीगर आणि त्यांच्या स्वयंसहाय्यता गटांची प्रदर्शन प्रोफाइल.",
+  artisans_craft: "शिल्प",
+  artisans_region: "प्रदेश",
+  artisans_collective: "समूह",
+  artisans_works: "तिचे काम",
+  artisans_private:
+    "वैयक्तिक संपर्क तपशील कलास्वरवर कधीही प्रकाशित केले जात नाहीत.",
+
+  app_greeting: "नमस्कार",
+  app_select: "पाहत आहात",
+  app_voice_hint: "मायक्रोफोन दाबा आणि आपल्या कामाबद्दल विचारा",
+  app_listening: "ऐकत आहे…",
+  app_processing: "समजून घेत आहे…",
+  app_thinking: "विचार करत आहे…",
+  app_retry: "पुन्हा प्रयत्न करण्यासाठी मायक्रोफोन दाबा",
+  app_transcript: "तुम्ही म्हणाले",
+  app_type_placeholder: "किंवा आपला प्रश्न लिहा…",
+  app_send: "विचारा",
+  app_mic: "मायक्रोफोन",
+  app_no_support:
+    "या ब्राउझरमध्ये आवाजाची सुविधा उपलब्ध नाही. तुम्ही खाली आपला प्रश्न लिहू शकता.",
+  app_permission:
+    "मायक्रोफोनची परवानगी रोखली गेली. ब्राउझर सेटिंग्समध्ये परवानगी द्या, किंवा खाली लिहा.",
+  app_error_voice: "क्षमस्व, ते स्पष्ट ऐकू आले नाही. कृपया पुन्हा प्रयत्न करा.",
+  app_error_assistant: "सहाय्यकापर्यंत पोहोचता आले नाही. कृपया पुन्हा प्रयत्न करा.",
+  app_pending: "प्रलंबित ऑर्डर",
+  app_in_production: "निर्मितीत",
+  app_ready: "रवानगीसाठी तयार",
+  app_delivered: "वितरित",
+  app_payments: "देयके",
+  app_payments_note: "ग्राहक देयके आणि कारीगरांना दिलेली देयके — प्रदर्शन नोंदी.",
+  app_updates: "अलीकडील अद्ययावत",
+  app_earnings: "कमाई",
+  app_earnings_note: "नोंदवलेला पाठिंबा आणि वितरित ऑर्डर — प्रदर्शन आकडे.",
+  app_none: "अजून इथे काहीही नाही.",
+  app_help_title: "तुम्ही काय विचारू शकता",
+  app_help_body:
+    "आपल्या शब्दांत, आपल्या भाषेत विचारा — प्रलंबित, निर्मिती, तयार किंवा वितरित ऑर्डर · कमाई · देयके · मला कधी देयक मिळेल · उत्पादन कसे अपलोड करावे · इंग्रजी, हिंदी किंवा मराठीत बदला · मदत",
+  app_data_note: "प्रदर्शन डेटाबेसमधील नोंदी.",
+  app_voice_on: "आवाज सुरू",
+  app_end: "संवाद समाप्त करा",
+
+  resp_pending: "तुमचे {n} प्रलंबित ऑर्डर आहेत.",
+  resp_in_production: "तुमचे {n} ऑर्डर निर्मितीत आहेत.",
+  resp_ready: "{n} ऑर्डर रवानगीसाठी तयार आहेत.",
+  resp_delivered: "{n} ऑर्डर वितरित झाले आहेत.",
+  resp_earnings: "तुमची नोंदवलेली कमाई {amount} आहे.",
+  resp_payments: "देयकांच्या नोंदी खाली देयके विभागात दिसतात.",
+  resp_help: "तुम्ही आपल्या ऑर्डर, देयके किंवा कमाईबद्दल — आपल्या शब्दांत विचारू शकता.",
+  resp_unknown: "मला ते समजले नाही. तुम्ही आपल्या ऑर्डर, देयके किंवा कमाईबद्दल विचारू शकता.",
+  resp_language_en: "इंग्रजी सुरू आहे.",
+  resp_language_hi: "हिंदी चालू आहे.",
+  resp_language_mr: "मराठी सुरू आहे.",
+
+  status_pending: "प्रलंबित",
+  status_in_production: "निर्मितीत",
+  status_ready_for_dispatch: "रवानगीसाठी तयार",
+  status_delivered: "वितरित",
+  status_delayed: "विलंबित",
+
+  shg_overview: "आढावा",
+  shg_orders: "ऑर्डर",
+  shg_artisans: "कारीगर",
+  shg_products: "उत्पादने",
+  shg_payments: "देयके",
+  shg_reports: "अहवाल",
+  shg_workspace: "समन्वयक कार्यक्षेत्र",
+  shg_demo: "प्रदर्शन प्रवेश — उत्पादन-सुरक्षित नाही",
+
+  kpi_total: "एकूण ऑर्डर",
+  kpi_awaiting: "वाटपाची प्रतीक्षा",
+  kpi_production: "निर्मितीत",
+  kpi_ready: "रवानगीसाठी तयार",
+  kpi_delayed: "विलंबित",
+  kpi_artisans: "सक्रिय कारीगर",
+  kpi_activity: "अलीकडील कारवाय",
+
+  tbl_ref: "संदर्भ",
+  tbl_product: "उत्पादन",
+  tbl_artisan: "कारीगर",
+  tbl_qty: "संख्या",
+  tbl_status: "स्थिती",
+  tbl_dispatch: "अपेक्षित रवानगी",
+  tbl_actions: "कृती",
+  tbl_direction: "प्रकार",
+  tbl_amount: "रक्कम",
+
+  orders_search: "संदर्भ किंवा उत्पादनाने शोधा…",
+  orders_all: "सर्व स्थिती",
+  assign: "वाटप करा",
+  reassign: "पुन्हा वाटप करा",
+  unassigned: "वाटप नाही",
+  assigned_to: "ला वाटप",
+  assign_title: "ऑर्डर {ref} वाटप करा",
+  assign_pick: "कारीगर निवडा",
+  assign_save: "ऑर्डर वाटप करा",
+  assign_success: "ऑर्डर {ref} {name} यांना वाटप झाला.",
+  assign_error: "ऑर्डर वाटप होऊ शकला नाही. कृपया पुन्हा प्रयत्न करा.",
+
+  mark_production: "निर्मिती सुरू करा",
+  mark_ready: "तयार चिन्हांकित करा",
+  mark_delivered: "वितरित चिन्हांकित करा",
+  mark_delayed: "विलंबित चिन्हांकित करा",
+  status_update_success: "ऑर्डर {ref} अद्ययावत झाला.",
+
+  artisans_workload: "वाटप केलेले तुकडे",
+  artisans_active: "सक्रिय वाटप",
+  artisans_none: "कोणतेही सक्रिय वाटप नाही",
+
+  products_new: "नवीन उत्पादन",
+  products_edit: "उत्पादन संपादन",
+  f_name: "नाव",
+  f_description: "वर्णन",
+  f_price: "किंमत (₹)",
+  f_category: "प्रकार",
+  f_artisan: "कारीगर",
+  f_availability: "ऑर्डरसाठी उपलब्ध",
+  f_image: "प्रतिमा",
+  f_save: "उत्पादन जतन करा",
+  f_cancel: "रद्द करा",
+  f_saving: "जतन करत आहे…",
+  f_created: "उत्पादन तयार झाले — आता बाजारात दिसते.",
+  f_updated: "उत्पादन अद्ययावत झाले.",
+  f_error: "उत्पादन जतन होऊ शकले नाही. कृपया पुन्हा प्रयत्न करा.",
+
+  upload_choose: "प्रतिमा अपलोड करा",
+  upload_change: "प्रतिमा बदला",
+  upload_progress: "अपलोड होत आहे… {p}%",
+  upload_success: "प्रतिमा अपलोड झाली.",
+  upload_fail: "अपलोड अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
+  upload_invalid: "कृपया 10 MB पेक्षा कमी JPG, PNG किंवा WebP प्रतिमा निवडा.",
+  upload_config:
+    "प्रतिमा अपलोड संरचित नाही. सक्रिय करण्यासाठी Cloudinary चे क्लाउड नाव आणि अपलोड प्रीसेट जोडा.",
+
+  pay_upi: "यूपीआयने द्या",
+  pay_upi_sub: "कोणत्याही यूपीआय अॅपने हा QR स्कॅन करा आणि रक्कम थेट समूहाला पाठवा.",
+  pay_to: "देयक जाते",
+  pay_open_app: "यूपीआय अॅप उघडा",
+  pay_not_configured:
+    "या समूहाने अजून यूपीआय आयडी जोडलेली नाही. समन्वयक ती कार्यक्षेत्रात जोडू शकतो.",
+  pay_demo_note:
+    "प्रदर्शन: यूपीआय आयडी हा नमुना डेटा आहे. कलास्वर QR दाखवतो, पण देयक तपासत नाही.",
+  pay_qr_alt: "यूपीआय क्यूआर कोड",
+  pay_record: "देयक नोंदवा",
+  pay_in: "ग्राहक देयक",
+  pay_out: "कारीगराला देयक",
+  pay_order: "ऑर्डर",
+  pay_artisan: "कारीगर",
+  pay_none: "अजून कोणतेही देयक नोंदवलेले नाही.",
+  pay_recorded: "देयक नोंदवले.",
+  pay_status_recorded: "नोंदवले",
+  pay_status_paid: "दिले",
+  f_upi: "यूपीआय आयडी",
+  f_upi_note: "ग्राहकांचे QR देयक या यूपीआय आयडीवर जाते.",
+  f_upi_save: "यूपीआय आयडी जतन करा",
+  upi_saved: "यूपीआय आयडी जतन झाली.",
+  upi_invalid: "वैध यूपीआय आयडी लिहा, जसे naav@bank.",
+
+  events_title: "ऑर्डर नोंद",
+  events_sub: "या ऑर्डरची प्रत्येक पायरी, घडल्याप्रमाणे नोंदवली.",
+  event_placed: "ऑर्डर नोंदवला",
+  event_assigned: "वाटप झाला",
+  event_in_production: "निर्मिती सुरू",
+  event_ready_for_dispatch: "रवानगीसाठी तयार",
+  event_delayed: "विलंबित चिन्हांकित",
+  event_delivered: "वितरित",
+  event_payment: "देयक नोंदवले",
+  view_record: "नोंद पाहा",
+  export_events: "ऑर्डर नोंदी CSV निर्यात करा",
+  export_payments: "देयके CSV निर्यात करा",
+
+  rank_title: "समूह क्रमवारी",
+  rank_sub: "प्रत्येक समूहासाठी वेळेवर वितरण आणि कमाईची न्याय्यता.",
+  rank_ontime: "वेळेवर वितरण",
+  rank_fairness: "कमाईची न्याय्यता",
+  rank_score: "गुण",
+  rank_note: "सध्याच्या नोंदींवरून दिलेला प्रदर्शन गुण; ऑर्डर चालू राहिल्यास बदलतो.",
+  rank_ontime_sub: "ठरलेल्या तारखेपल्या आड वितरित झालेले ऑर्डर",
+  rank_fairness_sub: "कमावलेल्या मूल्याचा कारीगरांना दिलेला वाटा",
+
+  reports_title: "अहवाल आणि निर्यात",
+  reports_sub: "कार्यक्षेत्रात सध्या दिसणाऱ्या नोंदी डाउनलोड करा.",
+  export_orders: "ऑर्डर CSV निर्यात करा",
+  export_artisans: "कारीगर CSV निर्यात करा",
+  export_products: "उत्पादने CSV निर्यात करा",
+  export_done: "डाउनलोड सुरू झाले.",
+  reports_note: "निर्यातीत तेच नोंदी आणि तपशील आहेत जे कार्यक्षेत्र दृश्यांत आहेत.",
+
+  common_loading: "लोड होत आहे…",
+  common_error: "काहीतरी चुकले.",
+  common_retry: "पुन्हा प्रयत्न करा",
+  common_all: "सर्व",
+  language: "भाषा",
+  back_home: "मुख्यपृष्ठावर जा",
+  view_all: "सर्व पाहा",
+  footer_demo:
+    "प्रदर्शन बिल्ड. सर्व कारीगर, उत्पादने, ऑर्डर आणि आकडे काल्पनिक प्रदर्शन नोंदी आहेत.",
+};
+
+export const dictionaries: Record<Lang, Record<string, string>> = { en, hi, mr };
+
+export type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+
+interface LangContextValue {
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  t: TranslateFn;
+}
+
+const LangContext = createContext<LangContextValue | null>(null);
+
+function resolve(lang: Lang, key: string, params?: Record<string, string | number>): string {
+  const dict = dictionaries[lang] ?? en;
+  let text = dict[key] ?? en[key] ?? key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      text = text.split(`{${k}}`).join(String(v));
+    }
+  }
+  return text;
+}
+
+const STORAGE_KEY = "kalaswar.lang";
+
+function isLang(value: string | null): value is Lang {
+  return value === "en" || value === "hi" || value === "mr";
+}
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "en";
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (isLang(saved)) return saved;
+    const nav = navigator.language?.toLowerCase() ?? "";
+    if (nav.startsWith("mr")) return "mr";
+    if (nav.startsWith("hi")) return "hi";
+    return "en";
+  });
+
+  const setLang = useCallback((next: Lang) => {
+    setLangState(next);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      /* storage unavailable — language still applies for this session */
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const t = useCallback<TranslateFn>(
+    (key, params) => resolve(lang, key, params),
+    [lang],
+  );
+
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
+  return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
+}
+
+export function useLang(): LangContextValue {
+  const ctx = useContext(LangContext);
+  if (!ctx) {
+    // Safety net: a page rendered outside the provider (error boundary, hot
+    // reload edge) shows English copy instead of blanking the whole screen.
+    return {
+      lang: "en",
+      setLang: () => {},
+      t: (key, params) => resolve("en", key, params),
+    };
+  }
+  return ctx;
+}
+
+export function statusLabel(t: TranslateFn, status: string): string {
+  return t(`status_${status}`);
+}

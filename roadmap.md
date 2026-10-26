@@ -1,0 +1,40 @@
+# Kalaswar build roadmap
+
+## Phase 1 — Foundation + marketplace (done)
+- [x] Design tokens, typography (Playfair/Inter/Noto Devanagari), shared header/footer
+- [x] Homepage with hero, craft discovery, makers, how-it-works, mission, closing
+- [x] Explore with search/category/sort; product detail; artisan directory + profiles
+- [x] Support (tip) interaction, demonstration-labeled
+
+## Phase 2 — Artisan experience (done)
+- [x] Voice-first mobile interface, Web Speech recognition + spoken responses
+- [x] Bounded EN/HI command router reading live data; text fallback
+- [x] Order sections, updates, earnings from the database
+
+## Phase 3 — Coordinator workspace (done)
+- [x] Overview KPIs + recent activity; order table with filter/search
+- [x] Order assignment + status transitions persisted to the database (verified end to end)
+- [x] Artisan workload view; product create/edit; CSV exports
+
+## Phase 4 — Media + polish (done, one item open)
+- [x] Cloudinary upload workflow (progress/validation/preview/persist) with clear unconfigured state
+- [x] 10 product photographs incl. artisan uploads wired to marketplace
+- [x] Tests (voice router, CSV, i18n coverage) passing; typecheck clean
+
+## Phase 5 — AI voice agent + dialects (done)
+- [x] Server-side speech-to-text route (Lovable AI) recording → transcription; verified round-trip
+- [x] Server-side text-to-speech route (Lovable AI) streaming spoken replies; verified
+- [x] LLM assistant with tools: order/payment/earnings answers from live data, autonomous screen navigation (verified: opens the product form by itself), step-by-step guidance in artisan's language
+- [x] Marathi (mr) interface dictionary with full key coverage + tests
+- [x] Marathi voice-command routing fallback
+
+## Phase 6 — Payments + records + ranking (done)
+- [x] UPI QR payments: SHG UPI ID entry, scannable QR for customers (verified), payment event records (demo-labelled)
+- [x] Order event log ("contract"): auto-recorded assignment/production/delivery/payment steps, timeline UI in orders
+- [x] Downloadable records: order-records CSV + payments CSV added to Reports
+- [x] SHG ranking: on-time delivery + earnings fairness score, shown on the workspace overview
+
+## Open items
+- [ ] Cloudinary credentials: workspace owner adds `VITE_CLOUDINARY_CLOUD_NAME` + `VITE_CLOUDINARY_UPLOAD_PRESET` (restricted unsigned preset) to enable real uploads — blocked on user input
+- [ ] Production hardening before real users: auth for coordinator/artisan routes + scoped RLS to replace demo anon-writes
+- [ ] Deployment: Lovable publishing replaces the spec's Vercel requirement (Vercel-specific config intentionally not added)

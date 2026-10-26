@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792931941399,
+      "tag": "0000_kalaswar_schema_and_demo_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792932876282,
+      "tag": "0001_kalaswar_product_image_urls",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792934412642,
+      "tag": "0002_kalaswar_payments_events_upi",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792935669328,
+      "tag": "0003_kalaswar_product_drafts",
+      "breakpoints": true
+    }
+  ]
+}
