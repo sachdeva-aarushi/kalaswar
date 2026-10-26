@@ -682,6 +682,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          buyer_request_id: string | null
           created_at: string
           customer_reference: string
           expected_dispatch_at: string | null
@@ -690,9 +691,11 @@ export type Database = {
           product_id: string
           proposal_id: string | null
           quantity: number
+          source: string
           status: string
         }
         Insert: {
+          buyer_request_id?: string | null
           created_at?: string
           customer_reference: string
           expected_dispatch_at?: string | null
@@ -701,9 +704,11 @@ export type Database = {
           product_id: string
           proposal_id?: string | null
           quantity?: number
+          source?: string
           status?: string
         }
         Update: {
+          buyer_request_id?: string | null
           created_at?: string
           customer_reference?: string
           expected_dispatch_at?: string | null
@@ -712,9 +717,17 @@ export type Database = {
           product_id?: string
           proposal_id?: string | null
           quantity?: number
+          source?: string
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_buyer_request_id_fkey"
+            columns: ["buyer_request_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_requests"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_product_id_fkey"
             columns: ["product_id"]

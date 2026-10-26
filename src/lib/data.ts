@@ -14,6 +14,10 @@ import {
 import { CONSENT_TYPES } from "./types";
 import type {
   Artisan,
+  Buyer,
+  BuyerRequest,
+  BuyerRequestStatus,
+  BuyerRequestWithBuyer,
   CraftGuide,
   ConsentType,
   CraftStory,
@@ -38,6 +42,15 @@ import type {
   ProposalApproval,
   ProposalSpec,
   QualityCheck,
+  Quotation,
+  QuotationSpec,
+  QuotationStatus,
+  QuotationVersion,
+  QuotationWithRefs,
+  SampleEvent,
+  SampleRequest,
+  SampleRequestWithRefs,
+  SampleStatus,
   Shipment,
   Shg,
   Tip,
@@ -1570,4 +1583,549 @@ export async function setStoryConsent(
   );
   if (error) throw new Error(error.message);
   await auditAction("set_story_consent", "story_consents", storyId, { consent_type: consentType, granted });
+}
+
+/* ---------- B2B Studio ---------- */
+
+export async function nextBuyerRequestCode(): Promise<string> {
+  const { data, error } = await supabase.from("buyer_requests").select("request_code");
+  if (error) throw new Error(error.message);
+  let max = 1000;
+  for (const row of (data ?? []) as { request_code: string }[]) {
+    const m = /^KBR-(\d+)$/.exec(row.request_code);
+    if (m) max = Math.max(max, Number(m[1]));
+  }
+  return `KBR-${max + 1}`;
+}
+
+export async function fetchBuyers(): Promise<Buyer[]> {
+  const { data, error } = await supabase.from("buyers").select("*").order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as Buyer[];
+}
+
+export const buyersQuery = () =>
+  queryOptions({ queryKey: ["buyers"], queryFn: fetchBuyers });
+
+export interface BuyerInput {
+  id?: string;
+  org_name: string;
+  category?: string | null;
+  contact_name?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  region?: string | null;
+  intended_use?: string | null;
+}
+
+export async function upsertBuyer(input: BuyerInput): Promise<Buyer> {
+  const payload = {
+    ...(input.id ? { id: input.id } : {}),
+    org_name: input.org_name.trim(),
+    category: input.category?.trim() || null,
+    contact_name: input.contact_name?.trim() || null,
+    contact_email: input.contact_email?.trim() || null,
+    contact_phone: input.contact_phone?.trim() || null,
+    region: input.region?.trim() || null,
+    intended_use: input.intended_use?.trim() || null,
+  };
+  const { data, error } = await supabase.from("buyers").upsert(payload).select().single();
+  if (error) throw new Error(error.message);
+  await auditAction("upsert_buyer", "buyers", (data as Buyer).id, { org_name: payload.org_name });
+  return data as unknown as Buyer;
+}
+
+export async function fetchBuyerRequests(): Promise<BuyerRequestWithBuyer[]> {
+  const { data, error } = await supabase
+    .from("buyer_requests")
+    .select("*, buyers(org_name, contact_name, contact_email)")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => {
+    const buyer = (r["buyers"] ?? null) as { org_name: string; contact_name: string; contact_email: string } | null;
+    const { buyers: _b, ...rest } = r;
+    return { ...rest, buyer_org_name: buyer?.org_name ?? null, buyer_contact_name: buyer?.contact_name ?? null, buyer_contact_email: buyer?.contact_email ?? null } as unknown as BuyerRequestWithBuyer;
+  });
+}
+
+export const buyerRequestsQuery = () =>
+  queryOptions({ queryKey: ["buyerRequests"], queryFn: fetchBuyerRequests });
+
+export async function fetchBuyerRequest(id: string): Promise<BuyerRequestWithBuyer | null> {
+  const { data, error } = await supabase
+    .from("buyer_requests")
+    .select("*, buyers(org_name, contact_name, contact_email)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  const row = data as Record<string, unknown>;
+  const buyer = (row["buyers"] ?? null) as { org_name: string; contact_name: string; contact_email: string } | null;
+  const { buyers: _b, ...rest } = row;
+  return { ...rest, buyer_org_name: buyer?.org_name ?? null, buyer_contact_name: buyer?.contact_name ?? null, buyer_contact_email: buyer?.contact_email ?? null } as unknown as BuyerRequestWithBuyer;
+}
+
+export const buyerRequestQuery = (id: string) =>
+  queryOptions({ queryKey: ["buyerRequest", id], queryFn: () => fetchBuyerRequest(id) });
+
+export async function createBuyerRequest(input: {
+  buyer_id: string;
+  title: string;
+  structured: Record<string, unknown>;
+  status?: BuyerRequestStatus;
+}): Promise<BuyerRequest> {
+  const request_code = await nextBuyerRequestCode();
+  const { data, error } = await supabase
+    .from("buyer_requests")
+    .insert({
+      request_code,
+      buyer_id: input.buyer_id,
+      title: input.title.trim(),
+      structured: input.structured as Json,
+      status: input.status ?? "draft",
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  await auditAction("create_buyer_request", "buyer_requests", (data as BuyerRequest).id, { request_code });
+  return data as unknown as BuyerRequest;
+}
+
+export async function updateBuyerRequest(
+  id: string,
+  input: { title?: string; structured?: Record<string, unknown>; status?: BuyerRequestStatus },
+): Promise<void> {
+  const { error } = await supabase
+    .from("buyer_requests")
+    .update({
+      ...(input.title != null ? { title: input.title.trim() } : {}),
+      ...(input.structured != null ? { structured: input.structured as Json } : {}),
+      ...(input.status != null ? { status: input.status } : {}),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  await auditAction("update_buyer_request", "buyer_requests", id, { status: input.status });
+}
+
+export async function setBuyerRequestStatus(
+  id: string,
+  status: BuyerRequestStatus,
+  structuredExtra?: Record<string, unknown>,
+): Promise<void> {
+  if (structuredExtra) {
+    const { data, error: readErr } = await supabase.from("buyer_requests").select("structured").eq("id", id).single();
+    if (readErr) throw new Error(readErr.message);
+    const merged = {
+      ...(((data as { structured: Record<string, unknown> } | null)?.structured) ?? {}),
+      ...structuredExtra,
+    } as Json;
+    const { error } = await supabase
+      .from("buyer_requests")
+      .update({ status, structured: merged, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from("buyer_requests")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  }
+  await auditAction("set_buyer_request_status", "buyer_requests", id, { status });
+}
+
+/** shg_id columns in the B2B tables are plain UUIDs, so collective names are
+ *  resolved with a separate lookup instead of an embedded relationship. */
+async function shgNameMap(): Promise<Record<string, string>> {
+  const { data, error } = await supabase.from("shgs").select("id, name");
+  if (error) throw new Error(error.message);
+  const map: Record<string, string> = {};
+  for (const row of (data ?? []) as { id: string; name: string }[]) map[row.id] = row.name;
+  return map;
+}
+
+export async function fetchQuotations(): Promise<QuotationWithRefs[]> {
+  const { data, error } = await supabase
+    .from("quotations")
+    .select("*, buyer_requests(request_code, title, buyers(org_name)), quotation_versions(*)")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  const shgNames = await shgNameMap();
+  return ((data ?? []) as Record<string, unknown>[]).map((q) => {
+    const req = (q["buyer_requests"] ?? null) as
+      | { request_code: string; title: string; buyers: { org_name: string } | null }
+      | null;
+    const versions = ((q["quotation_versions"] ?? []) as unknown as QuotationVersion[]).sort((a, b) => b.version - a.version);
+    const { buyer_requests: _r, quotation_versions: _v, ...rest } = q;
+    const shgId = (rest as { shg_id: string | null }).shg_id;
+    return {
+      ...rest,
+      request_code: req?.request_code ?? null,
+      request_title: req?.title ?? null,
+      buyer_org_name: req?.buyers?.org_name ?? null,
+      shg_name: shgId ? shgNames[shgId] ?? null : null,
+      versions,
+    } as unknown as QuotationWithRefs;
+  });
+}
+
+export const quotationsQuery = () =>
+  queryOptions({ queryKey: ["quotations"], queryFn: fetchQuotations });
+
+export async function fetchQuotation(id: string): Promise<QuotationWithRefs | null> {
+  const all = await fetchQuotations();
+  return all.find((q) => q.id === id) ?? null;
+}
+
+export const quotationQuery = (id: string) =>
+  queryOptions({ queryKey: ["quotations"], queryFn: fetchQuotations, select: (qs: QuotationWithRefs[]) => qs.find((q) => q.id === id) ?? null });
+
+export async function fetchQuotationsForRequest(requestId: string): Promise<QuotationWithRefs[]> {
+  const all = await fetchQuotations();
+  return all.filter((q) => q.buyer_request_id === requestId);
+}
+
+export const quotationsForRequestQuery = (requestId: string) =>
+  queryOptions({ queryKey: ["quotations"], queryFn: fetchQuotations, select: (qs: QuotationWithRefs[]) => qs.filter((q) => q.buyer_request_id === requestId) });
+
+export interface QuotationVersionInput {
+  quotation_id: string;
+  spec: QuotationSpec;
+  created_by?: string;
+}
+
+async function nextQuotationVersion(quotationId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from("quotation_versions")
+    .select("version")
+    .eq("quotation_id", quotationId);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as { version: number }[]).reduce((m, v) => Math.max(m, v.version), 0) + 1;
+}
+
+export async function createQuotation(input: { buyer_request_id: string; shg_id: string; spec: QuotationSpec; created_by?: string }): Promise<Quotation> {
+  const { data, error } = await supabase
+    .from("quotations")
+    .insert({ buyer_request_id: input.buyer_request_id, shg_id: input.shg_id, status: "draft" })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  const quotation = data as unknown as Quotation;
+  await addQuotationVersion({ quotation_id: quotation.id, spec: input.spec, ...(input.created_by != null ? { created_by: input.created_by } : {}) });
+  await auditAction("create_quotation", "quotations", quotation.id, { buyer_request_id: input.buyer_request_id });
+  return quotation;
+}
+
+export async function addQuotationVersion(input: QuotationVersionInput): Promise<QuotationVersion> {
+  const version = await nextQuotationVersion(input.quotation_id);
+  // Previous versions become superseded once a new one is drafted.
+  const { error: supErr } = await supabase
+    .from("quotation_versions")
+    .update({ status: "superseded" })
+    .eq("quotation_id", input.quotation_id)
+    .in("status", ["draft"]);
+  if (supErr) throw new Error(supErr.message);
+  const { data, error } = await supabase
+    .from("quotation_versions")
+    .insert({
+      quotation_id: input.quotation_id,
+      version,
+      spec: input.spec as unknown as Json,
+      status: "draft",
+      created_by: input.created_by ?? "Coordinator — demonstration",
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  const { error: qErr } = await supabase
+    .from("quotations")
+    .update({ status: "revised", updated_at: new Date().toISOString() })
+    .eq("id", input.quotation_id)
+    .in("status", ["revision_requested", "revised"]);
+  if (qErr) throw new Error(qErr.message);
+  await auditAction("add_quotation_version", "quotation_versions", (data as QuotationVersion).id, { version });
+  return data as unknown as QuotationVersion;
+}
+
+export async function submitQuotationVersion(quotationId: string, versionId: string): Promise<void> {
+  const { error } = await supabase
+    .from("quotation_versions")
+    .update({ status: "submitted" })
+    .eq("id", versionId)
+    .eq("quotation_id", quotationId);
+  if (error) throw new Error(error.message);
+  const { error: qErr } = await supabase
+    .from("quotations")
+    .update({ status: "submitted", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  if (qErr) throw new Error(qErr.message);
+  const { data: quote, error: readErr } = await supabase
+    .from("quotations")
+    .select("buyer_request_id")
+    .eq("id", quotationId)
+    .single();
+  if (readErr) throw new Error(readErr.message);
+  const requestId = (quote as { buyer_request_id: string } | null)?.buyer_request_id;
+  if (requestId) await setBuyerRequestStatus(requestId, "quoted");
+  await auditAction("submit_quotation_version", "quotation_versions", versionId, { quotation_id: quotationId });
+}
+
+export async function acceptQuotationVersion(quotationId: string, versionId: string): Promise<void> {
+  const { data: versions, error: vErr } = await supabase
+    .from("quotation_versions")
+    .select("id, version, status")
+    .eq("quotation_id", quotationId);
+  if (vErr) throw new Error(vErr.message);
+  const target = (versions ?? []).find((v) => v.id === versionId);
+  if (!target || target.status !== "submitted") {
+    throw new Error("Only a submitted quotation version can be accepted.");
+  }
+  // Preserve the accepted version; retire other submitted/superseded ones.
+  const { error: supErr } = await supabase
+    .from("quotation_versions")
+    .update({ status: "superseded" })
+    .eq("quotation_id", quotationId)
+    .in("status", ["submitted"])
+    .neq("id", versionId);
+  if (supErr) throw new Error(supErr.message);
+  const { error } = await supabase
+    .from("quotation_versions")
+    .update({ status: "accepted", accepted_at: new Date().toISOString() })
+    .eq("id", versionId);
+  if (error) throw new Error(error.message);
+  const { error: qErr } = await supabase
+    .from("quotations")
+    .update({ status: "accepted", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  if (qErr) throw new Error(qErr.message);
+  await auditAction("accept_quotation_version", "quotation_versions", versionId, { quotation_id: quotationId });
+}
+
+export async function declineQuotation(quotationId: string, reason: string): Promise<void> {
+  const { error } = await supabase
+    .from("quotations")
+    .update({ status: "declined", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  if (error) throw new Error(error.message);
+  await auditAction("decline_quotation", "quotations", quotationId, { reason });
+}
+
+export async function requestQuotationRevision(quotationId: string, note: string): Promise<void> {
+  const { error } = await supabase
+    .from("quotations")
+    .update({ status: "revision_requested", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  if (error) throw new Error(error.message);
+  await auditAction("request_quotation_revision", "quotations", quotationId, { note });
+}
+
+export async function cancelQuotation(quotationId: string): Promise<void> {
+  const { error } = await supabase
+    .from("quotations")
+    .update({ status: "cancelled", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  if (error) throw new Error(error.message);
+  await auditAction("cancel_quotation", "quotations", quotationId, {});
+}
+
+export async function fetchSampleRequests(): Promise<SampleRequestWithRefs[]> {
+  const { data, error } = await supabase
+    .from("sample_requests")
+    .select(
+      "*, buyers(org_name), buyer_requests(request_code), sample_events(*)",
+    )
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  const shgNames = await shgNameMap();
+  return ((data ?? []) as Record<string, unknown>[]).map((s) => {
+    const buyer = (s["buyers"] ?? null) as { org_name: string } | null;
+    const req = (s["buyer_requests"] ?? null) as { request_code: string } | null;
+    const events = ((s["sample_events"] ?? []) as unknown as SampleEvent[]).sort(
+      (a, b) => Date.parse(b.occurred_at) - Date.parse(a.occurred_at),
+    );
+    const { buyers: _b, buyer_requests: _r, sample_events: _e, ...rest } = s;
+    const shgId = (rest as { shg_id: string | null }).shg_id;
+    return {
+      ...rest,
+      shg_name: shgId ? shgNames[shgId] ?? null : null,
+      buyer_org_name: buyer?.org_name ?? null,
+      quotation_request_code: req?.request_code ?? null,
+      events,
+    } as unknown as SampleRequestWithRefs;
+  });
+}
+
+export const samplesQuery = () =>
+  queryOptions({ queryKey: ["samples"], queryFn: fetchSampleRequests });
+
+export interface SampleInput {
+  quotation_id?: string | null;
+  buyer_request_id?: string | null;
+  shg_id?: string | null;
+  buyer_id?: string | null;
+  spec: Record<string, unknown>;
+  spec_version?: number;
+  fee_inr?: number;
+}
+
+export async function createSampleRequest(input: SampleInput): Promise<SampleRequest> {
+  const { data, error } = await supabase
+    .from("sample_requests")
+    .insert({
+      quotation_id: input.quotation_id ?? null,
+      buyer_request_id: input.buyer_request_id ?? null,
+      shg_id: input.shg_id ?? null,
+      buyer_id: input.buyer_id ?? null,
+      spec: input.spec as Json,
+      spec_version: input.spec_version ?? 1,
+      fee_inr: input.fee_inr ?? 0,
+      status: "requested",
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  const sample = data as unknown as SampleRequest;
+  await supabase.from("sample_events").insert({ sample_id: sample.id, event_type: "requested", note: "Sample requested" });
+  await auditAction("create_sample_request", "sample_requests", sample.id, {});
+  return sample;
+}
+
+export async function updateSampleStatus(sampleId: string, status: SampleStatus, note?: string): Promise<void> {
+  const { error } = await supabase
+    .from("sample_requests")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", sampleId);
+  if (error) throw new Error(error.message);
+  await supabase
+    .from("sample_events")
+    .insert({ sample_id: sampleId, event_type: status, note: note ?? null });
+  await auditAction("update_sample_status", "sample_requests", sampleId, { status });
+}
+
+export async function setSampleFeedback(
+  sampleId: string,
+  feedback: string,
+  decision: "approved" | "revision_requested",
+): Promise<void> {
+  const { error } = await supabase
+    .from("sample_requests")
+    .update({ feedback, status: decision, updated_at: new Date().toISOString() })
+    .eq("id", sampleId);
+  if (error) throw new Error(error.message);
+  await supabase
+    .from("sample_events")
+    .insert({ sample_id: sampleId, event_type: decision, note: feedback });
+  await auditAction("set_sample_feedback", "sample_requests", sampleId, { decision });
+}
+
+/**
+ * Confirm a B2B order — ONLY when the buyer has accepted a submitted
+ * quotation version. Creates the agreed product line and an order marked
+ * as B2B, linked back to the buyer request.
+ */
+export async function confirmB2bOrder(quotationId: string): Promise<{ orderId: string }> {
+  const { data: quote, error: qErr } = await supabase
+    .from("quotations")
+    .select("*, buyer_requests(id, request_code, title, structured, status), quotation_versions(*)")
+    .eq("id", quotationId)
+    .single();
+  if (qErr || !quote) throw new Error(qErr?.message ?? "Quotation not found");
+  const q = quote as unknown as QuotationWithRefs & {
+    buyer_requests: { id: string; request_code: string; title: string; structured: Record<string, unknown>; status: string };
+  };
+  if (q.status === "accepted" && q.buyer_requests.status === "accepted") {
+    throw new Error("This quotation is already confirmed as an order.");
+  }
+  const versions = (((q as unknown as Record<string, unknown>)["quotation_versions"] ?? []) as unknown as QuotationVersion[]);
+  const accepted = versions.filter((v) => v.status === "accepted").sort((a, b) => b.version - a.version)[0];
+  if (!accepted) throw new Error("The buyer must accept a quotation version before an order can be confirmed.");
+  const spec = accepted.spec;
+  const shgId = q.shg_id;
+  if (!shgId) throw new Error("The quotation has no collective assigned.");
+  const { data: leadArtisan, error: artErr } = await supabase
+    .from("artisans")
+    .select("id")
+    .eq("shg_id", shgId)
+    .order("name", { ascending: true })
+    .limit(1);
+  if (artErr || !leadArtisan?.length) throw new Error("No artisan is recorded for this collective.");
+  const totals = spec.quantity != null ? Number(spec.quantity) : 1;
+  const { data: product, error: prodErr } = await supabase
+    .from("products")
+    .insert({
+      artisan_id: (leadArtisan[0] as { id: string }).id,
+      name: q.buyer_requests.title,
+      description: `B2B order under ${q.buyer_requests.request_code}, quotation v${accepted.version}.\n${spec.product_spec ?? ""}`.trim(),
+      category: "B2B",
+      price: Number(spec.unit_price_inr ?? 0),
+      availability: true,
+    })
+    .select()
+    .single();
+  if (prodErr) throw new Error(prodErr.message);
+  const { data: orderCount, error: cntErr } = await supabase.from("orders").select("customer_reference");
+  if (cntErr) throw new Error(cntErr.message);
+  let maxRef = 1049;
+  for (const o of (orderCount ?? []) as { customer_reference: string }[]) {
+    const m = /^KSW-(\d+)$/.exec(o.customer_reference);
+    if (m) maxRef = Math.max(maxRef, Number(m[1]));
+  }
+  const { data: order, error: orderErr } = await supabase
+    .from("orders")
+    .insert({
+      product_id: (product as { id: string }).id,
+      customer_reference: `KSW-${maxRef + 1}`,
+      quantity: totals || 1,
+      status: "in_production",
+      is_custom: true,
+      source: "b2b",
+      buyer_request_id: q.buyer_requests.id,
+      expected_dispatch_at: spec.lead_time_days
+        ? new Date(Date.now() + Number(spec.lead_time_days) * 86400000).toISOString()
+        : null,
+    })
+    .select()
+    .single();
+  if (orderErr) throw new Error(orderErr.message);
+  const orderId = (order as { id: string }).id;
+  await supabase
+    .from("quotations")
+    .update({ status: "accepted", updated_at: new Date().toISOString() })
+    .eq("id", quotationId);
+  const structuredExtra = { confirmed_order_id: orderId, confirmed_quotation_version: accepted.version };
+  await setBuyerRequestStatus(q.buyer_requests.id, "accepted", structuredExtra);
+  await recordOrderEvent(orderId, "in_production", `Confirmed B2B order from ${q.buyer_requests.request_code} (quotation v${accepted.version})`);
+  await auditAction("confirm_b2b_order", "orders", orderId, { quotation_id: quotationId, version: accepted.version });
+  return { orderId };
+}
+
+export async function fetchB2bOrders(): Promise<(Order & { request_code?: string | null; request_title?: string | null; buyer_org_name?: string | null })[]> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*, buyer_requests(request_code, title, buyers(org_name))")
+    .eq("source", "b2b")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((o) => {
+    const req = (o["buyer_requests"] ?? null) as
+      | { request_code: string; title: string; buyers: { org_name: string } | null }
+      | null;
+    const { buyer_requests: _r, ...rest } = o;
+    return {
+      ...rest,
+      request_code: req?.request_code ?? null,
+      request_title: req?.title ?? null,
+      buyer_org_name: req?.buyers?.org_name ?? null,
+    } as unknown as Order & { request_code?: string | null; request_title?: string | null; buyer_org_name?: string | null };
+  });
+}
+
+export const b2bOrdersQuery = () =>
+  queryOptions({ queryKey: ["b2bOrders"], queryFn: fetchB2bOrders });
+
+/** Record a B2B production-stage event on an order's timeline. */
+export async function recordB2bStage(orderId: string, stage: string, note?: string): Promise<void> {
+  await recordOrderEvent(orderId, stage, note ?? undefined);
+  await auditAction("record_b2b_stage", "order_events", orderId, { stage });
 }

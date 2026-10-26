@@ -12,15 +12,26 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtisanSpaceRouteImport } from './routes/artisan-space'
 import { Route as ArtisansRouteImport } from './routes/artisans'
+import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ShgRouteImport } from './routes/shg'
 import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
+import { Route as B2bIndexRouteImport } from './routes/b2b.index'
+import { Route as B2bBuyerProfileRouteImport } from './routes/b2b.buyer-profile'
+import { Route as B2bDiscoverRouteImport } from './routes/b2b.discover'
+import { Route as B2bOrdersRouteImport } from './routes/b2b.orders'
+import { Route as B2bQuotesRouteImport } from './routes/b2b.quotes'
+import { Route as B2bRequestRouteImport } from './routes/b2b.request'
+import { Route as B2bSamplesRouteImport } from './routes/b2b.samples'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ShgIndexRouteImport } from './routes/shg.index'
 import { Route as ShgArtisansRouteImport } from './routes/shg.artisans'
+import { Route as ShgB2bRouteImport } from './routes/shg.b2b'
+import { Route as ShgB2bOrdersRouteImport } from './routes/shg.b2b-orders'
+import { Route as ShgB2bQuotesRouteImport } from './routes/shg.b2b-quotes'
 import { Route as ShgInventoryRouteImport } from './routes/shg.inventory'
 import { Route as ShgOrdersRouteImport } from './routes/shg.orders'
 import { Route as ShgPaymentsRouteImport } from './routes/shg.payments'
@@ -33,6 +44,11 @@ import { Route as StoriesIdRouteImport } from './routes/stories.$id'
 import { Route as ApiPublicAssistantRouteImport } from './routes/api/public/assistant'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicTtsRouteImport } from './routes/api/public/tts'
+import { Route as B2bOrdersIndexRouteImport } from './routes/b2b.orders.index'
+import { Route as B2bOrdersIdRouteImport } from './routes/b2b.orders.$id'
+import { Route as B2bQuotesIndexRouteImport } from './routes/b2b.quotes.index'
+import { Route as B2bQuotesIdRouteImport } from './routes/b2b.quotes.$id'
+import { Route as B2bRequestsIdRouteImport } from './routes/b2b.requests.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +63,11 @@ const ArtisanSpaceRoute = ArtisanSpaceRouteImport.update({
 const ArtisansRoute = ArtisansRouteImport.update({
   id: '/artisans',
   path: '/artisans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const B2bRoute = B2bRouteImport.update({
+  id: '/b2b',
+  path: '/b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConciergeRoute = ConciergeRouteImport.update({
@@ -74,6 +95,41 @@ const ArtisanIdRoute = ArtisanIdRouteImport.update({
   path: '/artisan/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const B2bIndexRoute = B2bIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bBuyerProfileRoute = B2bBuyerProfileRouteImport.update({
+  id: '/buyer-profile',
+  path: '/buyer-profile',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bDiscoverRoute = B2bDiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bOrdersRoute = B2bOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bQuotesRoute = B2bQuotesRouteImport.update({
+  id: '/quotes',
+  path: '/quotes',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bRequestRoute = B2bRequestRouteImport.update({
+  id: '/request',
+  path: '/request',
+  getParentRoute: () => B2bRoute,
+} as any)
+const B2bSamplesRoute = B2bSamplesRouteImport.update({
+  id: '/samples',
+  path: '/samples',
+  getParentRoute: () => B2bRoute,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
@@ -92,6 +148,21 @@ const ShgIndexRoute = ShgIndexRouteImport.update({
 const ShgArtisansRoute = ShgArtisansRouteImport.update({
   id: '/artisans',
   path: '/artisans',
+  getParentRoute: () => ShgRoute,
+} as any)
+const ShgB2bRoute = ShgB2bRouteImport.update({
+  id: '/b2b',
+  path: '/b2b',
+  getParentRoute: () => ShgRoute,
+} as any)
+const ShgB2bOrdersRoute = ShgB2bOrdersRouteImport.update({
+  id: '/b2b-orders',
+  path: '/b2b-orders',
+  getParentRoute: () => ShgRoute,
+} as any)
+const ShgB2bQuotesRoute = ShgB2bQuotesRouteImport.update({
+  id: '/b2b-quotes',
+  path: '/b2b-quotes',
   getParentRoute: () => ShgRoute,
 } as any)
 const ShgInventoryRoute = ShgInventoryRouteImport.update({
@@ -154,19 +225,54 @@ const ApiPublicTtsRoute = ApiPublicTtsRouteImport.update({
   path: '/api/public/tts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const B2bOrdersIndexRoute = B2bOrdersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => B2bOrdersRoute,
+} as any)
+const B2bOrdersIdRoute = B2bOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => B2bOrdersRoute,
+} as any)
+const B2bQuotesIndexRoute = B2bQuotesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => B2bQuotesRoute,
+} as any)
+const B2bQuotesIdRoute = B2bQuotesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => B2bQuotesRoute,
+} as any)
+const B2bRequestsIdRoute = B2bRequestsIdRouteImport.update({
+  id: '/requests/$id',
+  path: '/requests/$id',
+  getParentRoute: () => B2bRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/b2b': typeof B2bRouteWithChildren
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
+  '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
+  '/b2b/discover': typeof B2bDiscoverRoute
+  '/b2b/orders': typeof B2bOrdersRouteWithChildren
+  '/b2b/quotes': typeof B2bQuotesRouteWithChildren
+  '/b2b/request': typeof B2bRequestRoute
+  '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
+  '/shg/b2b': typeof ShgB2bRoute
+  '/shg/b2b-orders': typeof ShgB2bOrdersRoute
+  '/shg/b2b-quotes': typeof ShgB2bQuotesRoute
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
@@ -175,11 +281,17 @@ export interface FileRoutesByFullPath {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/b2b/': typeof B2bIndexRoute
   '/shg/': typeof ShgIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
+  '/b2b/orders/$id': typeof B2bOrdersIdRoute
+  '/b2b/quotes/$id': typeof B2bQuotesIdRoute
+  '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/b2b/orders/': typeof B2bOrdersIndexRoute
+  '/b2b/quotes/': typeof B2bQuotesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -188,9 +300,16 @@ export interface FileRoutesByTo {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/artisan/$id': typeof ArtisanIdRoute
+  '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
+  '/b2b/discover': typeof B2bDiscoverRoute
+  '/b2b/request': typeof B2bRequestRoute
+  '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
+  '/shg/b2b': typeof ShgB2bRoute
+  '/shg/b2b-orders': typeof ShgB2bOrdersRoute
+  '/shg/b2b-quotes': typeof ShgB2bQuotesRoute
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
@@ -199,25 +318,41 @@ export interface FileRoutesByTo {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/b2b': typeof B2bIndexRoute
   '/shg': typeof ShgIndexRoute
   '/stories': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
+  '/b2b/orders/$id': typeof B2bOrdersIdRoute
+  '/b2b/quotes/$id': typeof B2bQuotesIdRoute
+  '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/b2b/orders': typeof B2bOrdersIndexRoute
+  '/b2b/quotes': typeof B2bQuotesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/artisan-space': typeof ArtisanSpaceRoute
   '/artisans': typeof ArtisansRoute
+  '/b2b': typeof B2bRouteWithChildren
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
+  '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
+  '/b2b/discover': typeof B2bDiscoverRoute
+  '/b2b/orders': typeof B2bOrdersRouteWithChildren
+  '/b2b/quotes': typeof B2bQuotesRouteWithChildren
+  '/b2b/request': typeof B2bRequestRoute
+  '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
+  '/shg/b2b': typeof ShgB2bRoute
+  '/shg/b2b-orders': typeof ShgB2bOrdersRoute
+  '/shg/b2b-quotes': typeof ShgB2bQuotesRoute
   '/shg/inventory': typeof ShgInventoryRoute
   '/shg/orders': typeof ShgOrdersRoute
   '/shg/payments': typeof ShgPaymentsRoute
@@ -226,11 +361,17 @@ export interface FileRoutesById {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/b2b/': typeof B2bIndexRoute
   '/shg/': typeof ShgIndexRoute
   '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
+  '/b2b/orders/$id': typeof B2bOrdersIdRoute
+  '/b2b/quotes/$id': typeof B2bQuotesIdRoute
+  '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/b2b/orders/': typeof B2bOrdersIndexRoute
+  '/b2b/quotes/': typeof B2bQuotesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -238,14 +379,24 @@ export interface FileRouteTypes {
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/b2b'
     | '/concierge'
     | '/explore'
     | '/shg'
     | '/stories'
     | '/artisan/$id'
+    | '/b2b/buyer-profile'
+    | '/b2b/discover'
+    | '/b2b/orders'
+    | '/b2b/quotes'
+    | '/b2b/request'
+    | '/b2b/samples'
     | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
+    | '/shg/b2b'
+    | '/shg/b2b-orders'
+    | '/shg/b2b-quotes'
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
@@ -254,11 +405,17 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/b2b/'
     | '/shg/'
     | '/stories/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
+    | '/b2b/orders/$id'
+    | '/b2b/quotes/$id'
+    | '/b2b/requests/$id'
+    | '/b2b/orders/'
+    | '/b2b/quotes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -267,9 +424,16 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/artisan/$id'
+    | '/b2b/buyer-profile'
+    | '/b2b/discover'
+    | '/b2b/request'
+    | '/b2b/samples'
     | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
+    | '/shg/b2b'
+    | '/shg/b2b-orders'
+    | '/shg/b2b-quotes'
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
@@ -278,24 +442,40 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/b2b'
     | '/shg'
     | '/stories'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
+    | '/b2b/orders/$id'
+    | '/b2b/quotes/$id'
+    | '/b2b/requests/$id'
+    | '/b2b/orders'
+    | '/b2b/quotes'
   id:
     | '__root__'
     | '/'
     | '/artisan-space'
     | '/artisans'
+    | '/b2b'
     | '/concierge'
     | '/explore'
     | '/shg'
     | '/stories'
     | '/artisan/$id'
+    | '/b2b/buyer-profile'
+    | '/b2b/discover'
+    | '/b2b/orders'
+    | '/b2b/quotes'
+    | '/b2b/request'
+    | '/b2b/samples'
     | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
+    | '/shg/b2b'
+    | '/shg/b2b-orders'
+    | '/shg/b2b-quotes'
     | '/shg/inventory'
     | '/shg/orders'
     | '/shg/payments'
@@ -304,17 +484,24 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/b2b/'
     | '/shg/'
     | '/stories/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
+    | '/b2b/orders/$id'
+    | '/b2b/quotes/$id'
+    | '/b2b/requests/$id'
+    | '/b2b/orders/'
+    | '/b2b/quotes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArtisanSpaceRoute: typeof ArtisanSpaceRoute
   ArtisansRoute: typeof ArtisansRoute
+  B2bRoute: typeof B2bRouteWithChildren
   ConciergeRoute: typeof ConciergeRoute
   ExploreRoute: typeof ExploreRoute
   ShgRoute: typeof ShgRouteWithChildren
@@ -348,6 +535,13 @@ declare module '@tanstack/react-router' {
       path: '/artisans'
       fullPath: '/artisans'
       preLoaderRoute: typeof ArtisansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/b2b': {
+      id: '/b2b'
+      path: '/b2b'
+      fullPath: '/b2b'
+      preLoaderRoute: typeof B2bRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/concierge': {
@@ -385,6 +579,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArtisanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/b2b/': {
+      id: '/b2b/'
+      path: '/'
+      fullPath: '/b2b/'
+      preLoaderRoute: typeof B2bIndexRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/buyer-profile': {
+      id: '/b2b/buyer-profile'
+      path: '/buyer-profile'
+      fullPath: '/b2b/buyer-profile'
+      preLoaderRoute: typeof B2bBuyerProfileRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/discover': {
+      id: '/b2b/discover'
+      path: '/discover'
+      fullPath: '/b2b/discover'
+      preLoaderRoute: typeof B2bDiscoverRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/orders': {
+      id: '/b2b/orders'
+      path: '/orders'
+      fullPath: '/b2b/orders'
+      preLoaderRoute: typeof B2bOrdersRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/quotes': {
+      id: '/b2b/quotes'
+      path: '/quotes'
+      fullPath: '/b2b/quotes'
+      preLoaderRoute: typeof B2bQuotesRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/request': {
+      id: '/b2b/request'
+      path: '/request'
+      fullPath: '/b2b/request'
+      preLoaderRoute: typeof B2bRequestRouteImport
+      parentRoute: typeof B2bRoute
+    }
+    '/b2b/samples': {
+      id: '/b2b/samples'
+      path: '/samples'
+      fullPath: '/b2b/samples'
+      preLoaderRoute: typeof B2bSamplesRouteImport
+      parentRoute: typeof B2bRoute
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/orders/$id'
@@ -411,6 +654,27 @@ declare module '@tanstack/react-router' {
       path: '/artisans'
       fullPath: '/shg/artisans'
       preLoaderRoute: typeof ShgArtisansRouteImport
+      parentRoute: typeof ShgRoute
+    }
+    '/shg/b2b': {
+      id: '/shg/b2b'
+      path: '/b2b'
+      fullPath: '/shg/b2b'
+      preLoaderRoute: typeof ShgB2bRouteImport
+      parentRoute: typeof ShgRoute
+    }
+    '/shg/b2b-orders': {
+      id: '/shg/b2b-orders'
+      path: '/b2b-orders'
+      fullPath: '/shg/b2b-orders'
+      preLoaderRoute: typeof ShgB2bOrdersRouteImport
+      parentRoute: typeof ShgRoute
+    }
+    '/shg/b2b-quotes': {
+      id: '/shg/b2b-quotes'
+      path: '/b2b-quotes'
+      fullPath: '/shg/b2b-quotes'
+      preLoaderRoute: typeof ShgB2bQuotesRouteImport
       parentRoute: typeof ShgRoute
     }
     '/shg/inventory': {
@@ -497,11 +761,101 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTtsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/b2b/orders/': {
+      id: '/b2b/orders/'
+      path: '/'
+      fullPath: '/b2b/orders/'
+      preLoaderRoute: typeof B2bOrdersIndexRouteImport
+      parentRoute: typeof B2bOrdersRoute
+    }
+    '/b2b/orders/$id': {
+      id: '/b2b/orders/$id'
+      path: '/$id'
+      fullPath: '/b2b/orders/$id'
+      preLoaderRoute: typeof B2bOrdersIdRouteImport
+      parentRoute: typeof B2bOrdersRoute
+    }
+    '/b2b/quotes/': {
+      id: '/b2b/quotes/'
+      path: '/'
+      fullPath: '/b2b/quotes/'
+      preLoaderRoute: typeof B2bQuotesIndexRouteImport
+      parentRoute: typeof B2bQuotesRoute
+    }
+    '/b2b/quotes/$id': {
+      id: '/b2b/quotes/$id'
+      path: '/$id'
+      fullPath: '/b2b/quotes/$id'
+      preLoaderRoute: typeof B2bQuotesIdRouteImport
+      parentRoute: typeof B2bQuotesRoute
+    }
+    '/b2b/requests/$id': {
+      id: '/b2b/requests/$id'
+      path: '/requests/$id'
+      fullPath: '/b2b/requests/$id'
+      preLoaderRoute: typeof B2bRequestsIdRouteImport
+      parentRoute: typeof B2bRoute
+    }
   }
 }
 
+interface B2bOrdersRouteChildren {
+  B2bOrdersIdRoute: typeof B2bOrdersIdRoute
+  B2bOrdersIndexRoute: typeof B2bOrdersIndexRoute
+}
+
+const B2bOrdersRouteChildren: B2bOrdersRouteChildren = {
+  B2bOrdersIdRoute: B2bOrdersIdRoute,
+  B2bOrdersIndexRoute: B2bOrdersIndexRoute,
+}
+
+const B2bOrdersRouteWithChildren = B2bOrdersRoute._addFileChildren(
+  B2bOrdersRouteChildren,
+)
+
+interface B2bQuotesRouteChildren {
+  B2bQuotesIdRoute: typeof B2bQuotesIdRoute
+  B2bQuotesIndexRoute: typeof B2bQuotesIndexRoute
+}
+
+const B2bQuotesRouteChildren: B2bQuotesRouteChildren = {
+  B2bQuotesIdRoute: B2bQuotesIdRoute,
+  B2bQuotesIndexRoute: B2bQuotesIndexRoute,
+}
+
+const B2bQuotesRouteWithChildren = B2bQuotesRoute._addFileChildren(
+  B2bQuotesRouteChildren,
+)
+
+interface B2bRouteChildren {
+  B2bBuyerProfileRoute: typeof B2bBuyerProfileRoute
+  B2bDiscoverRoute: typeof B2bDiscoverRoute
+  B2bOrdersRoute: typeof B2bOrdersRouteWithChildren
+  B2bQuotesRoute: typeof B2bQuotesRouteWithChildren
+  B2bRequestRoute: typeof B2bRequestRoute
+  B2bSamplesRoute: typeof B2bSamplesRoute
+  B2bIndexRoute: typeof B2bIndexRoute
+  B2bRequestsIdRoute: typeof B2bRequestsIdRoute
+}
+
+const B2bRouteChildren: B2bRouteChildren = {
+  B2bBuyerProfileRoute: B2bBuyerProfileRoute,
+  B2bDiscoverRoute: B2bDiscoverRoute,
+  B2bOrdersRoute: B2bOrdersRouteWithChildren,
+  B2bQuotesRoute: B2bQuotesRouteWithChildren,
+  B2bRequestRoute: B2bRequestRoute,
+  B2bSamplesRoute: B2bSamplesRoute,
+  B2bIndexRoute: B2bIndexRoute,
+  B2bRequestsIdRoute: B2bRequestsIdRoute,
+}
+
+const B2bRouteWithChildren = B2bRoute._addFileChildren(B2bRouteChildren)
+
 interface ShgRouteChildren {
   ShgArtisansRoute: typeof ShgArtisansRoute
+  ShgB2bRoute: typeof ShgB2bRoute
+  ShgB2bOrdersRoute: typeof ShgB2bOrdersRoute
+  ShgB2bQuotesRoute: typeof ShgB2bQuotesRoute
   ShgInventoryRoute: typeof ShgInventoryRoute
   ShgOrdersRoute: typeof ShgOrdersRoute
   ShgPaymentsRoute: typeof ShgPaymentsRoute
@@ -514,6 +868,9 @@ interface ShgRouteChildren {
 
 const ShgRouteChildren: ShgRouteChildren = {
   ShgArtisansRoute: ShgArtisansRoute,
+  ShgB2bRoute: ShgB2bRoute,
+  ShgB2bOrdersRoute: ShgB2bOrdersRoute,
+  ShgB2bQuotesRoute: ShgB2bQuotesRoute,
   ShgInventoryRoute: ShgInventoryRoute,
   ShgOrdersRoute: ShgOrdersRoute,
   ShgPaymentsRoute: ShgPaymentsRoute,
@@ -543,6 +900,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtisanSpaceRoute: ArtisanSpaceRoute,
   ArtisansRoute: ArtisansRoute,
+  B2bRoute: B2bRouteWithChildren,
   ConciergeRoute: ConciergeRoute,
   ExploreRoute: ExploreRoute,
   ShgRoute: ShgRouteWithChildren,

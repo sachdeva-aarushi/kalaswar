@@ -325,3 +325,148 @@ export interface CraftStoryWithRefs extends CraftStory {
   product_name?: string | null;
   product_image?: string | null;
 }
+
+/* ---------- B2B Studio ---------- */
+
+export type BuyerRequestStatus =
+  | "draft"
+  | "submitted"
+  | "under_review"
+  | "feasibility_ready"
+  | "quoted"
+  | "accepted"
+  | "declined"
+  | "cancelled";
+
+export interface Buyer {
+  id: string;
+  org_name: string;
+  category: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  region: string | null;
+  intended_use: string | null;
+  /** Recorded verification state only — never a claim of verified standing. */
+  verification_status: string;
+  created_at: string;
+}
+
+export interface BuyerRequest {
+  id: string;
+  request_code: string;
+  buyer_id: string;
+  title: string;
+  structured: Record<string, unknown>;
+  status: BuyerRequestStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BuyerRequestWithBuyer extends BuyerRequest {
+  buyer_org_name?: string | null;
+  buyer_contact_name?: string | null;
+  buyer_contact_email?: string | null;
+}
+
+export type QuotationStatus =
+  | "draft"
+  | "submitted"
+  | "revision_requested"
+  | "revised"
+  | "accepted"
+  | "declined"
+  | "expired"
+  | "cancelled";
+
+/** Commercial terms of one quotation version. Changes to price, quantity,
+ *  specifications or dates require a new version and renewed acceptance. */
+export interface QuotationSpec {
+  product_spec?: string | undefined;
+  quantity?: number | undefined;
+  unit_price_inr?: number | undefined;
+  fees_pct?: number | undefined;
+  taxes_note?: string | undefined;
+  packaging_logistics?: string | undefined;
+  sample_fee_inr?: number | undefined;
+  lead_time_days?: number | undefined;
+  delivery_assumptions?: string | undefined;
+  payment_terms?: string | undefined;
+  expiry_date?: string | undefined;
+  included_services?: string | undefined;
+  excluded_services?: string | undefined;
+  limitations?: string | undefined;
+  changes_from_previous?: string | undefined;
+}
+
+export interface Quotation {
+  id: string;
+  buyer_request_id: string;
+  shg_id: string | null;
+  status: QuotationStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuotationVersion {
+  id: string;
+  quotation_id: string;
+  version: number;
+  spec: QuotationSpec;
+  status: "draft" | "submitted" | "accepted" | "declined" | "expired" | "superseded";
+  created_by: string | null;
+  created_at: string;
+  accepted_at: string | null;
+}
+
+export interface QuotationWithRefs extends Quotation {
+  request_code?: string | null;
+  request_title?: string | null;
+  buyer_org_name?: string | null;
+  shg_name?: string | null;
+  versions?: QuotationVersion[];
+}
+
+export type SampleStatus =
+  | "requested"
+  | "under_review"
+  | "approved_for_production"
+  | "in_production"
+  | "ready_for_review"
+  | "dispatched"
+  | "delivered"
+  | "feedback_received"
+  | "approved"
+  | "revision_requested"
+  | "cancelled";
+
+export interface SampleRequest {
+  id: string;
+  quotation_id: string | null;
+  buyer_request_id: string | null;
+  shg_id: string | null;
+  buyer_id: string | null;
+  spec: Record<string, unknown>;
+  /** Specification version the sample was made against; reapproval is required if production spec changes after approval. */
+  spec_version: number;
+  fee_inr: number;
+  status: SampleStatus;
+  feedback: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SampleEvent {
+  id: string;
+  sample_id: string;
+  event_type: string;
+  note: string | null;
+  occurred_at: string;
+}
+
+export interface SampleRequestWithRefs extends SampleRequest {
+  quotation_request_code?: string | null;
+  shg_name?: string | null;
+  buyer_org_name?: string | null;
+  events?: SampleEvent[];
+}

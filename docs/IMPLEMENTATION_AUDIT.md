@@ -20,7 +20,15 @@ Honest status of every major requirement, verified against the source on the dat
 | Conversational product listing (multi-turn, tools) | done | draft persistence, publish tool, edit-screen navigation |
 | Localization EN/HI/MR | done | dictionary parity enforced by test |
 | i18n of new concierge/SHG strings | done | all new keys present in HI and MR |
-| Tests | 26 passing | core + makepossible + i18n parity |
+| B2B Studio — buyer workspace | done | `/b2b` overview/discover/brief/quotes/samples/orders/profile; structured brief with required-field validation and draft saving; submission labeled "not an accepted order" |
+| B2B — feasibility on briefs | done | MakePossible reused for buyer briefs; per-collective cards show recorded evidence, missing info, suggested changes |
+| B2B — coordinator review + routing | done | `/shg/b2b`; clarify/decline recorded on the request; quotation routing is a coordinator decision |
+| B2B — versioned quotations | done | drafts auto-version; changes to price/quantity/spec/dates require a new version; buyer acceptance preserves the accepted version; unapproved estimates labeled non-binding |
+| B2B — sample workflow | done | sample events, spec-version link, coordinator stage controls, buyer feedback/approval with reapproval note |
+| B2B — order + production stages | done | order confirmation requires an accepted version; `orders.source='b2b'`, `orders.buyer_request_id`; ten-stage timeline recordable by coordinator, visible to buyer |
+| B2B — reorder | done | prefilled from prior specification with confirmed/decision state stripped; feasibility and pricing revalidated by design |
+| B2B honesty tests | 13 tests | `src/test/b2b.test.ts`: validation, deadline mapping, missing-info over assumptions, versioning rules, totals, reorder stripping |
+| Tests | 85 passing | core + makepossible + stories + fairprice + b2b + i18n parity |
 
 ## Known gaps (documented, not hidden)
 
