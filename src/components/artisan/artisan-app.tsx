@@ -416,7 +416,7 @@ export function ArtisanApp() {
           <DemoNote className="mt-2">{t("app_payments_note")}</DemoNote>
         </section>
 
-        {/* Earnings */}
+        {/* Earnings — honest money: a sale is not money received */}
         <section
           id="sec-show_earnings"
           className={cn(
@@ -426,8 +426,34 @@ export function ArtisanApp() {
         >
           <h2 className="text-base font-semibold text-foreground">{t("app_earnings")}</h2>
           <p className="mt-2 font-display text-4xl tabular-nums text-foreground">
-            {summary ? formatINR(summary.earnings) : "—"}
+            {summary ? formatINR(summary.money.earnedTotal) : "—"}
           </p>
+          {summary && (
+            <dl className="mt-3 space-y-1.5 text-sm">
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="text-muted-foreground">{t("app_money_delivered")}</dt>
+                <dd className="tabular-nums text-foreground">{formatINR(summary.money.deliveredValue)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="text-muted-foreground">{t("app_money_tips")}</dt>
+                <dd className="tabular-nums text-foreground">{formatINR(summary.money.tips)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 border-t border-border pt-1.5">
+                <dt className="font-medium text-foreground">{t("app_money_paid")}</dt>
+                <dd className="tabular-nums font-medium text-foreground">{formatINR(summary.money.payouts)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="font-medium text-terracotta">{t("app_money_awaiting")}</dt>
+                <dd className="tabular-nums font-medium text-terracotta">{formatINR(summary.money.awaitingPayout)}</dd>
+              </div>
+              {summary.money.expenses > 0 && (
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-muted-foreground">{t("app_money_expenses")}</dt>
+                  <dd className="tabular-nums text-muted-foreground">{formatINR(summary.money.expenses)}</dd>
+                </div>
+              )}
+            </dl>
+          )}
           <DemoNote className="mt-2">{t("app_earnings_note")}</DemoNote>
         </section>
 

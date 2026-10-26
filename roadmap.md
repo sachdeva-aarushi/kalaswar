@@ -46,3 +46,17 @@
 - [ ] Cloudinary credentials: workspace owner adds `VITE_CLOUDINARY_CLOUD_NAME` + `VITE_CLOUDINARY_UPLOAD_PRESET` (restricted unsigned preset) to enable real uploads — blocked on user input
 - [ ] Production hardening before real users: auth for coordinator/artisan routes + scoped RLS to replace demo anon-writes
 - [ ] Deployment: Lovable publishing replaces the spec's Vercel requirement (Vercel-specific config intentionally not added)
+
+## Phase 8 — Document-coverage gaps (audit 2026-10-26)
+Pages/data-layer tools that exist in code but are wired into no page:
+- [ ] Artisan side: dedicated "My assignments" view (quantity + due date + status) — orders exist but no assignment view per the Women-side doc
+- [ ] Artisan side: craft-guidance screen (craft_guides data + craftGuidesQuery exist; no page consumes them)
+- [ ] Artisan side: transparent price estimation UI (materials/labour/overhead/margin with visible assumptions) before listing
+- [ ] Coordinator: inventory management page (materials view/edit, low-stock flags) — data queried only inside MakePossible
+- [ ] Coordinator: production risk radar (deadline-miss flags from progress/remaining qty/capacity)
+- [ ] Coordinator: demand-informed planning view (views/saves/enquiries/purchases as distinct signals)
+- [ ] Coordinator: quality-check recording UI (recordQualityCheck exists, unused)
+- [ ] Coordinator: shipment/dispatch recording UI (recordShipment exists, unused)
+- [ ] Coordinator: expenses recording + view (recordExpense + expenses query exist, unused)
+- [ ] Customer: order-milestone tracking page (post-confirmation journey: design approved → production → QC → packed → shipped)
+- [ ] Customer: Craft Passport / maker-context section on product page (origin, maker info, verified-claims distinction)

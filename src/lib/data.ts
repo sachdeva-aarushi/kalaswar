@@ -6,6 +6,11 @@ import type {
   MaterialRecord,
   SkillRecord,
 } from "./makepossible";
+import {
+  ExpenseLike,
+  summarizeArtisanMoney,
+  type ArtisanMoney,
+} from "./earnings";
 import type {
   Artisan,
   CraftGuide,
@@ -166,6 +171,8 @@ export interface ArtisanSummary {
   deliveredValue: number;
   earnings: number;
   tips: Tip[];
+  /** Honest-money breakdown from recorded payments and expenses. */
+  money: ArtisanMoney;
 }
 
 export async function fetchArtisanSummary(artisanId: string): Promise<ArtisanSummary> {
@@ -179,13 +186,15 @@ export async function fetchArtisanSummary(artisanId: string): Promise<ArtisanSum
   };
   for (const o of orders) counts[o.status] += 1;
 
-  const { data: tipsData, error: tipsError } = await supabase
-    .from("tips")
-    .select("*")
-    .eq("artisan_id", artisanId)
-    .order("created_at", { ascending: false });
-  if (tipsError) throw new Error(tipsError.message);
-  const tips = (tipsData ?? []) as Tip[];
+  const [tipsRes, paysRes, expRes] = await Promise.all([
+    supabase.from("tips").select("*").eq("artisan_id", artisanId).order("created_at", { ascending: false }),
+    supabase.from("payments").select("direction, amount, status").eq("artisan_id", artisanId),
+    supabase.from("expenses").select("amount").eq("artisan_id", artisanId),
+  ]);
+  if (tipsRes.error) throw new Error(tipsRes.error.message);
+  if (paysRes.error) throw new Error(paysRes.error.message);
+  if (expRes.error) throw new Error(expRes.error.message);
+  const tips = (tipsRes.data ?? []) as Tip[];
   const tipsTotal = tips.reduce((s, t) => s + Number(t.amount), 0);
 
   // Value of delivered orders assigned to this artisan, read from product prices.
@@ -195,12 +204,20 @@ export async function fetchArtisanSummary(artisanId: string): Promise<ArtisanSum
     0,
   );
 
+  const money = summarizeArtisanMoney({
+    deliveredValue,
+    tips: tipsTotal,
+    payments: (paysRes.data ?? []) as { direction: string; amount: number; status: string }[],
+    expenses: (expRes.data ?? []) as { amount: number }[],
+  });
+
   return {
     counts,
     tipsTotal,
     deliveredValue,
-    earnings: tipsTotal + deliveredValue,
+    earnings: money.earnedTotal,
     tips,
+    money,
   };
 }
 
@@ -930,3 +947,23 @@ export const collectiveSnapshotsQuery = () =>
 
 export const shgExpensesQuery = (shgId: string) =>
   queryOptions({ queryKey: ["shgExpenses", shgId], queryFn: () => fetchShgExpenses(shgId) });
+
+export interface ExpenseWithShg extends Expense {
+  shg_name?: string | null;
+}
+
+export async function fetchExpenses(): Promise<ExpenseWithShg[]> {
+  const { data, error } = await supabase
+    .from("expenses")
+    .select("*, shgs(name)")
+    .order("recorded_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as (Expense & { shgs: { name: string } | null })[]).map((e) => ({
+    ...e,
+    shg_name: e.shgs?.name ?? null,
+    shgs: undefined,
+  }));
+}
+
+export const expensesAllQuery = () =>
+  queryOptions({ queryKey: ["expensesAll"], queryFn: fetchExpenses });
