@@ -24,14 +24,18 @@ export function ProductCard({
       )}
     >
       <div className="relative overflow-hidden bg-muted">
-        <img
-          src={product.image_url ?? ""}
-          alt={product.name}
-          width={1024}
-          height={1024}
-          loading={priority ? "eager" : "lazy"}
-          className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-        />
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt={product.name}
+            width={1024}
+            height={1024}
+            loading={priority ? "eager" : "lazy"}
+            className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="aspect-[4/5] w-full" aria-hidden="true" />
+        )}
         {!product.availability && (
           <span className="absolute left-3 top-3 bg-card px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-foreground/80">
             {t("unavailable")}
