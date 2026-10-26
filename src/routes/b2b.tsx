@@ -42,8 +42,8 @@ function B2bLayout() {
   const { t } = useLang();
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+      <div className="sticky top-0 z-30 border-b border-border bg-background">
+        <div className="mx-auto flex min-h-20 max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
           <div className="flex items-center gap-4">
             <Link to="/b2b">
               <Wordmark size="sm" withFeather={false} />
@@ -60,16 +60,16 @@ function B2bLayout() {
             <LanguageSelect />
           </div>
         </div>
-        <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 pb-2" aria-label="B2B">
+        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 sm:px-8" aria-label="B2B">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: "exact" in item && item.exact }}
-              className="whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-sm text-muted-foreground"
+              className="whitespace-nowrap border border-border bg-card px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               activeProps={{
                 className:
-                  "whitespace-nowrap rounded-full border border-primary bg-primary px-3.5 py-1.5 text-sm text-primary-foreground",
+                  "whitespace-nowrap border border-primary bg-primary px-4 py-2 text-sm text-primary-foreground",
               }}
             >
               {t(item.labelKey)}

@@ -110,7 +110,7 @@ function ProductDetail() {
           {/* Photograph */}
           <Reveal>
             <figure className="lg:sticky lg:top-24">
-              <div className="overflow-hidden bg-muted">
+              <div className="overflow-hidden border border-border bg-muted">
                 {product.image_url ? (
                   <img
                     src={product.image_url}
@@ -156,7 +156,7 @@ function ProductDetail() {
             {/* Maker */}
             {artisan && (
               <Reveal delay={0.08}>
-                <aside className="mt-10 border-t border-border pt-8">
+                <aside className="mt-10 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                   <h2 className="kicker text-muted-foreground">{t("product_maker")}</h2>
                   <div className="mt-4 flex items-start gap-4">
                     {artisan.photo_url && (
@@ -193,7 +193,7 @@ function ProductDetail() {
             {/* Maker-approved story, when published */}
             {story && (
               <Reveal delay={0.06}>
-                <aside className="mt-10 rounded-md border border-border bg-card p-5">
+                <aside className="mt-10 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                   <p className="kicker text-terracotta">{t("product_story_approved")}</p>
                   <p className="mt-3 font-display text-lg leading-snug text-foreground">
                     {story.body.split("\n\n")[0]?.slice(0, 220)}
@@ -213,7 +213,7 @@ function ProductDetail() {
 
             {/* Craft passport */}
             <Reveal delay={0.1}>
-              <aside className="mt-10 rounded-md border border-gold/40 bg-card p-5">
+              <aside className="mt-10 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <h2 className="font-display text-xl text-foreground">{t("passport_title")}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{t("passport_sub")}</p>
                 <dl className="mt-4 space-y-3 text-sm">
@@ -282,7 +282,7 @@ function ProductDetail() {
                       {t("product_inquire")}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
+                  <DialogContent className="border border-border bg-card p-6 sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle className="font-display text-xl">{t("product_inquire")}</DialogTitle>
                       <DialogDescription>{t("product_inquire_note")}</DialogDescription>

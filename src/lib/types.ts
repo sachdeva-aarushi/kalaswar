@@ -47,6 +47,9 @@ export interface Product {
   image_public_id: string | null;
   availability: boolean;
   created_at: string;
+  /* edit actor/timestamp tracking (demonstration mode) */
+  updated_at?: string | null;
+  updated_by?: string | null;
 }
 
 export interface Order {

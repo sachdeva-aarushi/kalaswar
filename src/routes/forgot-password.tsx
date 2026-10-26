@@ -48,7 +48,7 @@ function ForgotPasswordPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 pt-24">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
+      <div className="w-full max-w-md border border-border bg-card p-8">
         <div className="text-center">
           <Link to="/" className="inline-block">
             <Wordmark size="md" />
@@ -60,7 +60,7 @@ function ForgotPasswordPage() {
           <DemoNote className="mt-6">{t("auth_forgot_sent")}</DemoNote>
         ) : (
           <form
-            className="mt-6 space-y-4"
+            className="mt-6 space-y-5 border border-border bg-secondary p-6 [&_input]:h-12 [&_input]:border-border [&_input]:bg-background"
             onSubmit={(e) => {
               e.preventDefault();
               if (!busy && email) void submit();

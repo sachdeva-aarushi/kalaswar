@@ -85,7 +85,7 @@ function StoryPage() {
               </span>
             </div>
             {story.ai_assisted && (
-              <p className="mt-4 rounded-sm border border-gold/40 bg-card px-4 py-2.5 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-4 border border-border bg-secondary p-6 text-xs leading-relaxed text-muted-foreground">
                 {t("story_ai_note")}
               </p>
             )}
@@ -107,7 +107,7 @@ function StoryPage() {
           </div>
 
           <Reveal>
-            <aside className="mt-12 border-t border-border pt-8">
+            <aside className="mt-12 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
               <div className="flex items-start gap-4">
                 <div className="text-sm leading-relaxed text-muted-foreground">
                   {showName && story.artisan_name ? (

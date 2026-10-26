@@ -67,6 +67,49 @@ const en: Record<string, string> = {
   closing_cta_customers: "Explore Crafts",
   closing_cta_shg: "Open the coordinator workspace",
 
+  hero2_title: "Her hands hold generations. Her future holds possibility.",
+  hero2_sub:
+    "Discover extraordinary craft created by women-led artisan collectives across India. Every piece carries the skill, story, and livelihood of the people who make it.",
+  hero2_cta_craft: "Discover the Craft",
+  hero2_cta_meet: "Meet the Artisans",
+  hands_kicker: "The hands behind the craft",
+  hands_title: "Made by hand. Carried by generations.",
+  hands_body:
+    "Woven grass, painted pigment, thrown clay, stitched thread. Each technique passes from mother to daughter, workshop to workshop — and every piece on Kalaswar carries the name of the woman who made it.",
+  collection_kicker: "The collection",
+  collection_title: "Explore the craft collection",
+  collection_sub:
+    "One-of-a-kind pieces across basketry, textiles, painting, clay and more — attributed to the maker, priced fairly.",
+  collection_view_all: "View the full collection",
+  stories_home_kicker: "Craft stories",
+  stories_home_title: "Stories woven into the work",
+  stories_home_sub: "Techniques, materials and memories — told by the makers themselves, in their own words.",
+  stories_read: "Read the story",
+  pillars_kicker: "The Kalaswar difference",
+  pillars_title: "Four pillars, one platform",
+  pillar_voice_t: "Voice-first artisan autonomy",
+  pillar_voice_b:
+    "A workspace the artisan can speak to. She asks about orders, payments and earnings in her own language — and hears the answer.",
+  pillar_stories_t: "Living craft stories",
+  pillar_stories_b:
+    "Every product can carry its maker's story — her technique, her materials, her context — with her consent, always.",
+  pillar_fair_t: "FairPrice engine",
+  pillar_fair_b:
+    "Transparent costing: materials, labour and production expenses recorded openly, so a fair price is a calculation — never a guess.",
+  pillar_b2b_t: "B2B Studio",
+  pillar_b2b_b:
+    "Structured workflows for bulk and custom orders — briefs, feasibility, quotations, samples and production coordination.",
+  b2b_kicker: "For businesses",
+  b2b_home_title: "Craft with a story. Partnerships with purpose.",
+  b2b_body:
+    "Connect with women-led artisan collectives through structured requests, honest feasibility assessment, versioned quotations and coordinated production — from a single gift to a full retail line.",
+  b2b_cta: "Submit a buyer brief",
+  closing2_title: "Every craft deserves to be seen. Every maker deserves to be heard.",
+  closing2_body:
+    "Follow a single piece from the weaver's hands to your home — and know the woman who made it.",
+  closing2_cta: "Explore the collection",
+  closing2_cta_b2b: "For Businesses",
+
   explore_title: "Explore Crafts",
   explore_sub:
     "Handmade pieces from demonstration self-help-group collectives. Every piece names its maker.",
@@ -349,7 +392,7 @@ const en: Record<string, string> = {
     "Demonstration build. All artisans, products, orders and figures are fictional demonstration records.",
 
   nav_concierge: "Gift Concierge",
-  nav_b2b: "घाऊक सोर्सिंग (B2B)",
+  nav_b2b: "For Businesses",
   concierge_kicker: "Custom orders",
   concierge_title: "Gift Concierge",
   concierge_sub:
@@ -862,6 +905,43 @@ const en: Record<string, string> = {
   "auth_mode_switch_signup": "New here? Create an account",
   "auth_mode_switch_signin": "Already registered? Sign in",
   "auth_demo_note": "Demonstration areas remain available without an account and are labeled as demonstration records.",
+  "auth_demo_entry": "Demonstration entry — no account needed",
+  "auth_enter_shg": "Enter as SHG coordinator",
+  "auth_enter_artisan": "Enter as Artisan",
+
+  /* ---------- Order history, next steps, notifications, production plans, operational snapshot ---------- */
+  nav_orders: "My Orders",
+  orders_index_kicker: "Order tracking",
+  orders_index_title: "Your orders",
+  orders_index_sub: "Every recorded order with its journey — assignment, production, quality check, packing, dispatch.",
+  orders_index_empty: "No recorded orders yet.",
+  app_next_title: "What to do next",
+  app_next_due: "Priority: {name} — dispatch by {date}",
+  app_next_ready: "Ready for dispatch: {n}",
+  app_next_pending: "Waiting to start: {n}",
+  app_next_none: "Nothing urgent right now.",
+  notif_title: "Notifications",
+  notif_none: "No notifications yet.",
+  notif_mark_read: "Mark all read",
+  notif_order_assigned: "New order assigned",
+  notif_order_status: "Order status changed",
+  notif_payment_recorded: "Payment recorded",
+  shg_production: "Production plans",
+  prod_sub: "A stage-by-stage plan for each order in the workshop — recorded steps, never invented ones.",
+  prod_no_plan: "No plan recorded yet for this order.",
+  prod_add_stage: "Add stage",
+  prod_stage_ph: "Stage name (e.g. weaving, finishing)",
+  prod_save: "Record plan",
+  prod_status: "Plan status",
+  prod_status_draft: "Draft",
+  prod_status_active: "In progress",
+  prod_status_done: "Completed",
+  prod_last_edit: "Last edited",
+  ops_title: "Operational snapshot",
+  ops_open: "Open orders",
+  ops_ready: "Ready to dispatch",
+  ops_payments: "Recorded payments",
+  ops_expenses: "Recorded expenses",
 };
 
 const hi: Record<string, string> = {
@@ -920,6 +1000,49 @@ const hi: Record<string, string> = {
     "स्वयं-सहायता-समूह अपना उत्पादन, ऑर्डर और रिकॉर्ड कलास्वर पर ला सकते हैं।",
   closing_cta_customers: "शिल्प देखें",
   closing_cta_shg: "संयोजक कार्यक्षेत्र खोलें",
+
+  hero2_title: "उसके हाथों में पीढ़ियाँ हैं। उसके भविष्य में संभावनाएँ।",
+  hero2_sub:
+    "भारत भर की महिला-नेतृत्व वाली स्वयं सहायता समूहों द्वारा बनाए गए असाधारण शिल्प खोजिए। हर वस्तु में उसके कौशल, कहानी और आजीविका की मेहनत है।",
+  hero2_cta_craft: "शिल्प खोजिए",
+  hero2_cta_meet: "कारीगरों से मिलिए",
+  hands_kicker: "काम के पीछे के हाथ",
+  hands_title: "हाथ से बना। पीढ़ियों से चला।",
+  hands_body:
+    "घास की बुनाई, रंगों की चित्रकारी, खुरची मिट्टी, सिला हुआ धागा। हर शिल्प माँ से बेटी तक, कार्यशाला से कार्यशाला तक चला आता है — और कलास्वर की हर वस्तु उस स्त्री का नाम रखती है जिसने उसे बनाया।",
+  collection_kicker: "संग्रह",
+  collection_title: "शिल्प संग्रह खोजिए",
+  collection_sub:
+    "टोकरी, कपड़ा, चित्रकला, मिट्टी और बहुत कुछ — हर वस्तु कारीगर के नाम के साथ, उचित कीमत पर।",
+  collection_view_all: "पूरा संग्रह देखें",
+  stories_home_kicker: "शिल्प कहानियाँ",
+  stories_home_title: "काम में बुनी हुई कहानियाँ",
+  stories_home_sub: "तकनीक, सामग्री और स्मृतियाँ — कारीगरों के अपने शब्दों में।",
+  stories_read: "कहानी पढ़ें",
+  pillars_kicker: "कलास्वर का फ़र्क़",
+  pillars_title: "चार स्तंभ, एक मंच",
+  pillar_voice_t: "आवाज़-प्रथम स्वायत्तता",
+  pillar_voice_b:
+    "कारीगर अपनी आवाज़ से काम चलाती है — ऑर्डर, भुगतान और कमाई के बारे में अपनी भाषा में पूछती है और उत्तर सुनती है।",
+  pillar_stories_t: "जीवंत शिल्प कहानियाँ",
+  pillar_stories_b:
+    "हर वस्तु अपनी कारीगर की कहानी रख सकती है — उसकी तकनीक, सामग्री और संदर्भ — हमेशा उसकी सहमति से।",
+  pillar_fair_t: "फेयरप्राइस इंजन",
+  pillar_fair_b:
+    "पारदर्शी लागत: सामग्री, श्रम और उत्पादन खर्च खुले दर्ज — उचित कीमत एक गणना है, अंदाज़ा नहीं।",
+  pillar_b2b_t: "बी2बी स्टूडियो",
+  pillar_b2b_b:
+    "थोक और कस्टम ऑर्डर के लिए संरचित वर्कफ़्लो — ब्रीफ़, व्यवहार्यता, कोटेशन, नमूने और उत्पादन समन्वय।",
+  b2b_kicker: "व्यवसायों के लिए",
+  b2b_home_title: "कहानी वाला शिल्प। उद्देश्य वाली साझेदारी।",
+  b2b_body:
+    "संरचित अनुरोधों, ईमानदार व्यवहार्यता आकलन, संस्करणित कोटेशन और समन्वित उत्पादन के ज़रिए महिला-नेतृत्व वाले समूहों से जुड़ें — एक उपहार से लेकर पूरी रिटेल लाइन तक।",
+  b2b_cta: "खरीदार ब्रीफ़ भेजें",
+  closing2_title: "हर शिल्प देखा जाने योग्य है। हर कारीगर सुनी जाने योग्य है।",
+  closing2_body:
+    "एक वस्तु का सफ़र बुनकर के हाथों से आपके घर तक देखिए — और उसे बनाने वाली स्त्री को जानिए।",
+  closing2_cta: "संग्रह खोजिए",
+  closing2_cta_b2b: "व्यवसायों के लिए",
 
   explore_title: "शिल्प देखें",
   explore_sub:
@@ -1709,6 +1832,42 @@ const hi: Record<string, string> = {
   "auth_mode_switch_signup": "नए हैं? खाता बनाएं",
   "auth_mode_switch_signin": "पहले से पंजीकृत? साइन इन करें",
   "auth_demo_note": "डेमो क्षेत्र बिना खाते भी उपलब्ध हैं और डेमो रिकॉर्ड के रूप में चिह्नित हैं।",
+  "auth_demo_entry": "डेमो प्रवेश — खाता आवश्यक नहीं",
+  "auth_enter_shg": "SHG समन्वयक के रूप में प्रवेश करें",
+  "auth_enter_artisan": "कारीगर के रूप में प्रवेश करें",
+
+  nav_orders: "मेरे ऑर्डर",
+  orders_index_kicker: "ऑर्डर ट्रैकिंग",
+  orders_index_title: "आपके ऑर्डर",
+  orders_index_sub: "हर दर्ज ऑर्डर का पूरा सफ़र — सौंपना, बनाना, गुणवत्ता जाँच, पैकिंग, डिस्पैच।",
+  orders_index_empty: "अभी कोई दर्ज ऑर्डर नहीं है।",
+  app_next_title: "अगला कदम",
+  app_next_due: "प्राथमिकता: {name} — {date} तक डिस्पैच",
+  app_next_ready: "डिस्पैच के लिए तैयार: {n}",
+  app_next_pending: "शुरू होने की प्रतीक्षा में: {n}",
+  app_next_none: "अभी कुछ भी जरूरी नहीं।",
+  notif_title: "सूचनाएँ",
+  notif_none: "अभी कोई सूचना नहीं।",
+  notif_mark_read: "सभी पढ़ी हुई मार्क करें",
+  notif_order_assigned: "नया ऑर्डर सौंपा गया",
+  notif_order_status: "ऑर्डर स्थिति बदली",
+  notif_payment_recorded: "भुगतान दर्ज किया गया",
+  shg_production: "उत्पादन योजना",
+  prod_sub: "वर्कशॉप में हर ऑर्डर की चरण-दर-चरण योजना — दर्ज कदम, कभी बनाए हुए नहीं।",
+  prod_no_plan: "इस ऑर्डर के लिए अभी कोई योजना दर्ज नहीं है।",
+  prod_add_stage: "चरण जोड़ें",
+  prod_stage_ph: "चरण का नाम (जैसे बुनाई, फ़िनिशिंग)",
+  prod_save: "योजना दर्ज करें",
+  prod_status: "योजना की स्थिति",
+  prod_status_draft: "प्रारूप",
+  prod_status_active: "चल रहा है",
+  prod_status_done: "पूरा हुआ",
+  prod_last_edit: "अंतिम संपादन",
+  ops_title: "परिचालन सारांश",
+  ops_open: "चालू ऑर्डर",
+  ops_ready: "डिस्पैच के लिए तैयार",
+  ops_payments: "दर्ज भुगतान",
+  ops_expenses: "दर्ज खर्च",
 };
 
 const mr: Record<string, string> = {
@@ -1767,6 +1926,49 @@ const mr: Record<string, string> = {
     "स्वयंसहाय्यता गट आपले उत्पादन, ऑर्डर आणि नोंदी कलास्वरवर आणू शकतात.",
   closing_cta_customers: "शिल्प पाहा",
   closing_cta_shg: "समन्वयक कार्यक्षेत्र उघडा",
+
+  hero2_title: "तिच्या हातात पिढ्यांचा वारसा. तिच्या भविष्यात शक्यता.",
+  hero2_sub:
+    "भारतातील महिलांच्या स्वसहाय्य गटांनी तयार केलेल्या अप्रतिम हस्तकलांचा शोध घ्या. प्रत्येक वस्तूमध्ये तिच्या कौशल्याची, कथेची आणि उपजीविकेची मेहनत आहे.",
+  hero2_cta_craft: "कला शोधा",
+  hero2_cta_meet: "कारागिरांना भेटा",
+  hands_kicker: "कलेमागचे हात",
+  hands_title: "हाताने घडवले. पिढ्यान्‌पिढ्या पुढे चालले.",
+  hands_body:
+    "गवताळ गाठी, रंगाची चित्रे, घडवलेली माती, शिवलेला धागा. प्रत्येक कला आईकडून लेकीकडे, कार्यशाळेकडून कार्यशाळेकडे चालत आली आहे — आणि कलास्वरवरील प्रत्येक वस्तू ती बनवणाऱ्या स्त्रीचे नाव वाहून येते.",
+  collection_kicker: "संग्रह",
+  collection_title: "हस्तकला संग्रह शोधा",
+  collection_sub:
+    "टोपल्या, विणकाम, चित्रकला, माती आणि अधिक — प्रत्येक वस्तू कारागिराच्या नावाने, योग्य किंमतीत.",
+  collection_view_all: "संपूर्ण संग्रह पहा",
+  stories_home_kicker: "कलाकथा",
+  stories_home_title: "कामात विणलेल्या कथा",
+  stories_home_sub: "तंत्र, साहित्य आणि आठवणी — कारागिरांच्या शब्दांत, त्यांच्याच आवाजात.",
+  stories_read: "कथा वाचा",
+  pillars_kicker: "कलास्वरचा फरक",
+  pillars_title: "चार स्तंभ, एक व्यासपीठ",
+  pillar_voice_t: "आवाजाधारित स्वायत्तता",
+  pillar_voice_b:
+    "कारागिर आपल्या आवाजात काम चालवते — ऑर्डर, देयके आणि कमाई विचारते, आणि तिच्याच भाषेत उत्तर ऐकते.",
+  pillar_stories_t: "जिवंत कलाकथा",
+  pillar_stories_b:
+    "प्रत्येक वस्तू तिच्या कारागिराची कथा वाहून नेऊ शकते — तिचे तंत्र, साहित्य आणि संदर्भ — तिच्या संमतीनेच.",
+  pillar_fair_t: "फेअरप्राइस इंजिन",
+  pillar_fair_b:
+    "पारदर्शक किमतीची गणना — साहित्य, मजुरी आणि खर्च नोंदवलेले; योग्य किंमत ही अंदाज नव्हे, ती गणना असते.",
+  pillar_b2b_t: "बीटूबी स्टुडिओ",
+  pillar_b2b_b:
+    "मोठ्या आणि सानुकूल ऑर्डरसाठी रचनाबद्ध प्रवाह — मागणी, शक्यता तपासणी, निविदा, नमुने आणि उत्पादन समन्वय.",
+  b2b_kicker: "व्यवसायांसाठी",
+  b2b_home_title: "कथा असलेली कला. उद्देश असलेले साहचर्य.",
+  b2b_body:
+    "रचनाबद्ध मागण्या, प्रामाणिक शक्यता मूल्यांकन, क्रमांकित निविदा आणि समन्वित उत्पादनाद्वारे महिलांच्या स्वसहाय्य गटांशी जोडले जा — एका भेटवस्तूपासून पूर्ण किराणा ओळीपर्यंत.",
+  b2b_cta: "खरेदीदार मागणी पाठवा",
+  closing2_title: "प्रत्येक कला पाहिली जाण्यास हकदार आहे. प्रत्येक कारागिर ऐकिली जाण्यास हकदार आहे.",
+  closing2_body:
+    "एका वस्तूचा प्रवास विणकराच्या हातांपासून तुमच्या घरापर्यंत पाहा — आणि ती बनवणारी स्त्री ओळखा.",
+  closing2_cta: "संग्रह शोधा",
+  closing2_cta_b2b: "व्यवसायांसाठी",
 
   explore_title: "शिल्प पाहा",
   explore_sub:
@@ -2556,7 +2758,42 @@ const mr: Record<string, string> = {
   "auth_mode_switch_signup": "नवीन आहात? खाते तयार करा",
   "auth_mode_switch_signin": "आधीच नोंदणीकृत? साइन इन करा",
   "auth_demo_note": "डेमो विभाग खात्याशिवाय उपलब्ध आहेत आणि डेमो रेकॉर्ड म्हणून चिन्हांकित आहेत.",
+  "auth_demo_entry": "डेमो प्रवेश — खाते आवश्यक नाही",
+  "auth_enter_shg": "SHG समन्वयक म्हणून प्रवेश करा",
+  "auth_enter_artisan": "कारागीर म्हणून प्रवेश करा",
 
+  nav_orders: "माझ्या ऑर्डर",
+  orders_index_kicker: "ऑर्डर मागोवा",
+  orders_index_title: "तुमच्या ऑर्डर",
+  orders_index_sub: "प्रत्येक नोंदवलेल्या ऑर्डरचा संपूर्ण प्रवास — सोपवणे, बनवणे, गुणवत्ता तपासणी, पॅकिंग, डिस्पॅच.",
+  orders_index_empty: "अजून कोणतीही नोंदवलेली ऑर्डर नाही.",
+  app_next_title: "पुढे काय करायचे",
+  app_next_due: "प्राधान्य: {name} — {date} पर्यंत डिस्पॅच",
+  app_next_ready: "डिस्पॅचसाठी तयार: {n}",
+  app_next_pending: "सुरू होण्याची वाट पाहत आहे: {n}",
+  app_next_none: "अजून काहीही तातडीचे नाही.",
+  notif_title: "सूचना",
+  notif_none: "अजून कोणतीही सूचना नाही.",
+  notif_mark_read: "सर्व वाचलेल्या खूण करा",
+  notif_order_assigned: "नवी ऑर्डर सोपवली",
+  notif_order_status: "ऑर्डर स्थिती बदलली",
+  notif_payment_recorded: "पेमेंट नोंदवले",
+  shg_production: "उत्पादन नियोजन",
+  prod_sub: "वर्कशॉपमधील प्रत्येक ऑर्डरसाठी टप्प्याटप्प्याने नियोजन — नोंदवलेली पाऊले, कधीही बनावट नाहीत.",
+  prod_no_plan: "या ऑर्डरसाठी अजून कोणतीही योजना नोंदवलेली नाही.",
+  prod_add_stage: "टप्पा जोडा",
+  prod_stage_ph: "टप्प्याचे नाव (उदा. विणकाम, फिनिशिंग)",
+  prod_save: "योजना नोंदवा",
+  prod_status: "योजनेची स्थिती",
+  prod_status_draft: "मसुदा",
+  prod_status_active: "सुरू आहे",
+  prod_status_done: "पूर्ण झाले",
+  prod_last_edit: "शेवटचे संपादन",
+  ops_title: "कारभाराची झलक",
+  ops_open: "सुरू ऑर्डर",
+  ops_ready: "डिस्पॅचसाठी तयार",
+  ops_payments: "नोंदवलेले पेमेंट",
+  ops_expenses: "नोंदवलेले खर्च",
 };
 
 export const dictionaries: Record<Lang, Record<string, string>> = { en, hi, mr };

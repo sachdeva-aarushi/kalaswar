@@ -18,9 +18,9 @@ function QuotesPage() {
   const { data: quotes } = useSuspenseQuery(quotationsQuery());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("b2b_quote_list_title")}</h1>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("b2b_quote_list_title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("b2b_quote_not_binding")}</p>
       </header>
 
@@ -29,7 +29,7 @@ function QuotesPage() {
       ) : (
         <ul className="space-y-3">
           {quotes.map((q) => (
-            <li key={q.id} className="rounded-xl border border-border bg-card p-5">
+            <li key={q.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">{q.request_code}</p>

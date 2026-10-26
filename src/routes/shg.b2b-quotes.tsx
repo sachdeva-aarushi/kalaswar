@@ -118,10 +118,10 @@ function CoordinatorQuotesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background [&_[data-slot=select-trigger]]:min-h-11 [&_[data-slot=select-trigger]]:rounded-none [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("shg_b2b_quotes")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("qspec_version_note")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("shg_b2b_quotes")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("qspec_version_note")}</p>
       </header>
 
       {quotes.length === 0 ? (
@@ -134,7 +134,7 @@ function CoordinatorQuotesPage() {
             const acceptedVersion = q.versions?.find((v) => v.status === "accepted");
             const totals = latest ? quoteTotals(latest.spec) : null;
             return (
-              <li key={q.id} className="rounded-xl border border-border bg-card p-5">
+              <li key={q.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-xs text-muted-foreground">{q.request_code}</p>
@@ -144,7 +144,7 @@ function CoordinatorQuotesPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge label={t(`b2b_qstatus_${q.status}`)} tone={quoteStatusTone(q.status)} />
                     {q.status === "revision_requested" && (
-                      <Badge variant="outline" className="border-amber-600/40 bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                      <Badge variant="outline" className="border-gold/40 bg-gold/10 text-foreground">
                         {t("shg_quote_revision_pending")}
                       </Badge>
                     )}
@@ -152,7 +152,7 @@ function CoordinatorQuotesPage() {
                 </div>
 
                 {latest && (
-                  <div className="mt-3 rounded-lg border border-border bg-background p-3 text-sm">
+                  <div className="mt-3 border border-border bg-background p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg text-sm">
                     <p className="text-xs text-muted-foreground">
                       {t("b2b_quote_version")} {latest.version} · {latest.status}
                     </p>
@@ -227,8 +227,8 @@ function CoordinatorQuotesPage() {
         </ul>
       )}
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base font-semibold tracking-tight">{t("b2b_samples_title")}</h2>
+      <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+        <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{t("b2b_samples_title")}</h2>
         {(samples ?? []).length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_samples")}</p>
         ) : (
@@ -236,7 +236,7 @@ function CoordinatorQuotesPage() {
             {(samples ?? []).map((sm) => {
               const nexts = SAMPLE_STAGES[sm.status] ?? [];
               return (
-                <li key={sm.id} className="rounded-lg border border-border bg-background p-3 text-sm">
+                <li key={sm.id} className="border border-border bg-background p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>
                       <span className="font-mono text-xs text-muted-foreground">{sm.quotation_request_code}</span>{" "}

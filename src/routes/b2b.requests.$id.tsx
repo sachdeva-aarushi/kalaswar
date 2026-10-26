@@ -57,11 +57,11 @@ function RequestDetailPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-sm text-muted-foreground">{request.request_code}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">{request.title}</h1>
+          <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{request.title}</h1>
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge label={t(`b2b_status_${request.status}`)} tone={requestStatusTone(request.status)} />
@@ -75,8 +75,8 @@ function RequestDetailPage() {
         </div>
       </header>
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base font-semibold tracking-tight">{t("shg_b2b_brief")}</h2>
+      <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+        <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{t("shg_b2b_brief")}</h2>
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           {structuredKeys
             .filter(([k]) => brief[k] != null && String(brief[k]).trim() !== "")
@@ -88,13 +88,13 @@ function RequestDetailPage() {
             ))}
         </dl>
         {request.status === "draft" && !validation.ok && (
-          <p className="mt-3 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+          <p className="mt-3 flex items-center gap-2 text-sm text-wine">
             <CircleAlert className="size-4" aria-hidden="true" />
             {t("b2b_validation_missing")}
           </p>
         )}
         {typeof brief["clarification_note"] === "string" && brief["clarification_note"] && (
-          <p className="mt-3 rounded-lg border border-border bg-background p-3 text-sm">
+          <p className="mt-3 border border-border bg-background p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg text-sm">
             <span className="font-medium">{t("b2b_clarification")}: </span>
             {String(brief["clarification_note"])}
           </p>
@@ -108,7 +108,7 @@ function RequestDetailPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold tracking-tight">{t("b2b_feasibility_title")}</h2>
+          <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{t("b2b_feasibility_title")}</h2>
         </div>
         <p className="text-sm text-muted-foreground">{t("b2b_feasibility_note")}</p>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -116,7 +116,7 @@ function RequestDetailPage() {
             const a = assessBuyerRequest(brief, snap);
             const d = a.dataUsed;
             return (
-              <article key={snap.shg.id} className="rounded-xl border border-border bg-card p-5">
+              <article key={snap.shg.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium">{snap.shg.name}</p>
                   <Badge variant="outline" className={TONE_BADGE[FEAS_TONE[a.status]]}>
@@ -171,8 +171,8 @@ function RequestDetailPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base font-semibold tracking-tight">{t("b2b_quotes_received")}</h2>
+      <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+        <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{t("b2b_quotes_received")}</h2>
         {quotes.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_quotes_yet")}</p>
         ) : (

@@ -36,10 +36,10 @@ function B2bOverview() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("b2b_title")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("b2b_intro")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("b2b_title")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("b2b_intro")}</p>
         {!hasBuyer && (
-          <p className="mt-3 rounded-lg border border-amber-600/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          <p className="mt-3 rounded-lg border border-amber-600/40 bg-amber-500/10 px-4 py-3 text-sm text-wine">
             {t("b2b_needs_profile")}{" "}
             <Link to="/b2b/buyer-profile" className="underline underline-offset-4">
               {t("b2b_nav_profile")} →
@@ -49,7 +49,7 @@ function B2bOverview() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <SectionTitle>{t("b2b_active_requests")}</SectionTitle>
           {active.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_requests")}</p>
@@ -78,7 +78,7 @@ function B2bOverview() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <SectionTitle>{t("b2b_open_quotes")}</SectionTitle>
           {openQuotes.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_quotes")}</p>
@@ -103,7 +103,7 @@ function B2bOverview() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <SectionTitle>{t("b2b_sample_approvals")}</SectionTitle>
           {approvedSamples.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_samples")}</p>
@@ -119,7 +119,7 @@ function B2bOverview() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <SectionTitle>{t("b2b_confirmed_orders")}</SectionTitle>
           {orders.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("b2b_no_orders")}</p>

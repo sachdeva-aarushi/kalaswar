@@ -99,7 +99,7 @@ function ExplorePage() {
         </header>
 
         {/* Search + sort */}
-        <div className="mt-10 flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="mt-10 flex flex-col gap-4 border border-border bg-secondary p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg md:flex-row md:items-center">
           <div className="relative flex-1">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -111,7 +111,7 @@ function ExplorePage() {
               onChange={(e) => setSearchText(e.target.value)}
               placeholder={t("explore_search")}
               aria-label={t("explore_search")}
-              className="h-11 pl-9"
+              className="h-12 border-border bg-background pl-9"
             />
           </div>
           <Select
@@ -126,7 +126,7 @@ function ExplorePage() {
               })
             }
           >
-            <SelectTrigger className="h-11 w-full md:w-52" aria-label={t("explore_sort")}>
+            <SelectTrigger className="h-12 w-full border-border bg-background md:w-52" aria-label={t("explore_sort")}>
               <SelectValue placeholder={t("explore_sort")} />
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +138,7 @@ function ExplorePage() {
         </div>
 
         {/* Category chips */}
-        <nav aria-label="Craft categories" className="mt-6 flex flex-wrap gap-2">
+        <nav aria-label="Craft categories" className="mt-6 flex flex-wrap gap-2 border border-border bg-card p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
           <Link
             to="/explore"
             search={(prev: ExploreSearch) => ({ ...prev, category: undefined })}
@@ -179,7 +179,7 @@ function ExplorePage() {
         {isPending ? (
           <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="space-y-3">
+              <div key={i} className="space-y-3 border border-border bg-card p-6">
                 <Skeleton className="aspect-[4/5] w-full" />
                 <Skeleton className="h-5 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
@@ -187,7 +187,7 @@ function ExplorePage() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="mt-16 border-t border-border pt-16 text-center">
+          <div className="mt-12 border border-border bg-card px-6 py-16 text-center text-muted-foreground">
             <p className="font-display text-2xl text-foreground">{t("explore_empty")}</p>
             <Link to="/explore" search={{}} className="mt-4 inline-block text-sm text-primary underline-offset-4 hover:underline">
               {t("explore_all")}

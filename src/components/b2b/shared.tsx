@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 export const TONE_BADGE: Record<string, string> = {
   neutral: "border-border bg-muted text-muted-foreground",
   positive: "border-primary/40 bg-primary/10 text-primary",
-  warning: "border-amber-600/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  warning: "border-gold/40 bg-gold/10 text-foreground",
   negative: "border-destructive/40 bg-destructive/10 text-destructive",
 };
 
@@ -69,5 +69,5 @@ export function sampleStatusTone(status: string): string {
 
 /** Section heading used across B2B pages. */
 export function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-base font-semibold tracking-tight">{children}</h2>;
+  return <h2 className="font-display text-xl font-medium tracking-tight text-foreground">{children}</h2>;
 }

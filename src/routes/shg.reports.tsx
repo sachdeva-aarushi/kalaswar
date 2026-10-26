@@ -11,6 +11,7 @@ import {
   paymentsQuery,
   productSignalsAllQuery,
   productsQuery,
+  expensesAllQuery,
 } from "@/lib/data";
 import { summarizeDemand } from "@/lib/demand";
 import { downloadCsv, toCsv } from "@/lib/csv";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/shg/reports")({
     void context.queryClient.ensureQueryData(allOrderEventsQuery());
     void context.queryClient.ensureQueryData(paymentsQuery());
     void context.queryClient.ensureQueryData(productSignalsAllQuery());
+    void context.queryClient.ensureQueryData(expensesAllQuery());
   },
   component: ShgReports,
 });
@@ -39,6 +41,17 @@ function ShgReports() {
   const { data: events } = useSuspenseQuery(allOrderEventsQuery());
   const { data: payments } = useSuspenseQuery(paymentsQuery());
   const { data: signals } = useSuspenseQuery(productSignalsAllQuery());
+  const { data: expenses } = useSuspenseQuery(expensesAllQuery());
+
+  // Operational snapshot — counts read only from recorded records.
+  const openOrders = orders.filter((o) => o.status === "pending" || o.status === "in_production").length;
+  const readyOrders = orders.filter((o) => o.status === "ready_for_dispatch").length;
+  const snapshot = [
+    { label: t("ops_open"), value: openOrders },
+    { label: t("ops_ready"), value: readyOrders },
+    { label: t("ops_payments"), value: payments.length },
+    { label: t("ops_expenses"), value: expenses.length },
+  ];
 
   // Demand-informed planning: distinct recorded signals per piece.
   const demandRows = products
@@ -153,6 +166,21 @@ function ShgReports() {
           </div>
         ))}
       </div>
+
+      <section className="mt-10" aria-label={t("ops_title")}>
+        <h2 className="font-display text-2xl text-foreground">{t("ops_title")}</h2>
+        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {snapshot.map((s) => (
+            <div
+              key={s.label}
+              className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+            >
+              <p className="font-display text-4xl tabular-nums text-foreground">{s.value}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Demand signals — views, saves, enquiries, purchases stay distinct */}
       <section className="mt-10">

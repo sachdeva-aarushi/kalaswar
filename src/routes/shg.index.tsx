@@ -7,6 +7,7 @@ import { computeShgRanking } from "@/lib/ranking";
 import { assessOrderRisk } from "@/lib/risk";
 import { formatDate } from "@/lib/money";
 import { DemoNote } from "@/components/demo-note";
+import { NotificationsPanel } from "@/components/notifications-panel";
 import type { OrderStatus } from "@/lib/types";
 
 export const Route = createFileRoute("/shg/")({
@@ -90,6 +91,8 @@ function ShgOverview() {
         <p className="kicker text-terracotta">{t("shg_workspace")}</p>
         <h1 className="mt-2 font-display text-3xl text-foreground md:text-4xl">{t("shg_overview")}</h1>
       </header>
+
+      <NotificationsPanel audience="coordinator" className="mt-8" />
 
       <section aria-label={t("kpi_total")} className="mt-8 grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-3">
         {kpis.map((k) => (

@@ -251,6 +251,17 @@ function AuthPage() {
             {mode === "signin" ? t("auth_mode_switch_signup") : t("auth_mode_switch_signin")}
           </button>
         </div>
+        <div className="mt-6 border-t border-border pt-4">
+          <p className="text-xs text-muted-foreground">{t("auth_demo_entry")}</p>
+          <div className="mt-2 flex flex-wrap justify-end gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/shg">{t("auth_enter_shg")}</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/artisan-space">{t("auth_enter_artisan")}</Link>
+            </Button>
+          </div>
+        </div>
         <p className="mt-6 text-center text-xs text-muted-foreground">{t("auth_demo_note")}</p>
       </div>
     </main>

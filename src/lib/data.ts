@@ -283,6 +283,20 @@ export async function assignOrder(
   if (updErr) throw new Error(updErr.message);
 
   await recordOrderEvent(orderId, "assigned");
+  /* in-app notification — best-effort, never blocks the assignment flow */
+  const { data: ordRow } = await supabase
+    .from("orders")
+    .select("quantity, products(name)")
+    .eq("id", orderId)
+    .single();
+  const ord = ordRow as unknown as { quantity: number; products: { name: string } | null } | null;
+  await pushNotification({
+    audience: "artisan",
+    audience_ref: artisanId,
+    event_type: "order_assigned",
+    link: "/artisan-space",
+    body: ord ? [ord.products?.name, `×${ord.quantity}`].filter(Boolean).join(" · ") : null,
+  });
   if (!updErr) await recordOrderEvent(orderId, "in_production");
 }
 
@@ -290,6 +304,12 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus): P
   const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
   if (error) throw new Error(error.message);
   await recordOrderEvent(orderId, status);
+  await pushNotification({
+    audience: "coordinator",
+    event_type: "order_status",
+    link: "/shg/orders",
+    body: status,
+  });
 }
 
 export interface ProductInput {
@@ -302,6 +322,8 @@ export interface ProductInput {
   image_url?: string | null;
   image_public_id?: string | null;
   availability: boolean;
+  /** Label of the acting editor (demonstration mode; production stores a user id). */
+  updated_by?: string;
 }
 
 export async function saveProduct(input: ProductInput): Promise<Product> {
@@ -315,6 +337,8 @@ export async function saveProduct(input: ProductInput): Promise<Product> {
         category: input.category,
         price: input.price,
         availability: input.availability,
+        updated_at: new Date().toISOString(),
+        updated_by: input.updated_by ?? "Coordinator — demonstration",
         ...(input.image_url !== undefined && { image_url: input.image_url }),
         ...(input.image_public_id !== undefined && { image_public_id: input.image_public_id }),
       })
@@ -437,6 +461,134 @@ export async function recordPayment(input: PaymentInput): Promise<void> {
   });
   if (error) throw new Error(error.message);
   if (input.order_id) await recordOrderEvent(input.order_id, "payment");
+  await pushNotification({
+    audience: "coordinator",
+    event_type: "payment_recorded",
+    link: "/shg/payments",
+    body: String(input.amount),
+  });
+}
+
+/* ---------- In-app notifications (demonstration mode) ---------- */
+
+export type NotificationAudience = "artisan" | "coordinator" | "buyer";
+
+export interface AppNotification {
+  id: string;
+  audience: string;
+  audience_ref: string | null;
+  event_type: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+/** Best-effort: a failed notification never blocks the operational flow. */
+export async function pushNotification(input: {
+  audience: NotificationAudience;
+  audience_ref?: string | null;
+  event_type: string;
+  title?: string | null;
+  body?: string | null;
+  link?: string | null;
+}): Promise<void> {
+  const { error } = await supabase.from("notifications").insert({
+    audience: input.audience,
+    audience_ref: input.audience_ref ?? null,
+    event_type: input.event_type,
+    title: input.title ?? input.event_type,
+    body: input.body ?? null,
+    link: input.link ?? null,
+  });
+  if (error) console.warn("notification skipped:", error.message);
+}
+
+export async function fetchNotifications(
+  audience: string,
+  audienceRef?: string | null,
+): Promise<AppNotification[]> {
+  let q = supabase
+    .from("notifications")
+    .select("*")
+    .eq("audience", audience)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (audienceRef) q = q.eq("audience_ref", audienceRef);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as AppNotification[];
+}
+
+export const notificationsQuery = (audience: string, audienceRef?: string | null) =>
+  queryOptions({
+    queryKey: ["notifications", audience, audienceRef ?? ""],
+    queryFn: () => fetchNotifications(audience, audienceRef),
+  });
+
+export async function markNotificationsRead(ids: string[]): Promise<void> {
+  if (ids.length === 0) return;
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .in("id", ids);
+  if (error) throw new Error(error.message);
+}
+
+/* ---------- Production planning ---------- */
+
+export type ProductionPlanStage = {
+  name: string;
+  target_date: string | null;
+  done: boolean;
+};
+
+export interface ProductionPlan {
+  id: string;
+  order_id: string;
+  stages: ProductionPlanStage[];
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function fetchProductionPlans(): Promise<ProductionPlan[]> {
+  const { data, error } = await supabase
+    .from("production_plans")
+    .select("*")
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as {
+    stages: ProductionPlanStage[] | null;
+  }[]).map((row) => ({ ...row, stages: row.stages ?? [] })) as unknown as ProductionPlan[];
+}
+
+export const productionPlansQuery = () =>
+  queryOptions({ queryKey: ["productionPlans"], queryFn: fetchProductionPlans });
+
+export async function saveProductionPlan(
+  orderId: string,
+  stages: ProductionPlanStage[],
+  status: string,
+): Promise<void> {
+  const { data: existing } = await supabase
+    .from("production_plans")
+    .select("id")
+    .eq("order_id", orderId)
+    .maybeSingle();
+  if (existing) {
+    const { error } = await supabase
+      .from("production_plans")
+      .update({ stages, status, updated_at: new Date().toISOString() })
+      .eq("id", (existing as { id: string }).id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from("production_plans")
+      .insert({ order_id: orderId, stages, status });
+    if (error) throw new Error(error.message);
+  }
 }
 
 export async function saveUpiId(shgId: string, upiId: string): Promise<void> {

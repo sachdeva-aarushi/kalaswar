@@ -187,14 +187,14 @@ function RequestFormPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{edit ? t("b2b_request_edit") : t("b2b_request_new")}</h1>
-        {from && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("b2b_reorder_note")}</p>}
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{edit ? t("b2b_request_edit") : t("b2b_request_new")}</h1>
+        {from && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("b2b_reorder_note")}</p>}
       </header>
 
       <form
-        className="grid gap-4 rounded-xl border border-border bg-card p-5 sm:grid-cols-2"
+        className="grid gap-x-6 gap-y-5 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg sm:grid-cols-2 sm:p-8 [&_input]:mt-2 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:mt-2 [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background"
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit(true);

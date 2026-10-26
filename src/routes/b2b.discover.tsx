@@ -16,16 +16,16 @@ function DiscoverPage() {
   const { data: snapshots } = useSuspenseQuery(collectiveSnapshotsQuery());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("b2b_discover_title")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("b2b_discover_intro")}</p>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("b2b_discover_title")}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("b2b_discover_intro")}</p>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {snapshots.map((snap) => (
-          <article key={snap.shg.id} className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-medium">{snap.shg.name}</h2>
+          <article key={snap.shg.id} className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+            <h2 className="font-display text-xl font-medium text-foreground">{snap.shg.name}</h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div>
                 <dt className="text-xs uppercase tracking-wide text-muted-foreground">{t("b2b_recorded_skills")}</dt>

@@ -92,11 +92,11 @@ function QuoteDetailPage() {
   if (!quote || !latest) return <p className="text-sm text-muted-foreground">Not found.</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background [&_[data-slot=select-trigger]]:min-h-11 [&_[data-slot=select-trigger]]:rounded-none [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-sm text-muted-foreground">{quote.request_code}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">{quote.request_title}</h1>
+          <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{quote.request_title}</h1>
           <p className="text-sm text-muted-foreground">
             {t("b2b_quote_from")}: {quote.shg_name}
           </p>
@@ -119,7 +119,7 @@ function QuoteDetailPage() {
           return (
             <article
               key={v.id}
-              className={`rounded-xl border bg-card p-5 ${isLatest ? "border-primary/50" : "border-border opacity-80"}`}
+              className={`border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg ${isLatest ? "border-primary/50" : "border-border"}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">
@@ -200,7 +200,7 @@ function QuoteDetailPage() {
       </section>
 
       {quote.status !== "accepted" && quote.status !== "declined" && quote.status !== "cancelled" && (
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           <div className="flex flex-wrap items-end gap-3">
             <div className="min-w-56 flex-1">
               <Label htmlFor={`qrev-${id}`}>{t("b2b_quote_revise")}</Label>
@@ -219,7 +219,7 @@ function QuoteDetailPage() {
       )}
 
       {latest && (
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
           {sampleExists ? (
             <p className="text-sm text-muted-foreground">
               <CheckCircle2 className="mr-1 inline size-4 text-primary" aria-hidden="true" />

@@ -60,10 +60,10 @@ function ArtisanProfile() {
           {t("artisans_title")}
         </Link>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr,1.15fr] lg:gap-16">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
           <Reveal>
             <figure className="lg:sticky lg:top-24">
-              <div className="overflow-hidden bg-muted">
+              <div className="overflow-hidden border border-border bg-muted">
                 <img
                   src={artisan.photo_url ?? ""}
                   alt={`${artisan.name} — ${artisan.craft}`}
@@ -80,11 +80,11 @@ function ArtisanProfile() {
               <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
                 {shg && (
                   <>
-                    <div className="border-t border-border pt-3">
+                    <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                       <dt className="kicker text-muted-foreground">{t("artisans_collective")}</dt>
                       <dd className="mt-1.5 text-base text-foreground">{shg.name}</dd>
                     </div>
-                    <div className="border-t border-border pt-3">
+                    <div className="border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                       <dt className="kicker text-muted-foreground">{t("artisans_region")}</dt>
                       <dd className="mt-1.5 text-base text-foreground">{shg.region}</dd>
                     </div>
@@ -105,7 +105,7 @@ function ArtisanProfile() {
                 {t("artisans_works")}
               </h2>
               {products.length === 0 ? (
-                <p className="mt-6 text-muted-foreground">{t("app_none")}</p>
+                <p className="mt-6 border border-border bg-card px-6 py-12 text-center text-muted-foreground">{t("app_none")}</p>
               ) : (
                 <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2">
                   {products.map((p, i) => (

@@ -85,7 +85,7 @@ export function QuoteSpecForm({
 
   return (
     <form
-      className="grid gap-3 sm:grid-cols-2"
+      className="grid gap-x-6 gap-y-5 border border-border bg-card p-6 sm:grid-cols-2 [&_input]:mt-2 [&_input]:min-h-11 [&_input]:rounded-none [&_input]:border-border [&_input]:bg-background [&_textarea]:mt-2 [&_textarea]:rounded-none [&_textarea]:border-border [&_textarea]:bg-background"
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit(build());

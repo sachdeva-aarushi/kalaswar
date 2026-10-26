@@ -18,9 +18,9 @@ function OrdersPage() {
   const { data: orders } = useSuspenseQuery(b2bOrdersQuery());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("b2b_orders_title")}</h1>
+        <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl">{t("b2b_orders_title")}</h1>
       </header>
 
       {orders.length === 0 ? (
@@ -28,7 +28,7 @@ function OrdersPage() {
       ) : (
         <ul className="space-y-3">
           {orders.map((o) => (
-            <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-5">
+            <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
               <div>
                 <p className="font-mono text-xs text-muted-foreground">{o.customer_reference}</p>
                 <p className="font-medium">{o.request_title}</p>

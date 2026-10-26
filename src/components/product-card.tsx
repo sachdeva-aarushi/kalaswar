@@ -19,7 +19,7 @@ export function ProductCard({
       to="/product/$id"
       params={{ id: product.id }}
       className={cn(
-        "group block focus-visible:outline-2 focus-visible:outline-ring",
+        "group block border border-border bg-card p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-ring",
         className,
       )}
     >
@@ -37,23 +37,25 @@ export function ProductCard({
           <div className="aspect-[4/5] w-full" aria-hidden="true" />
         )}
         {!product.availability && (
-          <span className="absolute left-3 top-3 bg-card px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-foreground/80">
+          <span className="absolute left-3 top-3 border border-border bg-card px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-foreground/80">
             {t("unavailable")}
           </span>
         )}
       </div>
-      <div className="mt-3 flex items-baseline justify-between gap-3">
-        <h3 className="font-display text-lg leading-snug text-foreground group-hover:text-primary">
-          {product.name}
-        </h3>
-        <p className="shrink-0 text-sm font-medium tabular-nums text-foreground">
-          {formatINR(product.price)}
+      <div className="mt-4 px-1 pb-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="font-display text-lg leading-snug text-foreground group-hover:text-primary">
+            {product.name}
+          </h3>
+          <p className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+            {formatINR(product.price)}
+          </p>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("by")} {product.artisan?.name}
+          {product.shg ? ` · ${product.shg.name}` : ""}
         </p>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {t("by")} {product.artisan?.name}
-        {product.shg ? ` · ${product.shg.name}` : ""}
-      </p>
     </Link>
   );
 }

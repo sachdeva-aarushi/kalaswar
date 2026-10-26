@@ -23,6 +23,7 @@ import { useVoiceAssistant, type AssistantError } from "@/hooks/use-voice-assist
 import { DEMO_ARTISAN_ID } from "@/lib/constants";
 import { formatDate } from "@/lib/money";
 import { StoryEditorSection } from "@/components/artisan/story-editor";
+import { NotificationsPanel } from "@/components/notifications-panel";
 import { Wordmark } from "@/components/wordmark";
 import { LanguageSelect } from "@/components/language-select";
 import { DemoBadge, DemoNote } from "@/components/demo-note";
@@ -226,8 +227,31 @@ export function ArtisanApp() {
 
   const reply = voice.reply || fallbackReply;
 
+  /** Next-step aggregation — read only from recorded orders, never invented. */
+  const nextSteps = useMemo(() => {
+    const list = orders ?? [];
+    const steps: { label: string; intent: VoiceIntent }[] = [];
+    const due = list
+      .filter((o) => o.status === "in_production" && o.expected_dispatch_at)
+      .sort((a, b) => (a.expected_dispatch_at ?? "").localeCompare(b.expected_dispatch_at ?? ""))[0];
+    if (due) {
+      steps.push({
+        label: t("app_next_due", {
+          name: due.product?.name ?? "",
+          date: formatDate(due.expected_dispatch_at),
+        }),
+        intent: "show_in_production",
+      });
+    }
+    const ready = counts?.ready_for_dispatch ?? 0;
+    if (ready > 0) steps.push({ label: t("app_next_ready", { n: ready }), intent: "show_ready" });
+    const pending = counts?.pending ?? 0;
+    if (pending > 0) steps.push({ label: t("app_next_pending", { n: pending }), intent: "show_pending" });
+    return steps;
+  }, [orders, counts, t]);
+
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md px-4 pb-16 pt-6 md:max-w-lg">
+    <div className="mx-auto min-h-screen w-full max-w-xl px-4 pb-20 pt-8 sm:px-6 md:pt-12">
       {/* Top identity */}
       <header className="flex items-center justify-between">
         <Wordmark size="sm" withFeather={false} />
@@ -240,7 +264,7 @@ export function ArtisanApp() {
         <DemoBadge />
       </div>
 
-      <h1 className="mt-4 font-display text-3xl leading-tight text-foreground">
+      <h1 className="mt-8 font-display text-4xl leading-tight text-foreground md:text-5xl">
         {t("app_greeting")}, {artisan?.name ?? "…"}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -252,7 +276,7 @@ export function ArtisanApp() {
       <div className="mt-4 flex items-center gap-2">
         <span className="shrink-0 text-sm text-muted-foreground">{t("app_select")}</span>
         <Select value={artisanId} onValueChange={setArtisanId}>
-          <SelectTrigger className="h-9 flex-1 text-sm" aria-label={t("app_select")}>
+          <SelectTrigger className="h-11 flex-1 border-border bg-card text-sm" aria-label={t("app_select")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -265,10 +289,37 @@ export function ArtisanApp() {
         </Select>
       </div>
 
+      {/* ---------- What to do next ---------- */}
+      <section
+        aria-label={t("app_next_title")}
+        className="mt-8 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+      >
+        <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_next_title")}</h2>
+        {nextSteps.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("app_next_none")}</p>
+        ) : (
+          <ul className="mt-4 space-y-2.5">
+            {nextSteps.map((s) => (
+              <li key={s.intent}>
+                <button
+                  type="button"
+                  onClick={() => setFocus(s.intent)}
+                  className="w-full rounded-md border border-border bg-background p-4 text-left text-sm text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                >
+                  {s.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <NotificationsPanel audience="artisan" audienceRef={artisanId} className="mt-4" />
+
       {/* ---------- Voice panel ---------- */}
       <section
         aria-label={t("app_mic")}
-        className="mt-6 rounded-lg border border-border bg-card p-5"
+        className="mt-8 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
       >
         <div className="flex flex-col items-center">
           <div className="relative flex flex-col items-center">
@@ -370,9 +421,9 @@ export function ArtisanApp() {
       <section
         id="sec-assignments"
         aria-label={t("app_work_title")}
-        className="mt-6 rounded-lg border bg-card p-4"
+        className="mt-10 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
       >
-        <h2 className="text-base font-semibold text-foreground">{t("app_work_title")}</h2>
+        <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_work_title")}</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">{t("app_work_sub")}</p>
         {(
           [
@@ -394,7 +445,7 @@ export function ArtisanApp() {
                 {items.map((o) => {
                   const latest = o.assignments?.[0];
                   return (
-                    <li key={o.id} className="rounded-md border border-border p-3">
+                    <li key={o.id} className="rounded-md border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                       <div className="flex items-baseline justify-between gap-3">
                         <p className="truncate font-medium text-foreground">
                           {o.product?.name} × {o.quantity}
@@ -427,7 +478,7 @@ export function ArtisanApp() {
       </section>
 
       {/* ---------- Order sections ---------- */}
-      <div className="mt-6 space-y-4">
+      <div className="mt-8 space-y-8">
         {FOCUSABLE.map(({ intent, section, status }) => {
           const list = (orders ?? []).filter((o) => o.status === status);
           return (
@@ -435,12 +486,12 @@ export function ArtisanApp() {
               key={intent}
               id={`sec-${intent}`}
               className={cn(
-                "rounded-lg border bg-card p-4 transition-shadow",
+                "rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
                 focus === intent && "border-primary ring-2 ring-primary/30",
               )}
             >
               <div className="flex items-baseline justify-between">
-                <h2 className="text-base font-semibold text-foreground">{t(section)}</h2>
+                <h2 className="font-display text-2xl leading-snug text-foreground">{t(section)}</h2>
                 <span className="font-display text-3xl tabular-nums text-primary">
                   {counts ? counts[status as keyof typeof counts] : "—"}
                 </span>
@@ -455,7 +506,7 @@ export function ArtisanApp() {
                   <li className="text-sm text-muted-foreground">{t("app_none")}</li>
                 )}
                 {list.slice(0, 4).map((o) => (
-                  <li key={o.id} className="flex items-baseline justify-between gap-3 text-sm">
+                  <li key={o.id} className="flex flex-wrap items-baseline justify-between gap-3 rounded-md border border-border bg-card p-4 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                     <span className="truncate text-foreground">
                       <span className="font-medium">{o.customer_reference}</span> ·{" "}
                       {o.product?.name} × {o.quantity}
@@ -474,14 +525,14 @@ export function ArtisanApp() {
         <section
           id="sec-show_payments"
           className={cn(
-            "rounded-lg border bg-card p-4 transition-shadow",
+            "rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
             focus === "show_payments" && "border-primary ring-2 ring-primary/30",
           )}
         >
-          <h2 className="text-base font-semibold text-foreground">{t("app_payments")}</h2>
+          <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_payments")}</h2>
           <ul className="mt-3 space-y-2">
             {(payments ?? []).slice(0, 4).map((p) => (
-              <li key={p.id} className="flex items-baseline justify-between gap-3 text-sm">
+              <li key={p.id} className="flex flex-wrap items-baseline justify-between gap-3 rounded-md border border-border bg-card p-4 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                 <span className="truncate text-foreground">
                   <span className="font-medium">
                     {p.direction === "customer_payment" ? t("pay_in") : t("pay_out")}
@@ -505,11 +556,11 @@ export function ArtisanApp() {
         <section
           id="sec-show_earnings"
           className={cn(
-            "rounded-lg border border-gold/40 bg-card p-4 transition-shadow",
+            "rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
             focus === "show_earnings" && "border-primary ring-2 ring-primary/30",
           )}
         >
-          <h2 className="text-base font-semibold text-foreground">{t("app_earnings")}</h2>
+          <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_earnings")}</h2>
           <p className="mt-2 font-display text-4xl tabular-nums text-foreground">
             {summary ? formatINR(summary.money.earnedTotal) : "—"}
           </p>
@@ -543,8 +594,8 @@ export function ArtisanApp() {
         </section>
 
         {/* Craft guidance — recorded guides matched to her craft */}
-        <section className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold text-foreground">{t("app_guides_title")}</h2>
+        <section className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+          <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_guides_title")}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{t("app_guides_sub")}</p>
           {matchedGuides.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t("app_guides_none")}</p>
@@ -552,7 +603,7 @@ export function ArtisanApp() {
             <ul className="mt-3 space-y-2.5">
               {matchedGuides.map((g) => (
                 <li key={g.id}>
-                  <details className="rounded-md border border-border p-3">
+                  <details className="rounded-md border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                     <summary className="cursor-pointer text-sm font-medium text-foreground">
                       {g.title}
                       <span className="ml-2 text-xs font-normal text-muted-foreground">
@@ -590,13 +641,13 @@ export function ArtisanApp() {
         />
 
         {/* Recent updates */}
-        <section className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold text-foreground">{t("app_updates")}</h2>
+        <section className="rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+          <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_updates")}</h2>
           <ul className="mt-3 space-y-2.5">
             {(orders ?? []).slice(0, 4).map((o) => {
               const latest = o.assignments?.[0];
               return (
-                <li key={o.id} className="flex items-baseline justify-between gap-3 text-sm">
+                <li key={o.id} className="flex flex-wrap items-baseline justify-between gap-3 rounded-md border border-border bg-card p-4 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                   <span className="truncate text-foreground">
                     <span className="font-medium">{o.customer_reference}</span> ·{" "}
                     {o.product?.name} × {o.quantity}
@@ -617,11 +668,11 @@ export function ArtisanApp() {
         <section
           id="sec-open_help"
           className={cn(
-            "rounded-lg border bg-card p-4 transition-shadow",
+            "rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
             focus === "open_help" && "border-primary ring-2 ring-primary/30",
           )}
         >
-          <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+          <h2 className="flex items-center gap-2 font-display text-2xl leading-snug text-foreground">
             <HelpCircle className="size-4 text-primary" aria-hidden="true" />
             {t("app_help_title")}
           </h2>
@@ -664,10 +715,10 @@ function ArtisanNoteRow({ orderId }: { orderId: string }) {
           setDone(false);
         }}
         placeholder={t("app_note_ph")}
-        className="h-8 text-xs"
+        className="h-10 border-border bg-background text-sm"
         aria-label={t("app_note_ph")}
       />
-      <Button type="submit" variant="outline" size="sm" className="h-8 shrink-0 text-xs" disabled={!note.trim()}>
+      <Button type="submit" variant="outline" size="sm" className="h-10 shrink-0 text-xs" disabled={!note.trim()}>
         {done ? t("note_recorded") : t("app_note_send")}
       </Button>
     </form>
