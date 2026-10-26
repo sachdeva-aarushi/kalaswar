@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 
 const NAV = [
   { to: "/explore", key: "nav_explore" },
+  { to: "/stories", key: "nav_stories" },
   { to: "/concierge", key: "nav_concierge" },
   { to: "/artisans", key: "nav_artisans" },
   { to: "/", hash: "mission", key: "nav_mission" },

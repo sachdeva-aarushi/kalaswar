@@ -22,6 +22,7 @@ import { clearSpeech, speak } from "@/lib/speech";
 import { useVoiceAssistant, type AssistantError } from "@/hooks/use-voice-assistant";
 import { DEMO_ARTISAN_ID } from "@/lib/constants";
 import { formatDate } from "@/lib/money";
+import { StoryEditorSection } from "@/components/artisan/story-editor";
 import { Wordmark } from "@/components/wordmark";
 import { LanguageSelect } from "@/components/language-select";
 import { DemoBadge, DemoNote } from "@/components/demo-note";
@@ -578,6 +579,15 @@ export function ArtisanApp() {
             </ul>
           )}
         </section>
+
+        {/* My craft story — maker-approved storytelling */}
+        <StoryEditorSection
+          artisanId={artisanId}
+          artisanName={artisan?.name ?? ""}
+          craft={artisan?.craft ?? ""}
+          shgId={artisan?.shg_id ?? null}
+          shgName={artisan?.shg?.name ?? null}
+        />
 
         {/* Recent updates */}
         <section className="rounded-lg border bg-card p-4">

@@ -15,6 +15,7 @@ import { Route as ArtisansRouteImport } from './routes/artisans'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ShgRouteImport } from './routes/shg'
+import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -27,6 +28,8 @@ import { Route as ShgPricingRouteImport } from './routes/shg.pricing'
 import { Route as ShgProductsRouteImport } from './routes/shg.products'
 import { Route as ShgReportsRouteImport } from './routes/shg.reports'
 import { Route as ShgRequestsRouteImport } from './routes/shg.requests'
+import { Route as StoriesIndexRouteImport } from './routes/stories.index'
+import { Route as StoriesIdRouteImport } from './routes/stories.$id'
 import { Route as ApiPublicAssistantRouteImport } from './routes/api/public/assistant'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicTtsRouteImport } from './routes/api/public/tts'
@@ -59,6 +62,11 @@ const ExploreRoute = ExploreRouteImport.update({
 const ShgRoute = ShgRouteImport.update({
   id: '/shg',
   path: '/shg',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesRoute = StoriesRouteImport.update({
+  id: '/stories',
+  path: '/stories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtisanIdRoute = ArtisanIdRouteImport.update({
@@ -121,6 +129,16 @@ const ShgRequestsRoute = ShgRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => ShgRoute,
 } as any)
+const StoriesIndexRoute = StoriesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StoriesRoute,
+} as any)
+const StoriesIdRoute = StoriesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StoriesRoute,
+} as any)
 const ApiPublicAssistantRoute = ApiPublicAssistantRouteImport.update({
   id: '/api/public/assistant',
   path: '/api/public/assistant',
@@ -144,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
+  '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -155,7 +174,9 @@ export interface FileRoutesByFullPath {
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
+  '/stories/$id': typeof StoriesIdRoute
   '/shg/': typeof ShgIndexRoute
+  '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -177,7 +198,9 @@ export interface FileRoutesByTo {
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
+  '/stories/$id': typeof StoriesIdRoute
   '/shg': typeof ShgIndexRoute
+  '/stories': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -190,6 +213,7 @@ export interface FileRoutesById {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
+  '/stories': typeof StoriesRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -201,7 +225,9 @@ export interface FileRoutesById {
   '/shg/products': typeof ShgProductsRoute
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
+  '/stories/$id': typeof StoriesIdRoute
   '/shg/': typeof ShgIndexRoute
+  '/stories/': typeof StoriesIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -215,6 +241,7 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/shg'
+    | '/stories'
     | '/artisan/$id'
     | '/orders/$id'
     | '/product/$id'
@@ -226,7 +253,9 @@ export interface FileRouteTypes {
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
+    | '/stories/$id'
     | '/shg/'
+    | '/stories/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -248,7 +277,9 @@ export interface FileRouteTypes {
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
+    | '/stories/$id'
     | '/shg'
+    | '/stories'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -260,6 +291,7 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/shg'
+    | '/stories'
     | '/artisan/$id'
     | '/orders/$id'
     | '/product/$id'
@@ -271,7 +303,9 @@ export interface FileRouteTypes {
     | '/shg/products'
     | '/shg/reports'
     | '/shg/requests'
+    | '/stories/$id'
     | '/shg/'
+    | '/stories/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -284,6 +318,7 @@ export interface RootRouteChildren {
   ConciergeRoute: typeof ConciergeRoute
   ExploreRoute: typeof ExploreRoute
   ShgRoute: typeof ShgRouteWithChildren
+  StoriesRoute: typeof StoriesRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -334,6 +369,13 @@ declare module '@tanstack/react-router' {
       path: '/shg'
       fullPath: '/shg'
       preLoaderRoute: typeof ShgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories': {
+      id: '/stories'
+      path: '/stories'
+      fullPath: '/stories'
+      preLoaderRoute: typeof StoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artisan/$id': {
@@ -420,6 +462,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShgRequestsRouteImport
       parentRoute: typeof ShgRoute
     }
+    '/stories/': {
+      id: '/stories/'
+      path: '/'
+      fullPath: '/stories/'
+      preLoaderRoute: typeof StoriesIndexRouteImport
+      parentRoute: typeof StoriesRoute
+    }
+    '/stories/$id': {
+      id: '/stories/$id'
+      path: '/$id'
+      fullPath: '/stories/$id'
+      preLoaderRoute: typeof StoriesIdRouteImport
+      parentRoute: typeof StoriesRoute
+    }
     '/api/public/assistant': {
       id: '/api/public/assistant'
       path: '/api/public/assistant'
@@ -470,6 +526,19 @@ const ShgRouteChildren: ShgRouteChildren = {
 
 const ShgRouteWithChildren = ShgRoute._addFileChildren(ShgRouteChildren)
 
+interface StoriesRouteChildren {
+  StoriesIdRoute: typeof StoriesIdRoute
+  StoriesIndexRoute: typeof StoriesIndexRoute
+}
+
+const StoriesRouteChildren: StoriesRouteChildren = {
+  StoriesIdRoute: StoriesIdRoute,
+  StoriesIndexRoute: StoriesIndexRoute,
+}
+
+const StoriesRouteWithChildren =
+  StoriesRoute._addFileChildren(StoriesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtisanSpaceRoute: ArtisanSpaceRoute,
@@ -477,6 +546,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConciergeRoute: ConciergeRoute,
   ExploreRoute: ExploreRoute,
   ShgRoute: ShgRouteWithChildren,
+  StoriesRoute: StoriesRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,

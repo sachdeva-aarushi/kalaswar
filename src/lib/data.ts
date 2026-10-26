@@ -11,9 +11,16 @@ import {
   summarizeArtisanMoney,
   type ArtisanMoney,
 } from "./earnings";
+import { CONSENT_TYPES } from "./types";
 import type {
   Artisan,
   CraftGuide,
+  ConsentType,
+  CraftStory,
+  CraftStoryStatus,
+  CraftStoryWithConsents,
+  CraftStoryWithRefs,
+  StoryConsent,
   CustomRequest,
   Expense,
   Order,
@@ -1389,4 +1396,178 @@ export async function saveCostSnapshot(
   });
   if (error) throw new Error(error.message);
   await auditAction("save_cost_snapshot", "product_cost_snapshots", productId, { version: nextVersion });
+}
+
+/* ---------- Living Craft Stories (Pillar 2) ---------- */
+
+export interface StorySaveInput {
+  id?: string;
+  artisan_id: string;
+  shg_id: string | null;
+  product_id: string | null;
+  title: string;
+  body: string;
+  language: string;
+  status: CraftStoryStatus;
+  original_notes: string | null;
+  ai_assisted: boolean;
+  /** Recorded only when the story is published — the maker's approval. */
+  approved_by: string | null;
+}
+
+export async function fetchStoriesForArtisan(artisanId: string): Promise<CraftStoryWithConsents[]> {
+  const { data, error } = await supabase
+    .from("craft_stories")
+    .select("*, story_consents(*)")
+    .eq("artisan_id", artisanId)
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Array<CraftStory & { story_consents?: StoryConsent[] }>).map((s) => ({
+    ...s,
+    consents: s.story_consents ?? [],
+  }));
+}
+
+export const storiesForArtisanQuery = (artisanId: string) =>
+  queryOptions({
+    queryKey: ["craftStories", artisanId],
+    queryFn: () => fetchStoriesForArtisan(artisanId),
+  });
+
+export async function fetchPublishedStories(): Promise<CraftStoryWithRefs[]> {
+  const { data, error } = await supabase
+    .from("craft_stories")
+    .select("*, story_consents(*), artisans(name), products(name, image_url)")
+    .eq("status", "published")
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Array<CraftStoryWithRefs & {
+    story_consents?: StoryConsent[];
+    artisans?: { name: string } | null;
+    products?: { name: string; image_url: string | null } | null;
+  }>).map((s) => ({
+    ...s,
+    consents: s.story_consents ?? [],
+    artisan_name: s.artisans?.name ?? null,
+    product_name: s.products?.name ?? null,
+    product_image: s.products?.image_url ?? null,
+  }));
+}
+
+export const publishedStoriesQuery = () =>
+  queryOptions({
+    queryKey: ["craftStoriesPublished"],
+    queryFn: () => fetchPublishedStories(),
+  });
+
+export async function fetchStoryById(id: string): Promise<CraftStoryWithRefs | undefined> {
+  const { data, error } = await supabase
+    .from("craft_stories")
+    .select("*, story_consents(*), artisans(name), products(name, image_url)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  const s = data as (CraftStoryWithRefs & {
+    story_consents?: StoryConsent[];
+    artisans?: { name: string } | null;
+    products?: { name: string; image_url: string | null } | null;
+  }) | null;
+  if (!s) return undefined;
+  return {
+    ...s,
+    consents: s.story_consents ?? [],
+    artisan_name: s.artisans?.name ?? null,
+    product_name: s.products?.name ?? null,
+    product_image: s.products?.image_url ?? null,
+  };
+}
+
+export const storyByIdQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["craftStory", id],
+    queryFn: () => fetchStoryById(id),
+  });
+
+export async function fetchPublishedStoryForProduct(productId: string): Promise<CraftStoryWithRefs | undefined> {
+  const { data, error } = await supabase
+    .from("craft_stories")
+    .select("*, story_consents(*), artisans(name), products(name, image_url)")
+    .eq("product_id", productId)
+    .eq("status", "published")
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  const rows = ((data ?? []) as Array<CraftStoryWithRefs & {
+    story_consents?: StoryConsent[];
+    artisans?: { name: string } | null;
+    products?: { name: string; image_url: string | null } | null;
+  }>).map((s) => ({
+    ...s,
+    consents: s.story_consents ?? [],
+    artisan_name: s.artisans?.name ?? null,
+    product_name: s.products?.name ?? null,
+    product_image: s.products?.image_url ?? null,
+  }));
+  return rows[0];
+}
+
+export const publishedStoryForProductQuery = (productId: string) =>
+  queryOptions({
+    queryKey: ["craftStoryForProduct", productId],
+    queryFn: () => fetchPublishedStoryForProduct(productId),
+  });
+
+/**
+ * Create or update a maker's story. Publishing records the maker's approval;
+ * unpublishing (draft/retired) clears it — an unapproved story is never live.
+ */
+export async function saveCraftStory(input: StorySaveInput): Promise<CraftStory> {
+  const publishing = input.status === "published";
+  const payload = {
+    product_id: input.product_id,
+    shg_id: input.shg_id,
+    artisan_id: input.artisan_id,
+    title: input.title.trim(),
+    body: input.body.trim(),
+    language: input.language,
+    status: input.status,
+    original_notes: input.original_notes,
+    ai_assisted: input.ai_assisted,
+    approved_by: publishing ? input.approved_by : null,
+    approved_at: publishing ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  };
+  const res = input.id
+    ? await supabase.from("craft_stories").update(payload).eq("id", input.id).select().single()
+    : await supabase.from("craft_stories").insert(payload).select().single();
+  if (res.error) throw new Error(res.error.message);
+  const story = res.data as CraftStory;
+  // Every consent starts present-but-not-granted, so the maker can grant —
+  // and later withdraw — each one individually.
+  await supabase
+    .from("story_consents")
+    .upsert(
+      CONSENT_TYPES.map((t) => ({ story_id: story.id, consent_type: t, granted: false, updated_by: input.approved_by })),
+      { onConflict: "story_id,consent_type", ignoreDuplicates: true },
+    );
+  await auditAction("save_craft_story", "craft_stories", story.id, {
+    status: input.status,
+    ai_assisted: input.ai_assisted,
+  });
+  return story;
+}
+
+/** Grant or withdraw one consent. Withdrawal takes effect immediately. */
+export async function setStoryConsent(
+  storyId: string,
+  consentType: ConsentType,
+  granted: boolean,
+  updatedBy: string | null,
+): Promise<void> {
+  const { error } = await supabase.from("story_consents").upsert(
+    { story_id: storyId, consent_type: consentType, granted, updated_by: updatedBy, updated_at: new Date().toISOString() },
+    { onConflict: "story_id,consent_type" },
+  );
+  if (error) throw new Error(error.message);
+  await auditAction("set_story_consent", "story_consents", storyId, { consent_type: consentType, granted });
 }

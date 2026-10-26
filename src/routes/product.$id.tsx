@@ -9,6 +9,7 @@ import {
   fetchProductQualityChecks,
   fetchProductShipments,
   productQuery,
+  publishedStoryForProductQuery,
   recordProductSignal,
 } from "@/lib/data";
 import { formatINR } from "@/lib/money";
@@ -85,6 +86,12 @@ function ProductDetail() {
   const { data: shipments } = useQuery({
     queryKey: ["productShipments", id],
     queryFn: () => fetchProductShipments(id),
+  });
+
+  // The maker-approved story for this piece, when one is published.
+  const { data: story } = useQuery({
+    ...publishedStoryForProductQuery(id),
+    placeholderData: (prev) => prev,
   });
 
   return (
@@ -179,6 +186,27 @@ function ProductDetail() {
                     <span className="font-medium text-foreground">{t("product_story")}: </span>
                     {artisan.bio}
                   </p>
+                </aside>
+              </Reveal>
+            )}
+
+            {/* Maker-approved story, when published */}
+            {story && (
+              <Reveal delay={0.06}>
+                <aside className="mt-10 rounded-md border border-border bg-card p-5">
+                  <p className="kicker text-terracotta">{t("product_story_approved")}</p>
+                  <p className="mt-3 font-display text-lg leading-snug text-foreground">
+                    {story.body.split("\n\n")[0]?.slice(0, 220)}
+                    {story.body.length > 220 ? "…" : ""}
+                  </p>
+                  <Link
+                    to="/stories/$id"
+                    params={{ id: story.id }}
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                  >
+                    {t("product_story_read")}
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </Link>
                 </aside>
               </Reveal>
             )}

@@ -265,3 +265,63 @@ export interface OrderWithDetails extends Order {
   artisan?: Artisan | null; // current (latest) assignment
   assignments?: OrderAssignment[];
 }
+
+/* ---------- Living Craft Stories (Pillar 2) ---------- */
+
+export type CraftStoryStatus = "draft" | "in_review" | "published" | "retired";
+
+export type ConsentType =
+  | "maker_name"
+  | "maker_photo"
+  | "voice_transcript"
+  | "workshop_photo"
+  | "cultural_notes"
+  | "marketing_reuse";
+
+export const CONSENT_TYPES: ConsentType[] = [
+  "maker_name",
+  "maker_photo",
+  "voice_transcript",
+  "workshop_photo",
+  "cultural_notes",
+  "marketing_reuse",
+];
+
+export interface CraftStory {
+  id: string;
+  product_id: string | null;
+  shg_id: string | null;
+  artisan_id: string | null;
+  title: string;
+  body: string;
+  language: string;
+  status: CraftStoryStatus;
+  source_notes: string | null;
+  /** The maker's raw notes, kept alongside any AI-organised draft. */
+  original_notes: string | null;
+  ai_assisted: boolean;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StoryConsent {
+  id: string;
+  story_id: string;
+  consent_type: ConsentType;
+  granted: boolean;
+  updated_by: string | null;
+  updated_at: string;
+}
+
+export interface CraftStoryWithConsents extends CraftStory {
+  consents?: StoryConsent[];
+}
+
+export interface CraftStoryWithRefs extends CraftStory {
+  consents?: StoryConsent[];
+  artisan_name?: string | null;
+  product_name?: string | null;
+  product_image?: string | null;
+}
