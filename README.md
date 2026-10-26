@@ -748,7 +748,7 @@ sequenceDiagram
     API->>API: Validate identity, permissions and required fields
     API->>DB: Save draft
     DB-->>UI: Return saved status
-    UI-->>Artisan: Confirm saved; explain next step
+    UI-->>Artisan: Confirm saved and explain next step
 ```
 
 ### Design requirements
