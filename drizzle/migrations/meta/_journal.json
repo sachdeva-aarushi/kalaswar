@@ -57,6 +57,13 @@
       "when": 1792994276445,
       "tag": "0007_allow_capacity_recording_demo",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792996150463,
+      "tag": "0008_kalaswar_expansion_pillars_foundation",
+      "breakpoints": true
     }
   ]
 }

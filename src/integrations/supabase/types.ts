@@ -123,6 +123,86 @@ export type Database = {
           },
         ]
       }
+      buyer_requests: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          request_code: string
+          status: string
+          structured: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          request_code: string
+          status?: string
+          structured?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          request_code?: string
+          status?: string
+          structured?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_requests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buyers: {
+        Row: {
+          category: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          intended_use: string | null
+          org_name: string
+          region: string | null
+          verification_status: string
+        }
+        Insert: {
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          intended_use?: string | null
+          org_name: string
+          region?: string | null
+          verification_status?: string
+        }
+        Update: {
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          intended_use?: string | null
+          org_name?: string
+          region?: string | null
+          verification_status?: string
+        }
+        Relationships: []
+      }
       craft_guides: {
         Row: {
           category: string | null
@@ -155,6 +235,75 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      craft_stories: {
+        Row: {
+          ai_assisted: boolean
+          approved_at: string | null
+          approved_by: string | null
+          artisan_id: string | null
+          body: string
+          created_at: string
+          id: string
+          language: string
+          original_notes: string | null
+          product_id: string | null
+          shg_id: string | null
+          source_notes: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_assisted?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          artisan_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          language?: string
+          original_notes?: string | null
+          product_id?: string | null
+          shg_id?: string | null
+          source_notes?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_assisted?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          artisan_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          language?: string
+          original_notes?: string | null
+          product_id?: string | null
+          shg_id?: string | null
+          source_notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_stories_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craft_stories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       custom_requests: {
         Row: {
@@ -306,6 +455,45 @@ export type Database = {
           },
         ]
       }
+      material_price_history: {
+        Row: {
+          id: string
+          material_id: string | null
+          material_name: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string | null
+          shg_id: string
+          source: string | null
+          unit: string | null
+          unit_price_inr: number
+        }
+        Insert: {
+          id?: string
+          material_id?: string | null
+          material_name: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          shg_id: string
+          source?: string | null
+          unit?: string | null
+          unit_price_inr: number
+        }
+        Update: {
+          id?: string
+          material_id?: string | null
+          material_name?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          shg_id?: string
+          source?: string | null
+          unit?: string | null
+          unit_price_inr?: number
+        }
+        Relationships: []
+      }
       materials_inventory: {
         Row: {
           id: string
@@ -384,6 +572,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          audience: string
+          audience_ref: string | null
+          body: string | null
+          created_at: string
+          event_type: string
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          audience: string
+          audience_ref?: string | null
+          body?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          audience?: string
+          audience_ref?: string | null
+          body?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       order_assignments: {
         Row: {
@@ -571,6 +795,88 @@ export type Database = {
           },
         ]
       }
+      product_cost_inputs: {
+        Row: {
+          created_at: string
+          id: string
+          material_name: string
+          product_id: string
+          quantity_per_unit: number
+          shg_id: string | null
+          unit: string | null
+          unit_cost_inr: number
+          wastage_percent: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_name: string
+          product_id: string
+          quantity_per_unit?: number
+          shg_id?: string | null
+          unit?: string | null
+          unit_cost_inr?: number
+          wastage_percent?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_name?: string
+          product_id?: string
+          quantity_per_unit?: number
+          shg_id?: string | null
+          unit?: string | null
+          unit_cost_inr?: number
+          wastage_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_cost_inputs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_cost_snapshots: {
+        Row: {
+          breakdown: Json
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          product_id: string
+          version: number
+        }
+        Insert: {
+          breakdown: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          product_id: string
+          version: number
+        }
+        Update: {
+          breakdown?: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          product_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_cost_snapshots_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_drafts: {
         Row: {
           artisan_id: string
@@ -606,6 +912,44 @@ export type Database = {
           },
         ]
       }
+      product_labour_inputs: {
+        Row: {
+          created_at: string
+          hours_per_unit: number
+          id: string
+          product_id: string
+          rate_inr_per_hour: number | null
+          rate_source: string | null
+          stage_name: string
+        }
+        Insert: {
+          created_at?: string
+          hours_per_unit?: number
+          id?: string
+          product_id: string
+          rate_inr_per_hour?: number | null
+          rate_source?: string | null
+          stage_name: string
+        }
+        Update: {
+          created_at?: string
+          hours_per_unit?: number
+          id?: string
+          product_id?: string
+          rate_inr_per_hour?: number | null
+          rate_source?: string | null
+          stage_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_labour_inputs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_signals: {
         Row: {
           created_at: string
@@ -634,6 +978,76 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_events: {
+        Row: {
+          id: string
+          note: string | null
+          occurred_at: string
+          plan_id: string
+          recorded_by: string | null
+          stage: string
+        }
+        Insert: {
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          plan_id: string
+          recorded_by?: string | null
+          stage: string
+        }
+        Update: {
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          plan_id?: string
+          recorded_by?: string | null
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_events_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "production_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_plans: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          stages: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          stages?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          stages?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_plans_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -815,6 +1229,181 @@ export type Database = {
           },
         ]
       }
+      quotation_versions: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          quotation_id: string
+          spec: Json
+          status: string
+          version: number
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          quotation_id: string
+          spec: Json
+          status?: string
+          version: number
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          quotation_id?: string
+          spec?: Json
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_versions_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotations: {
+        Row: {
+          buyer_request_id: string
+          created_at: string
+          id: string
+          shg_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_request_id: string
+          created_at?: string
+          id?: string
+          shg_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_request_id?: string
+          created_at?: string
+          id?: string
+          shg_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_buyer_request_id_fkey"
+            columns: ["buyer_request_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sample_events: {
+        Row: {
+          event_type: string
+          id: string
+          note: string | null
+          occurred_at: string
+          sample_id: string
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          sample_id: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          sample_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_events_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "sample_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sample_requests: {
+        Row: {
+          buyer_id: string | null
+          buyer_request_id: string | null
+          created_at: string
+          fee_inr: number
+          feedback: string | null
+          id: string
+          quotation_id: string | null
+          shg_id: string | null
+          spec: Json
+          spec_version: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id?: string | null
+          buyer_request_id?: string | null
+          created_at?: string
+          fee_inr?: number
+          feedback?: string | null
+          id?: string
+          quotation_id?: string | null
+          shg_id?: string | null
+          spec?: Json
+          spec_version?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string | null
+          buyer_request_id?: string | null
+          created_at?: string
+          fee_inr?: number
+          feedback?: string | null
+          id?: string
+          quotation_id?: string | null
+          shg_id?: string | null
+          spec?: Json
+          spec_version?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_requests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sample_requests_buyer_request_id_fkey"
+            columns: ["buyer_request_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sample_requests_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shgs: {
         Row: {
           created_at: string
@@ -911,6 +1500,41 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_consents: {
+        Row: {
+          consent_type: string
+          granted: boolean
+          id: string
+          story_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          consent_type: string
+          granted?: boolean
+          id?: string
+          story_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          consent_type?: string
+          granted?: boolean
+          id?: string
+          story_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_consents_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "craft_stories"
             referencedColumns: ["id"]
           },
         ]
