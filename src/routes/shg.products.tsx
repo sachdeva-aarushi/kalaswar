@@ -8,7 +8,7 @@ import { useLang } from "@/lib/i18n";
 import { artisansQuery, ordersQuery, productsQuery, saveProduct } from "@/lib/data";
 import { CATEGORIES } from "@/lib/constants";
 import { estimatePrice } from "@/lib/price-estimate";
-import { formatINR } from "@/lib/money";
+import { formatDate, formatINR } from "@/lib/money";
 import type { ProductWithArtisan } from "@/lib/types";
 import { CloudinaryUploader, type UploadedImage } from "@/components/cloudinary-upload";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,7 @@ function ShgProducts() {
               <TableHead>{t("f_category")}</TableHead>
               <TableHead className="text-right">{t("f_price")}</TableHead>
               <TableHead>{t("f_availability")}</TableHead>
+              <TableHead>{t("prod_last_edit")}</TableHead>
               <TableHead className="text-right">{t("tbl_actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -145,6 +146,11 @@ function ShgProducts() {
                     onCheckedChange={() => availabilityMutation.mutate(p)}
                     aria-label={`${p.name}: ${t("f_availability")}`}
                   />
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {p.updated_at
+                    ? `${formatDate(p.updated_at)}${p.updated_by ? ` · ${p.updated_by}` : ""}`
+                    : "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" onClick={() => setEditing(p)}>

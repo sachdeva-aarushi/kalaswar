@@ -23,6 +23,7 @@ import { useVoiceAssistant, type AssistantError } from "@/hooks/use-voice-assist
 import { DEMO_ARTISAN_ID } from "@/lib/constants";
 import { formatDate } from "@/lib/money";
 import { StoryEditorSection } from "@/components/artisan/story-editor";
+import { NotificationsPanel } from "@/components/notifications-panel";
 import { Wordmark } from "@/components/wordmark";
 import { LanguageSelect } from "@/components/language-select";
 import { DemoBadge, DemoNote } from "@/components/demo-note";
@@ -226,6 +227,29 @@ export function ArtisanApp() {
 
   const reply = voice.reply || fallbackReply;
 
+  /** Next-step aggregation — read only from recorded orders, never invented. */
+  const nextSteps = useMemo(() => {
+    const list = orders ?? [];
+    const steps: { label: string; intent: VoiceIntent }[] = [];
+    const due = list
+      .filter((o) => o.status === "in_production" && o.expected_dispatch_at)
+      .sort((a, b) => (a.expected_dispatch_at ?? "").localeCompare(b.expected_dispatch_at ?? ""))[0];
+    if (due) {
+      steps.push({
+        label: t("app_next_due", {
+          name: due.product?.name ?? "",
+          date: formatDate(due.expected_dispatch_at),
+        }),
+        intent: "show_in_production",
+      });
+    }
+    const ready = counts?.ready_for_dispatch ?? 0;
+    if (ready > 0) steps.push({ label: t("app_next_ready", { n: ready }), intent: "show_ready" });
+    const pending = counts?.pending ?? 0;
+    if (pending > 0) steps.push({ label: t("app_next_pending", { n: pending }), intent: "show_pending" });
+    return steps;
+  }, [orders, counts, t]);
+
   return (
     <div className="mx-auto min-h-screen w-full max-w-xl px-4 pb-20 pt-8 sm:px-6 md:pt-12">
       {/* Top identity */}
@@ -264,6 +288,33 @@ export function ArtisanApp() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* ---------- What to do next ---------- */}
+      <section
+        aria-label={t("app_next_title")}
+        className="mt-8 rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+      >
+        <h2 className="font-display text-2xl leading-snug text-foreground">{t("app_next_title")}</h2>
+        {nextSteps.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("app_next_none")}</p>
+        ) : (
+          <ul className="mt-4 space-y-2.5">
+            {nextSteps.map((s) => (
+              <li key={s.intent}>
+                <button
+                  type="button"
+                  onClick={() => setFocus(s.intent)}
+                  className="w-full rounded-md border border-border bg-background p-4 text-left text-sm text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                >
+                  {s.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <NotificationsPanel audience="artisan" audienceRef={artisanId} className="mt-4" />
 
       {/* ---------- Voice panel ---------- */}
       <section

@@ -78,6 +78,20 @@
       "when": 1792999378526,
       "tag": "0010_production_auth_rbac",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793004653562,
+      "tag": "0011_product_edit_tracking",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793005704211,
+      "tag": "0012_grant_notifications_anon_demo",
+      "breakpoints": true
     }
   ]
 }

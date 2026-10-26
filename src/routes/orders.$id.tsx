@@ -59,13 +59,21 @@ function OrderTracking() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
-        <Link
-          to="/concierge"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          {t("nav_concierge")}
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            to="/orders"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            {t("nav_orders")}
+          </Link>
+          <Link
+            to="/concierge"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          >
+            {t("nav_concierge")}
+          </Link>
+        </div>
 
         <header className="mt-6">
           <p className="kicker text-terracotta">{t("ord_kicker")}</p>
