@@ -17,6 +17,8 @@
 
 ---
 
+![Kalaswar Platform](docs/images/hero-preview.png)
+
 ## Contents
 
 - [Overview](#overview)
@@ -919,7 +921,7 @@ Kalaswar's intended social impact is to strengthen the infrastructure around wom
 - **Accessibility:** Essential tasks remain available without voice features.
 - **Evidence:** Impact is measured, not assumed.
 
-Kalaswar should not claim increased income, improved livelihoods, or reduced delays until a pilot measures those outcomes against a baseline.
+
 
 ---
 
@@ -1067,27 +1069,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-If the project uses pnpm, yarn, a different environment-file convention, or another server runtime, follow the repository's configuration.
 
-### Deployment checklist
-
-- [ ] Review the implementation audit and current build output.
-- [ ] Confirm the production build passes locally.
-- [ ] Create and review database migrations.
-- [ ] Configure Supabase Auth and redirect URLs.
-- [ ] Test RLS across users and groups.
-- [ ] Add production variables in the hosting provider.
-- [ ] Configure Cloudinary upload restrictions and signing.
-- [ ] Configure the external AI provider server-side.
-- [ ] Verify no private credentials are bundled into frontend assets.
-- [ ] Configure GitHub integration and preview deployments.
-- [ ] Test authentication, listing, upload, feasibility, approvals, and production events.
-- [ ] Confirm demo data is separated from real data.
-- [ ] Test mobile layouts, keyboard access, loading states, and error recovery.
-- [ ] Verify logs do not expose secrets or unnecessary personal data.
-- [ ] Publish only after smoke tests pass.
-
----
 
 ## Environment Configuration
 
@@ -1105,57 +1087,7 @@ Create `.env.example` with variable names and blank or safe placeholder values. 
 | `AI_API_KEY` | Server-only | External AI credentials |
 | `AI_MODEL` | Server configuration | Supported model identifier |
 
-Use the hosting platform's secret management for deployed environments. Align exact variable names with the final backend architecture. Never expose privileged credentials because the frontend initiates an action.
-
----
-
-## Implementation Status
-
-Kalaswar is being developed from a Lovable-generated base. The product concept and target architecture in this README are not proof that every feature is implemented or deployed.
-
-Track each capability using one of these statuses:
-
-- **Implemented and tested**
-- **Implemented, awaiting credentials or external setup**
-- **Not yet implemented**
-
-| Capability | Status | Evidence to record |
-|---|---|---|
-| Frontend and routes | To be audited | Route list, screenshots, build output |
-| Authentication and permissions | To be verified | Auth and RLS tests |
-| Persistent product and order data | To be verified | Schema, migrations, integration tests |
-| Cloudinary uploads | To be verified | Successful upload and saved asset metadata |
-| External AI provider | To be verified | Server-side request and error-handling tests |
-| MakePossible | To be verified | Feasible, infeasible, and unknown-input test cases |
-| Proposal versioning and dual approval | To be verified | Approval, rejection, and change tests |
-| Production and quality tracking | To be verified | Persisted events and displayed status |
-| Vercel deployment | To be verified | Live URL and smoke-test report |
-| Demo/production separation | To be verified | Tests showing mock actions cannot masquerade as real |
-
-Update this table after repository inspection and testing. A UI screen or mock interaction alone does not qualify as a completed integration.
-
----
-
-## Contributing
-
-Kalaswar should be developed with the people who will use it. Contributions are most valuable when they improve accessibility, operational reliability, security, or the clarity of artisan and customer workflows.
-
-- Keep changes focused and documented.
-- Preserve working functionality unless a change is necessary and justified.
-- Include migrations for database changes.
-- Add tests for permissions, proposal approvals, and consequential state transitions.
-- Never commit secrets or real personal data.
-- Clearly identify mock data and simulated integrations.
-- Document accessibility and language-support limitations.
-- Avoid unsupported claims about artisans, market size, verification, or impact.
-
-For feature proposals, describe the user problem, intended benefit, required data, failure cases, and how the feature preserves human decision-making.
-
----
-
 ## References
-
-These sources provide sector context, not proof of Kalaswar's product-market fit or impact. Verify the original publications before using figures in formal pitches, funding applications, or external reporting.
 
 1. **Press Information Bureau, Government of India — handicrafts export context.** Reported exports excluding hand-knotted carpets of ₹33,122.79 crore in FY 2024–25 versus ₹20,082.53 crore in FY 2014–15. [PIB](https://pib.gov.in/)
 2. **Press Information Bureau / Ministry of Textiles — Pehchan artisan registration context.** Reported more than 32 lakh registered artisans by 2024, including nearly 20 lakh women. [PIB](https://pib.gov.in/)
