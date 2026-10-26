@@ -820,6 +820,18 @@ export async function confirmCustomOrder(requestId: string): Promise<{ orderId: 
     .eq("id", requestId);
   const orderId = (order as { id: string }).id;
   await recordOrderEvent(orderId, "in_production", `Confirmed from ${req.request_code} (proposal v${proposal.version})`);
+  // Persist the confirmed order on the request so the customer can track it.
+  try {
+    await supabase
+      .from("custom_requests")
+      .update({
+        structured: { ...((req.structured ?? {}) as object), confirmed_order_id: orderId } as Json,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", requestId);
+  } catch {
+    /* tracking link is best-effort in demonstration mode */
+  }
   await auditAction("confirm_custom_order", "orders", orderId, { request_id: requestId });
   return { orderId };
 }
@@ -1101,3 +1113,63 @@ export const orderShipmentsQuery = (orderId: string) =>
     queryKey: ["orderShipments", orderId],
     queryFn: () => fetchOrderShipments(orderId),
   });
+
+/* ---------- Demand signals (views / saves / enquiries) ---------- */
+
+export type ProductSignalType = "view" | "save" | "enquiry";
+
+/** Best-effort demand signal — the page works even if recording fails. */
+export async function recordProductSignal(productId: string, signalType: ProductSignalType): Promise<void> {
+  try {
+    await supabase.from("product_signals").insert({
+      product_id: productId,
+      signal_type: signalType,
+      recorded_by: "Customer — demonstration",
+    });
+  } catch {
+    /* demand signals are best-effort in demonstration mode */
+  }
+}
+
+export interface ProductSignalWithProduct {
+  product_id: string;
+  signal_type: string;
+  created_at: string;
+  product_name?: string | null;
+}
+
+export async function fetchProductSignals(): Promise<ProductSignalWithProduct[]> {
+  const { data, error } = await supabase
+    .from("product_signals")
+    .select("product_id, signal_type, created_at, products(name)")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as (ProductSignalWithProduct & {
+    products: { name: string } | null;
+  })[]).map((s) => ({ ...s, product_name: s.products?.name ?? null, products: undefined }));
+}
+
+export const productSignalsAllQuery = () =>
+  queryOptions({ queryKey: ["productSignalsAll"], queryFn: fetchProductSignals });
+
+/* ---------- Craft passport: checks and shipments behind a product ---------- */
+
+export async function fetchProductQualityChecks(productId: string): Promise<QualityCheck[]> {
+  const { data, error } = await supabase
+    .from("quality_checks")
+    .select("*, orders!inner(product_id)")
+    .eq("orders.product_id", productId)
+    .order("checked_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as QualityCheck[];
+}
+
+export async function fetchProductShipments(productId: string): Promise<Shipment[]> {
+  const { data, error } = await supabase
+    .from("shipments")
+    .select("*, orders!inner(product_id)")
+    .eq("orders.product_id", productId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as Shipment[];
+}

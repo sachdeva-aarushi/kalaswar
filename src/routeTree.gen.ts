@@ -16,6 +16,7 @@ import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ShgRouteImport } from './routes/shg'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
+import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ShgIndexRouteImport } from './routes/shg.index'
 import { Route as ShgArtisansRouteImport } from './routes/shg.artisans'
@@ -62,6 +63,11 @@ const ShgRoute = ShgRouteImport.update({
 const ArtisanIdRoute = ArtisanIdRouteImport.update({
   id: '/artisan/$id',
   path: '/artisan/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIdRoute = OrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductIdRoute = ProductIdRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/inventory': typeof ShgInventoryRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/artisan/$id': typeof ArtisanIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/inventory': typeof ShgInventoryRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/shg': typeof ShgRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/inventory': typeof ShgInventoryRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/shg'
     | '/artisan/$id'
+    | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/inventory'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/artisan/$id'
+    | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/inventory'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/shg'
     | '/artisan/$id'
+    | '/orders/$id'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/inventory'
@@ -261,6 +273,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   ShgRoute: typeof ShgRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
+  OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
   ApiPublicAssistantRoute: typeof ApiPublicAssistantRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/artisan/$id'
       fullPath: '/artisan/$id'
       preLoaderRoute: typeof ArtisanIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/$id': {
+      id: '/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/orders/$id'
+      preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product/$id': {
@@ -437,6 +457,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   ShgRoute: ShgRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,
+  OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
   ApiPublicAssistantRoute: ApiPublicAssistantRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,

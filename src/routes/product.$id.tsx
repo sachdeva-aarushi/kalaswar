@@ -1,9 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { ArrowLeft, ArrowRight, Bookmark, ScrollText, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { useLang } from "@/lib/i18n";
-import { productQuery } from "@/lib/data";
+import {
+  fetchProductQualityChecks,
+  fetchProductShipments,
+  productQuery,
+  recordProductSignal,
+} from "@/lib/data";
 import { formatINR } from "@/lib/money";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -62,6 +69,24 @@ function ProductDetail() {
   const artisan = product.artisan;
   const shg = product.shg;
 
+  // One view per browser session is recorded as a demand signal.
+  useEffect(() => {
+    const key = `kalaswar_view_${id}`;
+    if (typeof sessionStorage === "undefined" || sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void recordProductSignal(id, "view");
+  }, [id]);
+
+  // Craft passport evidence — recorded checks and dispatches for this piece.
+  const { data: checks } = useQuery({
+    queryKey: ["productChecks", id],
+    queryFn: () => fetchProductQualityChecks(id),
+  });
+  const { data: shipments } = useQuery({
+    queryKey: ["productShipments", id],
+    queryFn: () => fetchProductShipments(id),
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -79,11 +104,15 @@ function ProductDetail() {
           <Reveal>
             <figure className="lg:sticky lg:top-24">
               <div className="overflow-hidden bg-muted">
-                <img
-                  src={product.image_url ?? ""}
-                  alt={product.name}
-                  className="aspect-[4/5] w-full object-cover"
-                />
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="aspect-[4/5] w-full object-cover"
+                  />
+                ) : (
+                  <div className="aspect-[4/5] w-full" aria-hidden="true" />
+                )}
               </div>
             </figure>
           </Reveal>
@@ -154,12 +183,74 @@ function ProductDetail() {
               </Reveal>
             )}
 
+            {/* Craft passport */}
+            <Reveal delay={0.1}>
+              <aside className="mt-10 rounded-md border border-gold/40 bg-card p-5">
+                <h2 className="font-display text-xl text-foreground">{t("passport_title")}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{t("passport_sub")}</p>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("passport_maker")}
+                    </dt>
+                    <dd className="mt-0.5 text-foreground">
+                      {artisan
+                        ? `${artisan.name} — ${artisan.craft}`
+                        : t("passport_maker_unknown")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("passport_collective")}
+                    </dt>
+                    <dd className="mt-0.5 text-foreground">
+                      {shg ? `${shg.name}, ${shg.region}` : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("passport_checks")}
+                    </dt>
+                    <dd className="mt-0.5 text-foreground">
+                      {(checks ?? []).length === 0
+                        ? t("passport_checks_none")
+                        : (checks ?? [])
+                            .slice(0, 3)
+                            .map((c) => (c.result === "pass" ? t("qc_pass") : t("qc_rework")))
+                            .join(" · ")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("passport_journey")}
+                    </dt>
+                    <dd className="mt-0.5 text-foreground">
+                      {(shipments ?? []).length === 0
+                        ? t("ord_none_ship")
+                        : (shipments ?? [])
+                            .slice(0, 3)
+                            .map((s) => s.status)
+                            .join(" · ")}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
+                  {t("passport_verified_note")}
+                </p>
+                <DemoNote className="mt-2">{t("demo_note")}</DemoNote>
+              </aside>
+            </Reveal>
+
             {/* Actions */}
             <Reveal delay={0.14}>
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button size="lg" className="h-12 px-7">
+                    <Button
+                      size="lg"
+                      className="h-12 px-7"
+                      onClick={() => void recordProductSignal(id, "enquiry")}
+                    >
                       {t("product_inquire")}
                     </Button>
                   </DialogTrigger>
@@ -184,6 +275,17 @@ function ProductDetail() {
                   note={product.name}
                 />
                 {artisan && <TipDialog artisanId={artisan.id} artisanName={artisan.name} tone="outline" />}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    void recordProductSignal(id, "save");
+                    toast.success(t("signal_saved"));
+                  }}
+                >
+                  <Bookmark className="size-4" aria-hidden="true" />
+                  {t("product_save")}
+                </Button>
               </div>
               <DemoNote className="mt-4">{t("demo_note")}</DemoNote>
             </Reveal>

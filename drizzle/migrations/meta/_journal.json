@@ -43,6 +43,13 @@
       "when": 1792992705215,
       "tag": "0005_demo_insert_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792993863157,
+      "tag": "0006_add_product_demand_signals",
+      "breakpoints": true
     }
   ]
 }

@@ -9,8 +9,10 @@ import {
   artisansQuery,
   ordersQuery,
   paymentsQuery,
+  productSignalsAllQuery,
   productsQuery,
 } from "@/lib/data";
+import { summarizeDemand } from "@/lib/demand";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { DemoNote } from "@/components/demo-note";
 import { Button } from "@/components/ui/button";
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/shg/reports")({
     void context.queryClient.ensureQueryData(productsQuery({}));
     void context.queryClient.ensureQueryData(allOrderEventsQuery());
     void context.queryClient.ensureQueryData(paymentsQuery());
+    void context.queryClient.ensureQueryData(productSignalsAllQuery());
   },
   component: ShgReports,
 });
@@ -35,6 +38,25 @@ function ShgReports() {
   const { data: products } = useSuspenseQuery(productsQuery({}));
   const { data: events } = useSuspenseQuery(allOrderEventsQuery());
   const { data: payments } = useSuspenseQuery(paymentsQuery());
+  const { data: signals } = useSuspenseQuery(productSignalsAllQuery());
+
+  // Demand-informed planning: distinct recorded signals per piece.
+  const demandRows = products
+    .map((p) => ({ product: p, ...summarizeDemand(p.id, signals, orders) }))
+    .filter((r) => r.views + r.saves + r.enquiries + r.purchases > 0)
+    .sort((a, b) => b.purchases * 10 + b.views - (a.purchases * 10 + a.views));
+
+  const exportDemand = () => {
+    const csv = toCsv(demandRows, [
+      { key: "product", label: "Product", value: (r) => r.product.name },
+      { key: "views", label: "Views" },
+      { key: "saves", label: "Saves" },
+      { key: "enquiries", label: "Enquiries" },
+      { key: "purchases", label: "Purchases" },
+    ]);
+    downloadCsv("kalaswar-demand-signals.csv", csv);
+    toast.success(t("export_done"));
+  };
 
   const exportOrders = () => {
     const csv = toCsv(orders, [
@@ -131,6 +153,46 @@ function ShgReports() {
           </div>
         ))}
       </div>
+
+      {/* Demand signals — views, saves, enquiries, purchases stay distinct */}
+      <section className="mt-10">
+        <h2 className="font-display text-2xl text-foreground">{t("demand_title")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("demand_sub")}</p>
+        {demandRows.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">{t("demand_none")}</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto rounded-md border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="px-4 py-3 font-medium">{t("demand_product")}</th>
+                  <th className="px-4 py-3 font-medium">{t("demand_views")}</th>
+                  <th className="px-4 py-3 font-medium">{t("demand_saves")}</th>
+                  <th className="px-4 py-3 font-medium">{t("demand_enquiries")}</th>
+                  <th className="px-4 py-3 font-medium">{t("demand_purchases")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {demandRows.map((r) => (
+                  <tr key={r.product.id} className="border-b border-border/60 last:border-0">
+                    <td className="px-4 py-2.5 text-foreground">{r.product.name}</td>
+                    <td className="px-4 py-2.5 tabular-nums text-muted-foreground">{r.views}</td>
+                    <td className="px-4 py-2.5 tabular-nums text-muted-foreground">{r.saves}</td>
+                    <td className="px-4 py-2.5 tabular-nums text-muted-foreground">{r.enquiries}</td>
+                    <td className="px-4 py-2.5 tabular-nums font-medium text-foreground">{r.purchases}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {demandRows.length > 0 && (
+          <Button className="mt-3" variant="outline" onClick={exportDemand}>
+            <Download className="size-4" aria-hidden="true" />
+            CSV
+          </Button>
+        )}
+      </section>
 
       <DemoNote className="mt-8">{t("reports_note")}</DemoNote>
     </div>

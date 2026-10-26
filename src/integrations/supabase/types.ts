@@ -606,6 +606,38 @@ export type Database = {
           },
         ]
       }
+      product_signals: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          recorded_by: string
+          signal_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          recorded_by?: string
+          signal_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          recorded_by?: string
+          signal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_signals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           artisan_id: string

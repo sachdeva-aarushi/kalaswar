@@ -217,6 +217,10 @@ function RequestCard({ request }: { request: CustomRequestWithShg }) {
   const customerApproved = approvals.some((a) => a.approver_role === "customer");
   const coordinatorApproved = approvals.some((a) => a.approver_role === "coordinator");
 
+  const confirmedOrderId = String(
+    (request.structured as { confirmed_order_id?: string } | null)?.confirmed_order_id ?? "",
+  );
+
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["customRequests"] });
     void queryClient.invalidateQueries({ queryKey: ["proposalsFor", request.id] });
@@ -404,6 +408,17 @@ function RequestCard({ request }: { request: CustomRequestWithShg }) {
                     {t("concierge_confirm_order")}
                   </Button>
                 </div>
+              )}
+              {request.status === "confirmed" && confirmedOrderId && (
+                <p className="mt-3">
+                  <Link
+                    to="/orders/$id"
+                    params={{ id: confirmedOrderId }}
+                    className="text-sm font-medium text-primary underline underline-offset-4"
+                  >
+                    {t("ord_track")}
+                  </Link>
+                </p>
               )}
             </div>
           )}
