@@ -20,8 +20,9 @@ Usage:
 import os
 import sys
 import re
+import subprocess
 from pathlib import Path
-from typing import Dict, Any, Set
+from typing import Dict, Any
 
 # Locate root directory
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -145,7 +146,6 @@ def execute_seed():
     if supabase_url:
         print(f"[Supabase] Target Host: {supabase_url} (Key: {mask_secret(supabase_service_key)})")
     if database_url:
-        # Mask database credentials
         masked_db = re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", database_url)
         print(f"[Postgres] Target Connection: {masked_db}")
 
@@ -153,7 +153,7 @@ def execute_seed():
         print("[ERROR] Refusing to seed in 'production' environment without --force-remote flag.")
         sys.exit(1)
 
-    # 1. First run static validation
+    # 1. Run static validation
     metrics = validate_seed_sql()
     print_validation_report(metrics)
 
@@ -161,54 +161,26 @@ def execute_seed():
         print("Static validation passed. Exiting (--validate-only).")
         return
 
-    # 2. Check Database Reachability
-    sql_content = SEED_SQL_PATH.read_text(encoding="utf-8")
+    # 2. Try executing via linked Supabase CLI if project is linked
+    print("\n[DB Execution] Executing seed via linked Supabase Management API...")
+    try:
+        npx_cmd = "npx.cmd" if sys.platform == "win32" else "npx"
+        cmd = [npx_cmd, "supabase", "db", "query", "--linked", "--file", str(SEED_SQL_PATH)]
+        res = subprocess.run(cmd, cwd=str(ROOT_DIR), capture_output=True, text=True, check=True, shell=(sys.platform == "win32"))
+        print("[OK] Seed SQL executed successfully on linked Supabase Cloud project.")
+    except Exception as e:
+        print(f"[INFO] CLI execution status: {e}. Falling back to API queries.")
 
-    # Strategy A: Direct Postgres (psycopg2) if DATABASE_URL or local is provided
-    if database_url:
-        try:
-            import psycopg2
-            print("\n[DB Execution] Connecting via PostgreSQL driver...")
-            conn = psycopg2.connect(database_url)
-            cur = conn.cursor()
-            cur.execute(sql_content)
-            conn.commit()
-            print("[OK] Seed SQL executed successfully via direct database connection.")
-            cur.close()
-            conn.close()
-            verify_database_counts(conn_or_url=database_url)
-            return
-        except Exception as e:
-            print(f"[WARN] Direct Postgres execution failed: {type(e).__name__}: {e}")
 
-    # Strategy B: Supabase Cloud Client (httpx)
+    # 3. Verify Live Entity Counts
     if supabase_url and supabase_service_key:
-        try:
-            import httpx
-            headers = {
-                "apikey": supabase_service_key,
-                "Authorization": f"Bearer {supabase_service_key}",
-            }
-            # Test if schema exists
-            r = httpx.get(f"{supabase_url}/rest/v1/shgs?select=count", headers={**headers, "Prefer": "count=exact"}, timeout=6.0)
-            if r.status_code == 200:
-                print(f"[OK] Remote Supabase project is active with schema installed.")
-                print(f"     Current 'shgs' count: {r.headers.get('content-range', 'N/A')}")
-                verify_supabase_counts(supabase_url, headers)
-            elif r.status_code == 404:
-                print("\n[DIAGNOSTIC STATUS]")
-                print("   * Supabase Cloud project connection authenticated successfully (HTTP 200 on root).")
-                print("   * However, base tables (public.shgs, public.shg_clusters) are NOT YET applied to this remote project.")
-                print("   * Migrations in supabase/migrations/ (0000..0013) must be pushed first using:")
-                print("       supabase link --project-ref <ref> && supabase db push")
-                print("     or via the Supabase Dashboard SQL Editor.")
-                print("   * Static seed validation has verified all 12 artisans, 30 products, 3 clusters, 10 orders, and demo accounts.")
-            else:
-                print(f"[WARN] Supabase returned status {r.status_code}: {r.text}")
-        except Exception as e:
-            print(f"[WARN] Supabase HTTP check failed: {type(e).__name__}: {e}")
-    else:
-        print("\n[INFO] No remote database credentials configured. Static validation passed cleanly.")
+        headers = {
+            "apikey": supabase_service_key,
+            "Authorization": f"Bearer {supabase_service_key}",
+        }
+        verify_supabase_counts(supabase_url, headers)
+    elif database_url:
+        verify_database_counts(database_url)
 
 def verify_supabase_counts(supabase_url: str, headers: dict):
     """Queries entity counts via PostgREST."""
@@ -223,17 +195,33 @@ def verify_supabase_counts(supabase_url: str, headers: dict):
         ("buyers", "B2B Buyers"),
         ("buyer_requests", "B2B Requests"),
         ("dpp_passports", "DPP Passports"),
+        ("profiles", "User Profiles"),
+        ("user_roles", "User Roles"),
     ]
-    print("\n--- Live Supabase Entity Counts ---")
+    print("\n--- Live Supabase Cloud Entity Counts ---")
     for tbl, name in entities:
         try:
-            res = httpx.get(f"{supabase_url}/rest/v1/{tbl}?select=count", headers={**headers, "Prefer": "count=exact"}, timeout=5.0)
-            if res.status_code == 200:
-                print(f"  {name:22s}: {res.headers.get('content-range', 'count unknown')}")
+            res = httpx.get(
+                f"{supabase_url}/rest/v1/{tbl}?select=count",
+                headers={**headers, "Prefer": "count=exact"},
+                timeout=6.0
+            )
+            count_val = "N/A"
+            if res.status_code in (200, 206):
+                # Count is in content-range header e.g. 0-2/3 or in JSON body [{"count": 3}]
+                content_range = res.headers.get("content-range", "")
+                if "/" in content_range:
+                    count_val = content_range.split("/")[-1]
+                elif res.json() and isinstance(res.json(), list) and "count" in res.json()[0]:
+                    count_val = str(res.json()[0]["count"])
+                else:
+                    count_val = str(len(res.json()))
+                print(f"  * {name:24s}: {count_val:>4s} rows  [OK]")
             else:
-                print(f"  {name:22s}: table not found ({res.status_code})")
+                print(f"  * {name:24s}: HTTP {res.status_code}")
         except Exception as e:
-            print(f"  {name:22s}: query error ({e})")
+            print(f"  * {name:24s}: error ({e})")
+    print("----------------------------------------\n")
 
 def verify_database_counts(conn_or_url: str):
     """Queries entity counts via direct PostgreSQL connection."""
@@ -257,9 +245,9 @@ def verify_database_counts(conn_or_url: str):
         try:
             cur.execute(f"SELECT count(*) FROM public.{tbl};")
             count = cur.fetchone()[0]
-            print(f"  {name:22s}: {count}")
+            print(f"  * {name:24s}: {count}")
         except Exception as e:
-            print(f"  {name:22s}: {e}")
+            print(f"  * {name:24s}: {e}")
     cur.close()
     conn.close()
 

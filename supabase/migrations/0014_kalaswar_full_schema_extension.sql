@@ -1,5 +1,5 @@
 -- =============================================================================
--- Migration 0013: Kalaswar Full Schema Extension
+-- Migration 0014: Kalaswar Full Schema Extension
 -- =============================================================================
 -- Adds:
 --   • shg_clusters        — SRLM-registered cluster records (PDF Section 10)
@@ -20,11 +20,6 @@
 --   • Demo data is labelled; demo rows carry is_demo=true or "Demonstration" labels.
 --   • Secrets (bank_dbt_account) are visible only to admin + financier roles.
 -- =============================================================================
-
--- ---------------------------------------------------------------------------
--- 1. EXTEND app_role ENUM
--- ---------------------------------------------------------------------------
-ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'financier';
 
 -- ---------------------------------------------------------------------------
 -- 2. shg_clusters — SRLM cluster registry
