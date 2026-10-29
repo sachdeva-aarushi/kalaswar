@@ -33,6 +33,7 @@ async def upload_artisan_media(payload: MediaUploadRequest):
         phone=payload.phone,
         media_source=source,
         caption=payload.caption,
+        whatsapp_message_id=payload.whatsapp_message_id,
     )
 
 
@@ -46,11 +47,13 @@ async def process_artisan_voice(payload: VoiceProcessRequest):
     """
     Step 2 & 3 (Voice Prompt & Auto-Drafting):
     - Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).
+    - Accepts audio/ogg (Opus) and converts with ffmpeg if speech provider requires WAV.
     - Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).
     - Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.
     - If valid, calculates transparent FairPrice estimate with artisan wage breakdown.
-    - Creates draft in listing_drafts.
+    - Creates draft in listing_drafts with whatsapp_message_id unique tracking.
     - Returns Hindi text, audio-script text, and interactive button IDs.
+    - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
     """
     source = payload.audio_url or payload.audio_base64 or payload.audio_id or "demo_audio"
     return await artisan_listing_service.process_voice(
@@ -58,6 +61,8 @@ async def process_artisan_voice(payload: VoiceProcessRequest):
         audio_source=source,
         language=payload.language,
         stt_provider=payload.stt_provider,
+        whatsapp_message_id=payload.whatsapp_message_id,
+        content_type=payload.content_type,
     )
 
 
@@ -75,11 +80,13 @@ async def approve_artisan_draft(payload: ApproveRequest):
     - Generates Cloudinary GI verification badge watermark overlay on product asset.
     - Records immutable action log to action_audit_logs.
     - Completes the voice session.
+    - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
     """
     return await artisan_listing_service.process_approval(
         phone=payload.phone,
         button_id=payload.button_id,
         draft_id=payload.draft_id,
+        whatsapp_message_id=payload.whatsapp_message_id,
     )
 
 
