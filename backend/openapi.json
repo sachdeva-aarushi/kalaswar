@@ -1583,7 +1583,7 @@
           "WhatsApp Artisan Listing Pipeline (Internal)"
         ],
         "summary": "Step 2: Parse artisan voice note & create draft",
-        "description": "Step 2 & 3 (Voice Prompt & Auto-Drafting):\n- Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).\n- Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).\n- Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.\n- If valid, calculates transparent FairPrice estimate with artisan wage breakdown.\n- Creates draft in listing_drafts.\n- Returns Hindi text, audio-script text, and interactive button IDs.",
+        "description": "Step 2 & 3 (Voice Prompt & Auto-Drafting):\n- Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).\n- Accepts audio/ogg (Opus) and converts with ffmpeg if speech provider requires WAV.\n- Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).\n- Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.\n- If valid, calculates transparent FairPrice estimate with artisan wage breakdown.\n- Creates draft in listing_drafts with whatsapp_message_id unique tracking.\n- Returns Hindi text, audio-script text, and interactive button IDs.\n- Idempotent: repeated calls with the same whatsapp_message_id return the original response.",
         "operationId": "process_artisan_voice_api_v1_internal_whatsapp_voice_post",
         "parameters": [
           {
@@ -1645,7 +1645,7 @@
           "WhatsApp Artisan Listing Pipeline (Internal)"
         ],
         "summary": "Step 3: Handle artisan button action with coordinator validation rule",
-        "description": "Step 3 (Approve Button Action):\n- When artisan approves (btn_approve), the Coordinator-Validation rule applies:\n  Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).\n- Generates Cloudinary GI verification badge watermark overlay on product asset.\n- Records immutable action log to action_audit_logs.\n- Completes the voice session.",
+        "description": "Step 3 (Approve Button Action):\n- When artisan approves (btn_approve), the Coordinator-Validation rule applies:\n  Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).\n- Generates Cloudinary GI verification badge watermark overlay on product asset.\n- Records immutable action log to action_audit_logs.\n- Completes the voice session.\n- Idempotent: repeated calls with the same whatsapp_message_id return the original response.",
         "operationId": "approve_artisan_draft_api_v1_internal_whatsapp_approve_post",
         "parameters": [
           {
@@ -5553,7 +5553,7 @@
           "WhatsApp Artisan Listing Pipeline (Internal)"
         ],
         "summary": "Step 2: Parse artisan voice note & create draft",
-        "description": "Step 2 & 3 (Voice Prompt & Auto-Drafting):\n- Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).\n- Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).\n- Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.\n- If valid, calculates transparent FairPrice estimate with artisan wage breakdown.\n- Creates draft in listing_drafts.\n- Returns Hindi text, audio-script text, and interactive button IDs.",
+        "description": "Step 2 & 3 (Voice Prompt & Auto-Drafting):\n- Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).\n- Accepts audio/ogg (Opus) and converts with ffmpeg if speech provider requires WAV.\n- Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).\n- Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.\n- If valid, calculates transparent FairPrice estimate with artisan wage breakdown.\n- Creates draft in listing_drafts with whatsapp_message_id unique tracking.\n- Returns Hindi text, audio-script text, and interactive button IDs.\n- Idempotent: repeated calls with the same whatsapp_message_id return the original response.",
         "operationId": "process_artisan_voice_internal_whatsapp_voice_post",
         "parameters": [
           {
@@ -5615,7 +5615,7 @@
           "WhatsApp Artisan Listing Pipeline (Internal)"
         ],
         "summary": "Step 3: Handle artisan button action with coordinator validation rule",
-        "description": "Step 3 (Approve Button Action):\n- When artisan approves (btn_approve), the Coordinator-Validation rule applies:\n  Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).\n- Generates Cloudinary GI verification badge watermark overlay on product asset.\n- Records immutable action log to action_audit_logs.\n- Completes the voice session.",
+        "description": "Step 3 (Approve Button Action):\n- When artisan approves (btn_approve), the Coordinator-Validation rule applies:\n  Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).\n- Generates Cloudinary GI verification badge watermark overlay on product asset.\n- Records immutable action log to action_audit_logs.\n- Completes the voice session.\n- Idempotent: repeated calls with the same whatsapp_message_id return the original response.",
         "operationId": "approve_artisan_draft_internal_whatsapp_approve_post",
         "parameters": [
           {
@@ -6169,6 +6169,18 @@
             ],
             "title": "Draft Id",
             "description": "Optional explicit draft UUID"
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id",
+            "description": "Unique Meta/WhatsApp message ID for idempotency"
           }
         },
         "type": "object",
@@ -6225,6 +6237,23 @@
           "audio_script_text": {
             "type": "string",
             "title": "Audio Script Text"
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id"
+          },
+          "is_duplicate": {
+            "type": "boolean",
+            "title": "Is Duplicate",
+            "description": "True if returned from idempotency cache",
+            "default": false
           },
           "mode": {
             "type": "string",
@@ -8656,6 +8685,18 @@
             ],
             "title": "Caption",
             "description": "Optional photo caption"
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id",
+            "description": "Unique Meta/WhatsApp message ID for idempotency"
           }
         },
         "type": "object",
@@ -8694,6 +8735,23 @@
           "audio_script_text": {
             "type": "string",
             "title": "Audio Script Text"
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id"
+          },
+          "is_duplicate": {
+            "type": "boolean",
+            "title": "Is Duplicate",
+            "description": "True if returned from idempotency cache",
+            "default": false
           },
           "mode": {
             "type": "string",
@@ -11618,6 +11676,31 @@
             ],
             "title": "Stt Provider",
             "description": "Optional provider override: sarvam, whisper, mock"
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id",
+            "description": "Unique Meta/WhatsApp message ID for idempotency"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type",
+            "description": "Audio MIME type (e.g. audio/ogg, audio/opus, audio/wav)",
+            "default": "audio/ogg"
           }
         },
         "type": "object",
@@ -11704,6 +11787,23 @@
           "needs_clarification": {
             "type": "boolean",
             "title": "Needs Clarification",
+            "default": false
+          },
+          "whatsapp_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whatsapp Message Id"
+          },
+          "is_duplicate": {
+            "type": "boolean",
+            "title": "Is Duplicate",
+            "description": "True if returned from idempotency cache",
             "default": false
           },
           "mode": {

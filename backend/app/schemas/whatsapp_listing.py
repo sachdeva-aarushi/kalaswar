@@ -54,6 +54,7 @@ class MediaUploadRequest(BaseModel):
     media_base64: Optional[str] = Field(None, description="Optional base64 encoded photo")
     media_id: Optional[str] = Field(None, description="WhatsApp Meta media ID")
     caption: Optional[str] = Field(None, description="Optional photo caption")
+    whatsapp_message_id: Optional[str] = Field(None, description="Unique Meta/WhatsApp message ID for idempotency")
 
 
 class MediaUploadResponse(BaseModel):
@@ -64,6 +65,8 @@ class MediaUploadResponse(BaseModel):
     cloudinary_public_id: str
     prompt_text_hi: str
     audio_script_text: str
+    whatsapp_message_id: Optional[str] = None
+    is_duplicate: bool = Field(False, description="True if returned from idempotency cache")
     mode: str = Field("demo", description="'live' or 'demo'")
 
 
@@ -74,6 +77,8 @@ class VoiceProcessRequest(BaseModel):
     audio_id: Optional[str] = Field(None, description="WhatsApp Meta media ID")
     language: str = Field("hi", description="ISO language code (default: hi)")
     stt_provider: Optional[str] = Field(None, description="Optional provider override: sarvam, whisper, mock")
+    whatsapp_message_id: Optional[str] = Field(None, description="Unique Meta/WhatsApp message ID for idempotency")
+    content_type: Optional[str] = Field("audio/ogg", description="Audio MIME type (e.g. audio/ogg, audio/opus, audio/wav)")
 
 
 class VoiceProcessResponse(BaseModel):
@@ -90,6 +95,8 @@ class VoiceProcessResponse(BaseModel):
     interactive_buttons: List[InteractiveButton] = Field(default_factory=list)
     missing_fields: List[str] = Field(default_factory=list)
     needs_clarification: bool = False
+    whatsapp_message_id: Optional[str] = None
+    is_duplicate: bool = Field(False, description="True if returned from idempotency cache")
     mode: str = Field("demo")
 
 
@@ -97,6 +104,7 @@ class ApproveRequest(BaseModel):
     phone: str = Field(..., description="Artisan E.164 phone number")
     button_id: str = Field(..., description="btn_approve, btn_edit, or btn_cancel")
     draft_id: Optional[str] = Field(None, description="Optional explicit draft UUID")
+    whatsapp_message_id: Optional[str] = Field(None, description="Unique Meta/WhatsApp message ID for idempotency")
 
 
 class ApproveResponse(BaseModel):
@@ -109,6 +117,8 @@ class ApproveResponse(BaseModel):
     watermarked_image_url: Optional[str] = None
     hindi_text: str
     audio_script_text: str
+    whatsapp_message_id: Optional[str] = None
+    is_duplicate: bool = Field(False, description="True if returned from idempotency cache")
     mode: str = Field("demo")
 
 

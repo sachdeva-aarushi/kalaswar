@@ -502,11 +502,13 @@ export interface paths {
          * Step 2: Parse artisan voice note & create draft
          * @description Step 2 & 3 (Voice Prompt & Auto-Drafting):
          *     - Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).
+         *     - Accepts audio/ogg (Opus) and converts with ffmpeg if speech provider requires WAV.
          *     - Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).
          *     - Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.
          *     - If valid, calculates transparent FairPrice estimate with artisan wage breakdown.
-         *     - Creates draft in listing_drafts.
+         *     - Creates draft in listing_drafts with whatsapp_message_id unique tracking.
          *     - Returns Hindi text, audio-script text, and interactive button IDs.
+         *     - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
          */
         post: operations["process_artisan_voice_api_v1_internal_whatsapp_voice_post"];
         delete?: never;
@@ -532,6 +534,7 @@ export interface paths {
          *     - Generates Cloudinary GI verification badge watermark overlay on product asset.
          *     - Records immutable action log to action_audit_logs.
          *     - Completes the voice session.
+         *     - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
          */
         post: operations["approve_artisan_draft_api_v1_internal_whatsapp_approve_post"];
         delete?: never;
@@ -1567,11 +1570,13 @@ export interface paths {
          * Step 2: Parse artisan voice note & create draft
          * @description Step 2 & 3 (Voice Prompt & Auto-Drafting):
          *     - Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).
+         *     - Accepts audio/ogg (Opus) and converts with ffmpeg if speech provider requires WAV.
          *     - Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).
          *     - Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.
          *     - If valid, calculates transparent FairPrice estimate with artisan wage breakdown.
-         *     - Creates draft in listing_drafts.
+         *     - Creates draft in listing_drafts with whatsapp_message_id unique tracking.
          *     - Returns Hindi text, audio-script text, and interactive button IDs.
+         *     - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
          */
         post: operations["process_artisan_voice_internal_whatsapp_voice_post"];
         delete?: never;
@@ -1597,6 +1602,7 @@ export interface paths {
          *     - Generates Cloudinary GI verification badge watermark overlay on product asset.
          *     - Records immutable action log to action_audit_logs.
          *     - Completes the voice session.
+         *     - Idempotent: repeated calls with the same whatsapp_message_id return the original response.
          */
         post: operations["approve_artisan_draft_internal_whatsapp_approve_post"];
         delete?: never;
@@ -1851,6 +1857,11 @@ export interface components {
              * @description Optional explicit draft UUID
              */
             draft_id?: string | null;
+            /**
+             * Whatsapp Message Id
+             * @description Unique Meta/WhatsApp message ID for idempotency
+             */
+            whatsapp_message_id?: string | null;
         };
         /** ApproveResponse */
         ApproveResponse: {
@@ -1879,6 +1890,14 @@ export interface components {
             hindi_text: string;
             /** Audio Script Text */
             audio_script_text: string;
+            /** Whatsapp Message Id */
+            whatsapp_message_id?: string | null;
+            /**
+             * Is Duplicate
+             * @description True if returned from idempotency cache
+             * @default false
+             */
+            is_duplicate: boolean;
             /**
              * Mode
              * @default demo
@@ -2992,6 +3011,11 @@ export interface components {
              * @description Optional photo caption
              */
             caption?: string | null;
+            /**
+             * Whatsapp Message Id
+             * @description Unique Meta/WhatsApp message ID for idempotency
+             */
+            whatsapp_message_id?: string | null;
         };
         /** MediaUploadResponse */
         MediaUploadResponse: {
@@ -3012,6 +3036,14 @@ export interface components {
             prompt_text_hi: string;
             /** Audio Script Text */
             audio_script_text: string;
+            /** Whatsapp Message Id */
+            whatsapp_message_id?: string | null;
+            /**
+             * Is Duplicate
+             * @description True if returned from idempotency cache
+             * @default false
+             */
+            is_duplicate: boolean;
             /**
              * Mode
              * @description 'live' or 'demo'
@@ -4233,6 +4265,17 @@ export interface components {
              * @description Optional provider override: sarvam, whisper, mock
              */
             stt_provider?: string | null;
+            /**
+             * Whatsapp Message Id
+             * @description Unique Meta/WhatsApp message ID for idempotency
+             */
+            whatsapp_message_id?: string | null;
+            /**
+             * Content Type
+             * @description Audio MIME type (e.g. audio/ogg, audio/opus, audio/wav)
+             * @default audio/ogg
+             */
+            content_type: string | null;
         };
         /** VoiceProcessResponse */
         VoiceProcessResponse: {
@@ -4263,6 +4306,14 @@ export interface components {
              * @default false
              */
             needs_clarification: boolean;
+            /** Whatsapp Message Id */
+            whatsapp_message_id?: string | null;
+            /**
+             * Is Duplicate
+             * @description True if returned from idempotency cache
+             * @default false
+             */
+            is_duplicate: boolean;
             /**
              * Mode
              * @default demo

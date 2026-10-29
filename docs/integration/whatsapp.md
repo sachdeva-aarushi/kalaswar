@@ -126,10 +126,11 @@ Uploads artisan photo to Cloudinary, applies `f_auto`, `q_auto`, and background 
     "media_url": "https://example.com/artisan_cushion.jpg",
     "media_base64": null,
     "media_id": null,
-    "caption": "हाथ से कढ़ाई किया गया कांथा कुशन कवर"
+    "caption": "हाथ से कढ़ाई किया गया कांथा कुशन कवर",
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0ExOEU5Q0ExOEU5Q0ExAA=="
   }
   ```
-  *(Note: You can pass either `media_url`, raw `media_base64` string, or Meta `media_id`).*
+  *(Note: You can pass either `media_url`, raw `media_base64` string, or Meta `media_id`. Always pass `whatsapp_message_id` for network retry deduplication).*
 
 * **Response (`HTTP 200 OK`)**:
   ```json
@@ -141,6 +142,8 @@ Uploads artisan photo to Cloudinary, applies `f_auto`, `q_auto`, and background 
     "cloudinary_public_id": "kalaswar/artisans/919876543210_1793297966",
     "prompt_text_hi": "इस सामान का नाम और इस्तेमाल किया गया धागा बताएं।",
     "audio_script_text": "नमस्ते! कृपया इस सुंदर सामान का नाम, शिल्प और इस्तेमाल किया गया धागा बोलकर बताएं।",
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0ExOEU5Q0ExOEU5Q0ExAA==",
+    "is_duplicate": false,
     "mode": "demo"
   }
   ```
@@ -161,13 +164,16 @@ Transcribes audio note, extracts structured craft attributes via LLM, computes F
   ```json
   {
     "phone": "+919876543210",
-    "audio_url": "https://example.com/artisan_voice_note.mp3",
-    "audio_base64": null,
+    "audio_url": null,
+    "audio_base64": "T2dnUwACAAAAAAAAAAB...",
     "language": "hi",
-    "stt_provider": "sarvam"
+    "stt_provider": "sarvam",
+    "content_type": "audio/ogg",
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0EyOEU5Q0EyOEU5Q0EyAA=="
   }
   ```
-  *(Supported `stt_provider` values: `"mock"` (default), `"sarvam"` (Indic), `"whisper"`).*
+  *(Supported `stt_provider` values: `"mock"` (default), `"sarvam"` (Indic), `"whisper"`).*  
+  *(WhatsApp voice notes natively arrive as `audio/ogg` (Opus). If an Indic STT engine like Sarvam requires WAV, the backend automatically transcodes it to 16kHz mono WAV via ffmpeg).*
 
 * **Response (`HTTP 200 OK` - Happy Path)**:
   ```json
@@ -218,6 +224,8 @@ Transcribes audio note, extracts structured craft attributes via LLM, computes F
     ],
     "missing_fields": [],
     "needs_clarification": false,
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0EyOEU5Q0EyOEU5Q0EyAA==",
+    "is_duplicate": false,
     "mode": "demo"
   }
   ```
@@ -248,6 +256,8 @@ Transcribes audio note, extracts structured craft attributes via LLM, computes F
     ],
     "missing_fields": ["craft", "materials"],
     "needs_clarification": true,
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0EyOEU5Q0EyOEU5Q0EyAA==",
+    "is_duplicate": false,
     "mode": "demo"
   }
   ```
@@ -269,7 +279,8 @@ Triggered when the artisan clicks one of the WhatsApp interactive buttons (`btn_
   {
     "phone": "+919876543210",
     "button_id": "btn_approve",
-    "draft_id": "225ab5eb-8ffc-453e-826d-34173fbdd08b"
+    "draft_id": "225ab5eb-8ffc-453e-826d-34173fbdd08b",
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0EzOEU5Q0EzOEU5Q0EzAA=="
   }
   ```
 
@@ -285,6 +296,8 @@ Triggered when the artisan clicks one of the WhatsApp interactive buttons (`btn_
     "watermarked_image_url": "https://res.cloudinary.com/kalaswar-demo/image/upload/l_kalaswar_gi_badge,w_130,g_south_east,x_20,y_20,o_90/f_auto,q_auto/kalaswar/artisans/919876543210_1793297966.webp",
     "hindi_text": "🎉 आपका ड्राफ्ट सफलतापूर्वक मंजूर कर लिया गया है!\n\n📋 कोऑर्डिनेटर सत्यापन नियम (Coordinator Rule):\nसरकारी और ई-कॉमर्स गुणवत्ता मानकों के अनुसार, यह ड्राफ्ट अब आपके स्वयं सहायता समूह (SHG) के कोऑर्डिनेटर के पास अंतिम सत्यापन (Validation) के लिए भेजा गया है। जैसे ही वे इसे अंतिम मंजूरी देंगे, यह उत्पाद ONDC और कलास्वर स्टोर पर लाइव हो जाएगा।",
     "audio_script_text": "बधाई हो! आपका उत्पाद ड्राफ्ट मंजूर हो गया है और GI सत्यापन बैज के साथ सुरक्षित कर लिया गया है। अंतिम समीक्षा के लिए यह आपके SHG कोऑर्डिनेटर के पास पहुंच गया है।",
+    "whatsapp_message_id": "wamid.HBgLMzkxOTg3NjU0MzIxMBUCABIYFDNBOUQ5Q0EzOEU5Q0EzOEU5Q0EzAA==",
+    "is_duplicate": false,
     "mode": "demo"
   }
   ```
@@ -409,3 +422,75 @@ python backend/scripts/whatsapp_sim.py --json
 ```bash
 python backend/scripts/whatsapp_sim.py --phone +919812345678 --stt sarvam
 ```
+
+---
+
+## 8. Idempotency & Audio Transcoding Architecture
+
+### Idempotency & Duplicate Delivery Protocol
+Meta Cloud API and Twilio webhooks are guaranteed at-least-once delivery systems. Transient mobile network disconnects, timeouts, or webhook retries frequently deliver identical WhatsApp messages multiple times.
+
+To guarantee zero duplicate drafts or duplicated state transitions:
+1. **Unique Message Tracking**: Every incoming call carries a `whatsapp_message_id` (e.g., `wamid.HBg...`).
+2. **Database Constraint & Storage**:
+   - `public.listing_drafts.whatsapp_message_id` has a `UNIQUE` index (`idx_listing_drafts_whatsapp_msg_id`).
+   - `public.whatsapp_incoming_messages` stores `(whatsapp_message_id UNIQUE, phone, endpoint, request_payload, response_payload, listing_draft_id)`.
+3. **Repeated Call Handling**:
+   - When a call with an already-processed `whatsapp_message_id` arrives at `/internal/whatsapp/media`, `/internal/whatsapp/voice`, or `/internal/whatsapp/approve`, the service intercepts it immediately.
+   - It returns the original cached response with `"is_duplicate": true` instead of calling Cloudinary, running STT/LLM inference, or creating a second listing draft.
+   - This ensures deterministic behavior and idempotent safe replays across network glitches.
+
+### Audio Transcoding (Opus/OGG to 16kHz Mono WAV)
+WhatsApp mobile clients record voice notes using the Ogg container with the Opus codec (`audio/ogg; codecs=opus`). However, state-of-the-art Indic speech-to-text models (such as **Sarvam AI Indic STT**) mandate uncompressed 16kHz mono linear PCM WAV (`audio/wav`).
+
+* The voice endpoint `/internal/whatsapp/voice` accepts `audio/ogg`, `audio/opus`, or `audio/wav`.
+* Incoming audio bytes are checked for the Ogg magic header (`b"OggS"`).
+* If non-WAV format is detected, the audio adapter (`app.adapters.audio`) invokes `ffmpeg`:
+  ```bash
+  ffmpeg -y -i input.ogg -acodec pcm_s16le -ac 1 -ar 16000 output.wav
+  ```
+* If `ffmpeg` is absent from the host environment, the adapter logs a diagnostic notice and passes the raw bytes gracefully to the selected speech adapter.
+
+---
+
+## 9. Error Handling & HTTP Status Codes
+
+All errors conform to the standard Kalaswar JSON error format:
+
+```json
+{
+  "error": {
+    "code": "AUTH_ERROR",
+    "message": "Invalid or missing internal service token",
+    "status_code": 401,
+    "request_id": "req-987a-654b",
+    "details": null
+  }
+}
+```
+
+### Common HTTP Status Codes
+
+| HTTP Status | Error Code | Reason & Resolution |
+| :--- | :--- | :--- |
+| **`401 Unauthorized`** | `AUTH_ERROR` | Missing or incorrect `X-Service-Token` or `Authorization: Bearer <token>`. Ensure the bot configuration matches `INTERNAL_SERVICE_TOKEN` in `.env`. |
+| **`422 Unprocessable`**| `VALIDATION_ERROR` | Request payload failed Pydantic schema validation (e.g. missing `phone`, missing `button_id`, or malformed base64). Check request schema in Section 4. |
+| **`404 Not Found`** | `NOT_FOUND` | Artisan session or draft UUID not found in repository. |
+| **`500 Internal Error`**| `INTERNAL_ERROR` | Unhandled backend exception. Cloudinary or STT provider timeouts fallback gracefully to demo mode or error logs. |
+
+### Note on Incomplete Artisan Voice Notes
+If an artisan sends an audio note that does not contain all required craft fields (e.g., they only state *"It is a cushion"* but omit the craft tradition or materials):
+* The endpoint does **NOT** return a 4xx error.
+* It returns `HTTP 200 OK` with:
+  ```json
+  {
+    "step": "needs_clarification",
+    "status": "needs_clarification",
+    "needs_clarification": true,
+    "missing_fields": ["craft", "materials"],
+    "hindi_text": "कृपया बताएं कि इसमें कौन सा शिल्प और किस प्रकार के धागे या कपड़े का इस्तेमाल किया गया है?",
+    "draft_id": null
+  }
+  ```
+* The bot should send `hindi_text` or play the audio script back to the artisan and allow them to speak again without aborting the conversation.
+

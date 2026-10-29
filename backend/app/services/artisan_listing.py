@@ -1,8 +1,10 @@
+import base64
 import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID, uuid4
 
+from app.adapters.audio import convert_audio_to_wav, is_ogg_audio
 from app.adapters.cloudinary import CloudinaryAdapter, cloudinary_adapter
 from app.adapters.llm import LlmAdapter, generate_clarification_question, get_llm_adapter
 from app.adapters.stt import SttAdapter, get_stt_adapter
@@ -20,9 +22,10 @@ from app.schemas.whatsapp_listing import (
 from app.services.audit import AuditService, audit_service
 from app.services.fairprice import calculate_fair_price
 
-# In-memory fallback cache for sessions when Supabase is offline/mocked
+# In-memory fallback cache for sessions, drafts, and idempotency
 _IN_MEMORY_SESSIONS: Dict[str, Dict[str, Any]] = {}
 _IN_MEMORY_DRAFTS: Dict[str, Dict[str, Any]] = {}
+_IN_MEMORY_IDEMPOTENCY: Dict[str, Dict[str, Any]] = {}
 
 
 class ArtisanListingService:
@@ -96,17 +99,78 @@ class ArtisanListingService:
             except Exception as e:
                 logger.warning("Failed to persist session to Supabase: %s", e)
 
+    async def get_idempotent_response(self, whatsapp_message_id: Optional[str]) -> Optional[Dict[str, Any]]:
+        """Checks in-memory cache and Supabase incoming messages for an existing response."""
+        if not whatsapp_message_id:
+            return None
+
+        # 1. Check in-memory idempotency cache
+        if whatsapp_message_id in _IN_MEMORY_IDEMPOTENCY:
+            logger.info("[Idempotency] Memory cache hit for whatsapp_message_id=%s", whatsapp_message_id)
+            cached = dict(_IN_MEMORY_IDEMPOTENCY[whatsapp_message_id])
+            cached["is_duplicate"] = True
+            return cached
+
+        # 2. Check Supabase whatsapp_incoming_messages
+        if self.db.base_url:
+            try:
+                records = await self.db.query_records(
+                    "whatsapp_incoming_messages",
+                    params={"whatsapp_message_id": f"eq.{whatsapp_message_id}", "limit": "1"},
+                )
+                if records:
+                    logger.info("[Idempotency] DB cache hit for whatsapp_message_id=%s", whatsapp_message_id)
+                    cached = records[0].get("response_payload", {})
+                    cached["is_duplicate"] = True
+                    _IN_MEMORY_IDEMPOTENCY[whatsapp_message_id] = cached
+                    return cached
+            except Exception as e:
+                logger.warning("[Idempotency] Error querying DB idempotency cache: %s", e)
+        return None
+
+    async def record_idempotent_response(
+        self,
+        whatsapp_message_id: Optional[str],
+        phone: str,
+        endpoint: str,
+        response_dict: Dict[str, Any],
+        draft_id: Optional[str] = None,
+    ) -> None:
+        """Stores the response payload in memory and Supabase for future duplicate deliveries."""
+        if not whatsapp_message_id:
+            return
+        _IN_MEMORY_IDEMPOTENCY[whatsapp_message_id] = response_dict
+
+        if self.db.base_url:
+            try:
+                record = {
+                    "whatsapp_message_id": whatsapp_message_id,
+                    "phone": phone,
+                    "endpoint": endpoint,
+                    "response_payload": response_dict,
+                    "listing_draft_id": draft_id,
+                }
+                await self.db.upsert_record("whatsapp_incoming_messages", record, use_service_role=True)
+            except Exception as e:
+                logger.warning("[Idempotency] Error saving DB idempotency record: %s", e)
+
     async def process_media(
         self,
         phone: str,
         media_source: Union[str, bytes],
         caption: Optional[str] = None,
+        whatsapp_message_id: Optional[str] = None,
     ) -> MediaUploadResponse:
         """
         Step 1 (Media Capture):
         Stores product photo in Cloudinary with auto-format (f_auto, q_auto) and background clean.
         Advances session step to awaiting_voice and returns authentic Hindi audio prompt.
+        Enforces idempotency: duplicate deliveries return original response.
         """
+        cached = await self.get_idempotent_response(whatsapp_message_id)
+        if cached:
+            return MediaUploadResponse(**cached)
+
         session = await self.get_or_create_session(phone)
 
         # Upload image to Cloudinary
@@ -119,6 +183,7 @@ class ArtisanListingService:
             "cloudinary_public_id": upload_res["public_id"],
             "caption": caption,
             "mode": upload_res.get("mode", "demo"),
+            "whatsapp_message_id": whatsapp_message_id,
         }
         await self.save_session(session)
 
@@ -126,7 +191,7 @@ class ArtisanListingService:
         prompt_text_hi = "इस सामान का नाम और इस्तेमाल किया गया धागा बताएं।"
         audio_script = "नमस्ते! कृपया इस सुंदर सामान का नाम, शिल्प और इस्तेमाल किया गया धागा बोलकर बताएं।"
 
-        return MediaUploadResponse(
+        response = MediaUploadResponse(
             session_id=session["id"],
             phone=phone,
             step="awaiting_voice",
@@ -134,8 +199,17 @@ class ArtisanListingService:
             cloudinary_public_id=upload_res["public_id"],
             prompt_text_hi=prompt_text_hi,
             audio_script_text=audio_script,
+            whatsapp_message_id=whatsapp_message_id,
+            is_duplicate=False,
             mode=upload_res.get("mode", "demo"),
         )
+        await self.record_idempotent_response(
+            whatsapp_message_id=whatsapp_message_id,
+            phone=phone,
+            endpoint="media",
+            response_dict=response.model_dump(),
+        )
+        return response
 
     async def process_voice(
         self,
@@ -143,17 +217,40 @@ class ArtisanListingService:
         audio_source: Union[str, bytes],
         language: str = "hi",
         stt_provider: Optional[str] = None,
+        whatsapp_message_id: Optional[str] = None,
+        content_type: Optional[str] = "audio/ogg",
     ) -> VoiceProcessResponse:
         """
         Step 2 & 3 (Voice Prompt & Auto-Drafting):
+        - Checks idempotency: repeated message IDs return original response.
+        - Transcodes audio (e.g. OGG/Opus to 16kHz WAV) via ffmpeg if required.
         - Transcribes audio via SttAdapter (Sarvam / Whisper / Mock).
         - Extracts structured craft fields via LlmAdapter.
-        - Validates fields via Pydantic; missing fields trigger follow-up question instead of guessing.
+        - Validates fields via Pydantic; missing fields trigger follow-up question.
         - Calculates FairPrice estimate.
         - Creates draft row in listing_drafts.
         - Returns Hindi summary, audio script text, and interactive action buttons.
         """
+        cached = await self.get_idempotent_response(whatsapp_message_id)
+        if cached:
+            return VoiceProcessResponse(**cached)
+
         session = await self.get_or_create_session(phone)
+
+        # 0. Transcode OGG/Opus audio to WAV via ffmpeg if needed
+        processed_audio = audio_source
+        if isinstance(audio_source, bytes):
+            if is_ogg_audio(audio_source) or (content_type and "ogg" in content_type):
+                processed_audio = convert_audio_to_wav(audio_source, source_format="ogg")
+        elif isinstance(audio_source, str) and not (audio_source.startswith("http://") or audio_source.startswith("https://")) and audio_source != "demo_audio":
+            try:
+                decoded_bytes = base64.b64decode(audio_source)
+                if is_ogg_audio(decoded_bytes) or (content_type and "ogg" in content_type):
+                    processed_audio = convert_audio_to_wav(decoded_bytes, source_format="ogg")
+                else:
+                    processed_audio = decoded_bytes
+            except Exception:
+                pass
 
         # 1. Speech to Text Transcription
         if stt_provider and stt_provider.lower() in ("sarvam", "whisper"):
@@ -161,8 +258,7 @@ class ArtisanListingService:
         else:
             stt_adapter = self.stt
 
-        transcript = await stt_adapter.transcribe(audio_source, language=language)
-
+        transcript = await stt_adapter.transcribe(processed_audio, language=language)
 
         # Append transcript log to session
         session_transcripts = session.get("transcript", [])
@@ -170,6 +266,7 @@ class ArtisanListingService:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "text": transcript,
             "language": language,
+            "whatsapp_message_id": whatsapp_message_id,
         })
         session["transcript"] = session_transcripts
 
@@ -186,7 +283,7 @@ class ArtisanListingService:
             session["context"]["missing_fields"] = missing
             await self.save_session(session)
 
-            return VoiceProcessResponse(
+            resp = VoiceProcessResponse(
                 session_id=session["id"],
                 phone=phone,
                 step="needs_clarification",
@@ -202,8 +299,17 @@ class ArtisanListingService:
                 ],
                 missing_fields=missing,
                 needs_clarification=True,
+                whatsapp_message_id=whatsapp_message_id,
+                is_duplicate=False,
                 mode=session["context"].get("media", {}).get("mode", "demo"),
             )
+            await self.record_idempotent_response(
+                whatsapp_message_id=whatsapp_message_id,
+                phone=phone,
+                endpoint="voice",
+                response_dict=resp.model_dump(),
+            )
+            return resp
 
         # 4. FairPrice Calculation
         fair_price = calculate_fair_price(extraction)
@@ -222,6 +328,7 @@ class ArtisanListingService:
             "artisan_id": artisan_id,
             "shg_id": shg_id,
             "source": "whatsapp",
+            "whatsapp_message_id": whatsapp_message_id,
             "title": extraction.title,
             "description": f"{extraction.craft} handcrafted using {', '.join(extraction.materials)}. Colour: {extraction.colour}.",
             "category": extraction.craft or "Crafts",
@@ -246,7 +353,6 @@ class ArtisanListingService:
                 await self.db.upsert_record("listing_drafts", draft_record, use_service_role=True)
             except Exception as e:
                 logger.warning("Could not persist listing draft to Supabase: %s", e)
-
 
         # Update session
         session["step"] = "awaiting_approval"
@@ -280,7 +386,7 @@ class ArtisanListingService:
             InteractiveButton(id="btn_cancel", title="रद्द करें / Cancel"),
         ]
 
-        return VoiceProcessResponse(
+        response = VoiceProcessResponse(
             session_id=session["id"],
             phone=phone,
             step="awaiting_approval",
@@ -294,14 +400,25 @@ class ArtisanListingService:
             interactive_buttons=buttons,
             missing_fields=[],
             needs_clarification=False,
+            whatsapp_message_id=whatsapp_message_id,
+            is_duplicate=False,
             mode=media_ctx.get("mode", "demo"),
         )
+        await self.record_idempotent_response(
+            whatsapp_message_id=whatsapp_message_id,
+            phone=phone,
+            endpoint="voice",
+            response_dict=response.model_dump(),
+            draft_id=draft_id,
+        )
+        return response
 
     async def process_approval(
         self,
         phone: str,
         button_id: str,
         draft_id: Optional[str] = None,
+        whatsapp_message_id: Optional[str] = None,
     ) -> ApproveResponse:
         """
         Step 3 (Approve Button Action):
@@ -310,7 +427,13 @@ class ArtisanListingService:
         - Cloudinary GI watermark badge overlay is dynamically generated.
         - Appends action audit log to action_audit_logs.
         - Session status advances to 'completed'.
+        - Idempotent: repeated whatsapp_message_id returns the existing approval response.
         """
+        cached = await self.get_idempotent_response(whatsapp_message_id)
+        if cached:
+            logger.info("Duplicate approval request detected for %s. Returning cached response.", whatsapp_message_id)
+            return ApproveResponse(**cached)
+
         session = await self.get_or_create_session(phone)
         target_draft_id = draft_id or session.get("listing_draft_id") or session["context"].get("draft_id")
 
@@ -346,7 +469,6 @@ class ArtisanListingService:
                 except Exception as e:
                     logger.warning("Could not update listing draft in Supabase: %s", e)
 
-
             # Log to action_audit_logs table
             await self.audit.log_action(
                 actor=f"Artisan ({phone})",
@@ -380,7 +502,7 @@ class ArtisanListingService:
                 "अंतिम समीक्षा के लिए यह आपके SHG कोऑर्डिनेटर के पास पहुंच गया है।"
             )
 
-            return ApproveResponse(
+            response = ApproveResponse(
                 session_id=session["id"],
                 phone=phone,
                 draft_id=target_draft_id,
@@ -390,13 +512,23 @@ class ArtisanListingService:
                 watermarked_image_url=watermarked_url,
                 hindi_text=hindi_text,
                 audio_script_text=audio_script,
+                whatsapp_message_id=whatsapp_message_id,
+                is_duplicate=False,
                 mode=media_ctx.get("mode", "demo"),
             )
+            await self.record_idempotent_response(
+                whatsapp_message_id=whatsapp_message_id,
+                phone=phone,
+                endpoint="approve",
+                response_dict=response.model_dump(),
+                draft_id=target_draft_id,
+            )
+            return response
 
         elif button_id == "btn_edit":
             session["step"] = "awaiting_voice"
             await self.save_session(session)
-            return ApproveResponse(
+            response = ApproveResponse(
                 session_id=session["id"],
                 phone=phone,
                 draft_id=target_draft_id,
@@ -406,8 +538,18 @@ class ArtisanListingService:
                 watermarked_image_url=None,
                 hindi_text="कृपया वह जानकारी दोबारा बोलकर बताएं जिसे आप बदलना चाहते हैं।",
                 audio_script_text="कृपया जो जानकारी आप बदलना चाहते हैं, उसे बोलकर बताएं।",
+                whatsapp_message_id=whatsapp_message_id,
+                is_duplicate=False,
                 mode="demo",
             )
+            await self.record_idempotent_response(
+                whatsapp_message_id=whatsapp_message_id,
+                phone=phone,
+                endpoint="approve",
+                response_dict=response.model_dump(),
+                draft_id=target_draft_id,
+            )
+            return response
         else:  # btn_cancel
             session["status"] = "abandoned"
             session["step"] = "cancelled"
@@ -415,7 +557,7 @@ class ArtisanListingService:
             if target_draft_id in _IN_MEMORY_DRAFTS:
                 _IN_MEMORY_DRAFTS[target_draft_id]["status"] = "archived"
 
-            return ApproveResponse(
+            response = ApproveResponse(
                 session_id=session["id"],
                 phone=phone,
                 draft_id=target_draft_id,
@@ -425,8 +567,18 @@ class ArtisanListingService:
                 watermarked_image_url=None,
                 hindi_text="उत्पाद लिस्टिंग प्रक्रिया रद्द कर दी गई है। नई लिस्टिंग शुरू करने के लिए कभी भी फोटो भेजें।",
                 audio_script_text="लिस्टिंग रद्द कर दी गई है। धन्यवाद।",
+                whatsapp_message_id=whatsapp_message_id,
+                is_duplicate=False,
                 mode="demo",
             )
+            await self.record_idempotent_response(
+                whatsapp_message_id=whatsapp_message_id,
+                phone=phone,
+                endpoint="approve",
+                response_dict=response.model_dump(),
+                draft_id=target_draft_id,
+            )
+            return response
 
     async def get_session(self, phone: str) -> SessionDetailResponse:
         """Retrieves active or latest session state for a phone number."""

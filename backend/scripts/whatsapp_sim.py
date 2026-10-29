@@ -154,14 +154,18 @@ def simulate_artisan_conversation(
         photo_bytes = f.read()
     photo_b64 = base64.b64encode(photo_bytes).decode("utf-8")
 
+    import uuid
+    media_msg_id = f"wamid.{uuid.uuid4()}"
     media_payload = {
         "phone": phone,
         "media_base64": photo_b64,
         "caption": caption or "हाथ से कढ़ाई किया गया कांथा कुशन कवर",
+        "whatsapp_message_id": media_msg_id,
     }
     media_res = client.post("/internal/whatsapp/media", media_payload)
 
     print_success("Product photo ingested and Cloudinary asset optimized (f_auto, q_auto)")
+    print_info("WhatsApp Message ID", media_msg_id)
     print_info("Session ID", media_res.get("session_id"))
     print_info("Next Step", media_res.get("step"))
     print_info("Cloudinary Public ID", media_res.get("cloudinary_public_id"))
@@ -185,15 +189,21 @@ def simulate_artisan_conversation(
         audio_bytes = f.read()
     audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
 
+    content_type = "audio/ogg" if audio_path.suffix.lower() in (".ogg", ".opus") else "audio/wav"
+    voice_msg_id = f"wamid.{uuid.uuid4()}"
     voice_payload = {
         "phone": phone,
         "audio_base64": audio_b64,
         "language": "hi",
         "stt_provider": stt_provider,
+        "whatsapp_message_id": voice_msg_id,
+        "content_type": content_type,
     }
     voice_res = client.post("/internal/whatsapp/voice", voice_payload)
 
     print_success("Voice transcribed and craft attributes extracted")
+    print_info("WhatsApp Message ID", voice_msg_id)
+    print_info("Audio Format / Content-Type", content_type)
     print_info("Transcript", voice_res.get("transcript"))
 
     craft = voice_res.get("extracted_craft") or {}
@@ -231,14 +241,17 @@ def simulate_artisan_conversation(
     # STEP 3: Approve Draft (Coordinator Validation Rule)
     # -------------------------------------------------------------------------
     print_step(3, "Artisan Taps 'मंजूर करें / Approve & Publish' Button")
+    approve_msg_id = f"wamid.{uuid.uuid4()}"
     approve_payload = {
         "phone": phone,
         "button_id": "btn_approve",
         "draft_id": draft_id,
+        "whatsapp_message_id": approve_msg_id,
     }
     approve_res = client.post("/internal/whatsapp/approve", approve_payload)
 
     print_success("Approval processed under Coordinator Validation Rule")
+    print_info("WhatsApp Message ID", approve_msg_id)
     print_info("New Draft Status", f"{Style.BOLD}{Style.GREEN}{approve_res.get('new_status')}{Style.END}")
     print_info("Requires Coordinator Review", approve_res.get("requires_coordinator_review"))
     print_info("GI Watermarked Asset", approve_res.get("watermarked_image_url"))
