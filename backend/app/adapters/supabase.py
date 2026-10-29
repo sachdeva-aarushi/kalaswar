@@ -35,21 +35,27 @@ class SupabaseAdapter:
             logger.warning("Supabase health check failed: %s", type(e).__name__)
             return False
 
-    async def insert_record(self, table: str, record: Dict[str, Any], use_service_role: bool = True) -> Dict[str, Any]:
-        """Inserts a record into Supabase PostgREST table."""
+    async def upsert_record(self, table: str, record: Dict[str, Any], use_service_role: bool = True) -> Dict[str, Any]:
+        """Upserts a record into Supabase PostgREST table using resolution=merge-duplicates."""
         if not self.base_url:
-            logger.info("Supabase not configured; simulated insert into %s", table)
             return record
 
         url = f"{self.base_url}/rest/v1/{table}"
         headers = self._headers(use_service_role=use_service_role)
+        headers["Prefer"] = "resolution=merge-duplicates,return=representation"
         async with httpx.AsyncClient(timeout=6.0) as client:
             res = await client.post(url, json=record, headers=headers)
             if res.status_code not in (200, 201):
-                logger.error("Insert failed on %s: status=%d, body=%s", table, res.status_code, res.text)
+                logger.error("Upsert failed on %s: status=%d, body=%s", table, res.status_code, res.text)
                 res.raise_for_status()
             data = res.json()
             return data[0] if isinstance(data, list) and data else record
+
+    async def insert_record(self, table: str, record: Dict[str, Any], use_service_role: bool = True) -> Dict[str, Any]:
+        """Inserts or upserts a record into Supabase PostgREST table."""
+        return await self.upsert_record(table, record, use_service_role=use_service_role)
+
+
 
     async def query_records(
         self,

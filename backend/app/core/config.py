@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str = ""
     SUPABASE_JWT_SECRET: str = "kalaswar_development_jwt_secret_32_bytes_long_min"
 
+    # Internal Service Tokens for Teammates (e.g., WhatsApp bot, Edge QC)
+    INTERNAL_SERVICE_TOKEN: str = "kalaswar_internal_service_secret_token"
+    WHATSAPP_SHARED_SERVICE_TOKEN: str = "kalaswar_internal_service_secret_token"
+
     # WhatsApp Business API (Meta Cloud / BSP)
     WHATSAPP_TOKEN: str = ""
     WHATSAPP_PHONE_NUMBER_ID: str = ""

@@ -319,6 +319,418 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/internal/whatsapp/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 1: Ingest artisan product photo
+         * @description Step 1 (Media Capture):
+         *     - Ingests artisan photo from WhatsApp.
+         *     - Stores asset in Cloudinary with auto-format (f_auto, q_auto) and background clean.
+         *     - Initializes/updates voice session state to 'awaiting_voice'.
+         *     - Returns authentic Hindi audio prompt asking for craft and materials.
+         */
+        post: operations["upload_artisan_media_api_v1_internal_whatsapp_media_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/internal/whatsapp/voice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 2: Parse artisan voice note & create draft
+         * @description Step 2 & 3 (Voice Prompt & Auto-Drafting):
+         *     - Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).
+         *     - Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).
+         *     - Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.
+         *     - If valid, calculates transparent FairPrice estimate with artisan wage breakdown.
+         *     - Creates draft in listing_drafts.
+         *     - Returns Hindi text, audio-script text, and interactive button IDs.
+         */
+        post: operations["process_artisan_voice_api_v1_internal_whatsapp_voice_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/internal/whatsapp/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 3: Handle artisan button action with coordinator validation rule
+         * @description Step 3 (Approve Button Action):
+         *     - When artisan approves (btn_approve), the Coordinator-Validation rule applies:
+         *       Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).
+         *     - Generates Cloudinary GI verification badge watermark overlay on product asset.
+         *     - Records immutable action log to action_audit_logs.
+         *     - Completes the voice session.
+         */
+        post: operations["approve_artisan_draft_api_v1_internal_whatsapp_approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/internal/whatsapp/session/{phone}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve current conversation session state
+         * @description Returns active or recent conversation session state, draft details, and media for an artisan.
+         */
+        get: operations["get_artisan_session_api_v1_internal_whatsapp_session__phone__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pricing/calculate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Calculate transparent FairPrice product costing
+         * @description FairPrice Engine:
+         *     - Calculates transparent cost build-up: materials + labour + packaging + overhead + wastage + commission + margin.
+         *     - Explicitly distinguishes markup on cost vs margin on selling price.
+         *     - Flags stale material prices against freshness threshold.
+         *     - Enforces labour wage safeguards: labour is never silently free.
+         *     - Computes quote validity expiry date.
+         *     - Returns full breakdown of all cost lines and direct artisan earnings.
+         */
+        post: operations["calculate_fair_price_endpoint_api_v1_pricing_calculate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pricing/fairprice/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Alias for FairPrice calculate endpoint
+         * @description Direct alias for /pricing/calculate for frontends calling /fairprice/estimate.
+         */
+        post: operations["estimate_fair_price_alias_api_v1_pricing_fairprice_estimate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/makepossible/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Evaluate custom-request feasibility against recorded collective capability
+         * @description MakePossible Feasibility Engine:
+         *     - Evaluates custom requests against verified craft skills, inventory availability,
+         *       material freshness timestamps, active collective workload, and delivery deadlines.
+         *     - Deterministic code logic outputs structured assessment:
+         *       { status: 'feasible' | 'uncertain' | 'not_feasible', evidence, missing_info, constraints, suggested_changes }.
+         *     - AI Honesty Rule: Unknown or unrecorded operational data yields 'uncertain', NEVER 'feasible'.
+         */
+        post: operations["evaluate_custom_request_feasibility_api_v1_makepossible_evaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a new draft proposal (Version 1)
+         * @description Creates an initial draft proposal (version 1) with specifications, pricing build-up, and delivery terms.
+         *     Initial status: 'draft'.
+         */
+        post: operations["create_new_proposal_api_v1_proposals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve proposal detail with full version history and sample requests
+         * @description Retrieves proposal specification, current version status, approval records,
+         *     and complete version history.
+         */
+        get: operations["get_proposal_detail_api_v1_proposals__proposal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit proposal (locks version against silent modification)
+         * @description Submits proposal for counter-party review.
+         *     Current version transitions to 'submitted' and becomes immutable.
+         */
+        post: operations["submit_proposal_endpoint_api_v1_proposals__proposal_id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}/revise": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Material change: creates a brand new version (increments version, previous superseded)
+         * @description Material Change Rule:
+         *     Any change to items, quantities, pricing, or timelines creates a brand new version.
+         *     Previous version is marked superseded and preserved immutably for audit.
+         *     Any prior approvals on the old version do NOT carry over.
+         */
+        post: operations["revise_proposal_endpoint_api_v1_proposals__proposal_id__revise_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Two-sided approval state machine (Both parties must approve the EXACT SAME version)
+         * @description Two-Sided Approval State Machine:
+         *     - Approver must specify the exact version number being approved.
+         *     - Transition Guard: Approving a superseded/outdated version is rejected with 409 Conflict.
+         *     - When BOTH the Coordinator and Buyer approve the EXACT SAME version:
+         *       Status automatically transitions to 'confirmed' and a confirmed order is issued.
+         */
+        post: operations["approve_proposal_version_endpoint_api_v1_proposals__proposal_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sample request flow: request physical pre-production sample
+         * @description Buyer requests a pre-production sample tied to a specific proposal specification version.
+         */
+        post: operations["create_sample_request_endpoint_api_v1_proposals__proposal_id__samples_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposals/{proposal_id}/samples/{sample_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Sample request flow: advance sample production and review status
+         * @description Advances sample lifecycle:
+         *     'approved_for_production' -> 'in_production' -> 'dispatched' -> 'delivered' -> 'approved'.
+         */
+        patch: operations["update_sample_status_endpoint_api_v1_proposals__proposal_id__samples__sample_id__patch"];
+        trace?: never;
+    };
+    "/internal/whatsapp/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 1: Ingest artisan product photo
+         * @description Step 1 (Media Capture):
+         *     - Ingests artisan photo from WhatsApp.
+         *     - Stores asset in Cloudinary with auto-format (f_auto, q_auto) and background clean.
+         *     - Initializes/updates voice session state to 'awaiting_voice'.
+         *     - Returns authentic Hindi audio prompt asking for craft and materials.
+         */
+        post: operations["upload_artisan_media_internal_whatsapp_media_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/whatsapp/voice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 2: Parse artisan voice note & create draft
+         * @description Step 2 & 3 (Voice Prompt & Auto-Drafting):
+         *     - Transcribes audio note via SttAdapter (Sarvam / Whisper / Mock).
+         *     - Extracts structured craft fields via LlmAdapter (title, craft, materials, colour, language).
+         *     - Validates with Pydantic: missing fields trigger an honest follow-up question instead of guessing.
+         *     - If valid, calculates transparent FairPrice estimate with artisan wage breakdown.
+         *     - Creates draft in listing_drafts.
+         *     - Returns Hindi text, audio-script text, and interactive button IDs.
+         */
+        post: operations["process_artisan_voice_internal_whatsapp_voice_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/whatsapp/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Step 3: Handle artisan button action with coordinator validation rule
+         * @description Step 3 (Approve Button Action):
+         *     - When artisan approves (btn_approve), the Coordinator-Validation rule applies:
+         *       Status transitions strictly to 'pending_validation' (publishing needs coordinator approval).
+         *     - Generates Cloudinary GI verification badge watermark overlay on product asset.
+         *     - Records immutable action log to action_audit_logs.
+         *     - Completes the voice session.
+         */
+        post: operations["approve_artisan_draft_internal_whatsapp_approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/whatsapp/session/{phone}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve current conversation session state
+         * @description Returns active or recent conversation session state, draft details, and media for an artisan.
+         */
+        get: operations["get_artisan_session_internal_whatsapp_session__phone__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -360,6 +772,73 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApprovalRecord */
+        ApprovalRecord: {
+            /**
+             * Approver Role
+             * @description 'coordinator' | 'buyer'
+             */
+            approver_role: string;
+            /** Approver Name */
+            approver_name: string;
+            /** Approver User Id */
+            approver_user_id?: string | null;
+            /** Approved At */
+            approved_at: string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** ApproveRequest */
+        ApproveRequest: {
+            /**
+             * Phone
+             * @description Artisan E.164 phone number
+             */
+            phone: string;
+            /**
+             * Button Id
+             * @description btn_approve, btn_edit, or btn_cancel
+             */
+            button_id: string;
+            /**
+             * Draft Id
+             * @description Optional explicit draft UUID
+             */
+            draft_id?: string | null;
+        };
+        /** ApproveResponse */
+        ApproveResponse: {
+            /** Session Id */
+            session_id: string;
+            /** Phone */
+            phone: string;
+            /** Draft Id */
+            draft_id: string;
+            /** Action Taken */
+            action_taken: string;
+            /**
+             * New Status
+             * @description Must be pending_validation on approval
+             * @default pending_validation
+             */
+            new_status: string;
+            /**
+             * Requires Coordinator Review
+             * @default true
+             */
+            requires_coordinator_review: boolean;
+            /** Watermarked Image Url */
+            watermarked_image_url?: string | null;
+            /** Hindi Text */
+            hindi_text: string;
+            /** Audio Script Text */
+            audio_script_text: string;
+            /**
+             * Mode
+             * @default demo
+             */
+            mode: string;
+        };
         /** AuditLogCreate */
         AuditLogCreate: {
             /**
@@ -396,6 +875,156 @@ export interface components {
             file: string;
             /** Language */
             language?: string | null;
+        };
+        /** CollectiveSnapshot */
+        CollectiveSnapshot: {
+            /**
+             * Shg Id
+             * @example bbbbbbbb-0001-0000-0000-000000000001
+             */
+            shg_id: string;
+            /**
+             * Shg Name
+             * @example Bolpur Shantiniketan Mahila Samiti
+             */
+            shg_name: string;
+            /**
+             * Monthly Capacity
+             * @example 120
+             */
+            monthly_capacity?: number | null;
+            /** Skills */
+            skills?: components["schemas"]["SkillRecord"][];
+            /** Materials */
+            materials?: components["schemas"]["MaterialRecord"][];
+            /**
+             * Active Workload Units
+             * @default 0
+             * @example 30
+             */
+            active_workload_units: number;
+            comparable_prices?: components["schemas"]["ComparablePriceStats"];
+        };
+        /** ComparablePriceStats */
+        ComparablePriceStats: {
+            /**
+             * Min
+             * @default 0
+             */
+            min: number;
+            /**
+             * Avg
+             * @default 0
+             */
+            avg: number;
+            /**
+             * Max
+             * @default 0
+             */
+            max: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+        };
+        /** CostBreakdownItem */
+        CostBreakdownItem: {
+            /** Name */
+            name: string;
+            /** Amount */
+            amount: number;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Stale
+             * @default false
+             */
+            stale: boolean;
+        };
+        /** CraftExtractionResult */
+        CraftExtractionResult: {
+            /**
+             * Title
+             * @example हाथ से कढ़ाई किया गया सूती कुशन कवर
+             */
+            title?: string | null;
+            /**
+             * Craft
+             * @example Aari Hand Embroidery
+             */
+            craft?: string | null;
+            /**
+             * Materials
+             * @example [
+             *       "Cotton fabric",
+             *       "Silk thread"
+             *     ]
+             */
+            materials?: string[];
+            /**
+             * Colour
+             * @example लाल (Red)
+             * @example नीला (Blue)
+             */
+            colour?: string | null;
+            /**
+             * Language
+             * @default hi
+             * @example hi
+             */
+            language: string;
+            /**
+             * Estimated Labour Hours
+             * @example 4
+             */
+            estimated_labour_hours?: number | null;
+            /**
+             * Confidence
+             * @default 1
+             * @example 0.95
+             */
+            confidence: number;
+        };
+        /** CustomRequestSpec */
+        CustomRequestSpec: {
+            /**
+             * Quantity
+             * @example 50
+             */
+            quantity: number;
+            /**
+             * Craft Preference
+             * @example Kantha hand embroidery
+             */
+            craft_preference?: string | null;
+            /**
+             * Materials
+             * @example Tussar silk fabric
+             */
+            materials?: string | null;
+            /**
+             * Category
+             * @example Scarves & Stoles
+             */
+            category?: string | null;
+            /**
+             * Budget Inr Per Unit
+             * @example 1200
+             */
+            budget_inr_per_unit?: number | null;
+            /**
+             * Budget Inr Total
+             * @example 60000
+             */
+            budget_inr_total?: number | null;
+            /**
+             * Deadline In Days
+             * @example 25
+             */
+            deadline_in_days?: number | null;
+            /** Customisation Notes */
+            customisation_notes?: string | null;
         };
         /** DPPBatchRequest */
         DPPBatchRequest: {
@@ -443,6 +1072,202 @@ export interface components {
              */
             is_verified_on_chain: boolean;
         };
+        /** FairPriceCalculateRequest */
+        FairPriceCalculateRequest: {
+            /**
+             * Product Title
+             * @default Handcrafted Artisan Item
+             * @example Pure Silk Kantha Stole
+             */
+            product_title: string | null;
+            /** Materials */
+            materials?: components["schemas"]["MaterialCostLine"][];
+            /** Labour Stages */
+            labour_stages?: components["schemas"]["LabourStageCostLine"][];
+            /**
+             * Packaging Inr
+             * @default 40
+             * @example 40
+             */
+            packaging_inr: number;
+            /**
+             * Overhead Percent
+             * @default 10
+             * @example 10
+             */
+            overhead_percent: number;
+            /**
+             * Commission Percent
+             * @default 7
+             * @example 7
+             */
+            commission_percent: number;
+            /**
+             * Target Margin Percent
+             * @example 25
+             */
+            target_margin_percent?: number | null;
+            /**
+             * Markup Percent
+             * @example null
+             */
+            markup_percent?: number | null;
+            /**
+             * Stale Price Threshold Days
+             * @default 30
+             * @example 30
+             */
+            stale_price_threshold_days: number;
+            /**
+             * Quote Validity Days
+             * @default 30
+             * @example 30
+             */
+            quote_validity_days: number;
+        };
+        /** FairPriceCalculateResponse */
+        FairPriceCalculateResponse: {
+            /**
+             * Is Valid
+             * @description True if all necessary labour and material inputs exist
+             * @default true
+             */
+            is_valid: boolean;
+            /**
+             * Is Incomplete
+             * @description True if any labour rate or critical input is missing
+             * @default false
+             */
+            is_incomplete: boolean;
+            /**
+             * Pricing Mode
+             * @description 'margin' (on selling price) or 'markup' (on cost)
+             * @default margin
+             */
+            pricing_mode: string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Materials Cost */
+            materials_cost: number;
+            /** Wastage Cost */
+            wastage_cost: number;
+            /** Direct Materials Total */
+            direct_materials_total: number;
+            /** Labour Cost */
+            labour_cost: number;
+            /** Packaging Cost */
+            packaging_cost: number;
+            /** Direct Production Cost */
+            direct_production_cost: number;
+            /** Overhead Cost */
+            overhead_cost: number;
+            /** Total Production Cost */
+            total_production_cost: number;
+            /** Profit Amount */
+            profit_amount: number;
+            /** Profit Percentage */
+            profit_percentage: number;
+            /** Commission Amount */
+            commission_amount: number;
+            /** Commission Percentage */
+            commission_percentage: number;
+            /**
+             * Floor Price
+             * @description Cost recovery price with 0 profit
+             */
+            floor_price: number;
+            /**
+             * Suggested Retail Price
+             * @description Final selling price with margin and commission
+             */
+            suggested_retail_price: number;
+            /**
+             * Artisan Earnings
+             * @description Direct income to artisan collective (labour + profit)
+             */
+            artisan_earnings: number;
+            /**
+             * Artisan Share Percent
+             * @description Percentage of final price going directly to collective
+             */
+            artisan_share_percent: number;
+            /** Material Breakdown */
+            material_breakdown: components["schemas"]["CostBreakdownItem"][];
+            /** Labour Breakdown */
+            labour_breakdown: components["schemas"]["CostBreakdownItem"][];
+            /** Stale Material Flags */
+            stale_material_flags?: string[];
+            /** Missing Inputs */
+            missing_inputs?: string[];
+            /** Warnings */
+            warnings?: string[];
+            /** Quote Validity Days */
+            quote_validity_days: number;
+            /** Quote Valid Until */
+            quote_valid_until: string;
+            /** Calculated At */
+            calculated_at: string;
+        };
+        /** FairPriceEstimate */
+        FairPriceEstimate: {
+            /**
+             * Material Cost
+             * @example 280
+             */
+            material_cost: number;
+            /**
+             * Labour Cost
+             * @example 600
+             */
+            labour_cost: number;
+            /**
+             * Packaging Cost
+             * @example 40
+             */
+            packaging_cost: number;
+            /**
+             * Overhead Cost
+             * @example 88
+             */
+            overhead_cost: number;
+            /**
+             * Platform Fee
+             * @example 70
+             */
+            platform_fee: number;
+            /**
+             * Floor Price
+             * @example 1008
+             */
+            floor_price: number;
+            /**
+             * Suggested Price
+             * @example 1099
+             */
+            suggested_price: number;
+            /**
+             * Artisan Earnings
+             * @example 691
+             */
+            artisan_earnings: number;
+            /**
+             * Currency
+             * @default INR
+             * @example INR
+             */
+            currency: string;
+            /**
+             * Is Complete
+             * @default true
+             * @example true
+             */
+            is_complete: boolean;
+            /** Breakdown Notes */
+            breakdown_notes?: string[];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -477,6 +1302,199 @@ export interface components {
              * @example true
              */
             database_connected: boolean;
+        };
+        /** InteractiveButton */
+        InteractiveButton: {
+            /**
+             * Id
+             * @example btn_approve
+             */
+            id: string;
+            /**
+             * Title
+             * @example मंजूर करें / Approve & Publish
+             */
+            title: string;
+        };
+        /** LabourStageCostLine */
+        LabourStageCostLine: {
+            /**
+             * Stage Name
+             * @example Pattern Tracing & Hand Embroidery
+             */
+            stage_name: string;
+            /**
+             * Hours
+             * @example 6
+             */
+            hours: number;
+            /**
+             * Hourly Rate Inr
+             * @example 150
+             */
+            hourly_rate_inr?: number | null;
+            /**
+             * Rate Source
+             * @example SHG Standard Living Wage Rate
+             */
+            rate_source?: string | null;
+        };
+        /** MakePossibleEvaluationRequest */
+        MakePossibleEvaluationRequest: {
+            request: components["schemas"]["CustomRequestSpec"];
+            snapshot?: components["schemas"]["CollectiveSnapshot"] | null;
+            /** Shg Id */
+            shg_id?: string | null;
+            /**
+             * Inventory Freshness Threshold Days
+             * @default 60
+             * @example 60
+             */
+            inventory_freshness_threshold_days: number;
+        };
+        /** MakePossibleEvaluationResult */
+        MakePossibleEvaluationResult: {
+            /**
+             * Status
+             * @description 'feasible' | 'uncertain' | 'not_feasible'
+             */
+            status: string;
+            /** Evidence */
+            evidence?: string[];
+            /** Missing Info */
+            missing_info?: string[];
+            /** Constraints */
+            constraints?: string[];
+            /** Suggested Changes */
+            suggested_changes?: string[];
+            /** Summary */
+            summary: string;
+            /** Data Used */
+            data_used?: {
+                [key: string]: unknown;
+            };
+            /** Evaluated At */
+            evaluated_at: string;
+        };
+        /** MaterialCostLine */
+        MaterialCostLine: {
+            /**
+             * Name
+             * @example Mulberry Silk Fabric
+             */
+            name: string;
+            /**
+             * Quantity
+             * @example 2.5
+             */
+            quantity: number;
+            /**
+             * Unit
+             * @default meters
+             * @example meters
+             */
+            unit: string;
+            /**
+             * Unit Cost Inr
+             * @example 450
+             */
+            unit_cost_inr: number;
+            /**
+             * Wastage Percent
+             * @default 0
+             * @example 10
+             */
+            wastage_percent: number;
+            /**
+             * Price Confirmed At
+             * @example 2026-09-01T00:00:00Z
+             */
+            price_confirmed_at?: string | null;
+            /**
+             * Supplier
+             * @example Murshidabad Weavers Cooperative
+             */
+            supplier?: string | null;
+        };
+        /** MaterialRecord */
+        MaterialRecord: {
+            /**
+             * Name
+             * @example Tussar silk fabric
+             */
+            name: string;
+            /**
+             * Unit
+             * @default meters
+             * @example meters
+             */
+            unit: string;
+            /**
+             * Quantity
+             * @example 45
+             */
+            quantity: number;
+            /**
+             * Low Stock Threshold
+             * @example 10
+             */
+            low_stock_threshold?: number | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** MediaUploadRequest */
+        MediaUploadRequest: {
+            /**
+             * Phone
+             * @description Artisan E.164 phone number (e.g. +919876543210)
+             */
+            phone: string;
+            /**
+             * Media Url
+             * @description Direct URL to WhatsApp media asset
+             */
+            media_url?: string | null;
+            /**
+             * Media Base64
+             * @description Optional base64 encoded photo
+             */
+            media_base64?: string | null;
+            /**
+             * Media Id
+             * @description WhatsApp Meta media ID
+             */
+            media_id?: string | null;
+            /**
+             * Caption
+             * @description Optional photo caption
+             */
+            caption?: string | null;
+        };
+        /** MediaUploadResponse */
+        MediaUploadResponse: {
+            /** Session Id */
+            session_id: string;
+            /** Phone */
+            phone: string;
+            /**
+             * Step
+             * @default awaiting_voice
+             */
+            step: string;
+            /** Image Url */
+            image_url: string;
+            /** Cloudinary Public Id */
+            cloudinary_public_id: string;
+            /** Prompt Text Hi */
+            prompt_text_hi: string;
+            /** Audio Script Text */
+            audio_script_text: string;
+            /**
+             * Mode
+             * @description 'live' or 'demo'
+             * @default demo
+             */
+            mode: string;
         };
         /** ProductCreate */
         ProductCreate: {
@@ -555,6 +1573,274 @@ export interface components {
              */
             gi_watermarked: boolean;
         };
+        /** ProposalApproveRequest */
+        ProposalApproveRequest: {
+            /**
+             * Version
+             * @description Exact proposal version number being approved
+             */
+            version: number;
+            /**
+             * Approver Role
+             * @description 'coordinator' or 'buyer'
+             */
+            approver_role: string;
+            /** Approver Name */
+            approver_name: string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** ProposalCreateRequest */
+        ProposalCreateRequest: {
+            /** Title */
+            title: string;
+            spec: components["schemas"]["ProposalSpec"];
+            /** Buyer Id */
+            buyer_id?: string | null;
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+            /**
+             * Created By
+             * @default Coordinator
+             */
+            created_by: string;
+        };
+        /** ProposalResponse */
+        ProposalResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Current Version */
+            current_version: number;
+            /** Status */
+            status: string;
+            current_spec: components["schemas"]["ProposalSpec"];
+            /** Versions */
+            versions: components["schemas"]["ProposalVersionDetail"][];
+            /** Both Parties Approved */
+            both_parties_approved: boolean;
+            /** Confirmed Order Id */
+            confirmed_order_id?: string | null;
+            /** Samples */
+            samples?: components["schemas"]["SampleResponse"][];
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** ProposalReviseRequest */
+        ProposalReviseRequest: {
+            /**
+             * Reason For Revision
+             * @example Adjusted quantity from 100 to 120 and updated silk unit rate
+             */
+            reason_for_revision: string;
+            new_spec: components["schemas"]["ProposalSpec"];
+            /**
+             * Revised By
+             * @default Coordinator
+             */
+            revised_by: string;
+        };
+        /** ProposalSpec */
+        ProposalSpec: {
+            /**
+             * Title
+             * @example Custom Handloom Silk Scarves for Annual Gala
+             */
+            title: string;
+            /**
+             * Craft
+             * @default Handloom Silk
+             * @example Handloom Silk
+             */
+            craft: string;
+            /**
+             * Quantity
+             * @example 100
+             */
+            quantity: number;
+            /**
+             * Unit Price Inr
+             * @example 1450
+             */
+            unit_price_inr: number;
+            /**
+             * Total Price Inr
+             * @example 145000
+             */
+            total_price_inr: number;
+            /**
+             * Timeline Days
+             * @example 30
+             */
+            timeline_days: number;
+            /**
+             * Materials Summary
+             * @example Pure Mulberry Silk with Zari border
+             */
+            materials_summary: string;
+            /**
+             * Delivery Terms
+             * @default Doorstep delivery via insured postal parcel
+             * @example Doorstep delivery
+             */
+            delivery_terms: string;
+            /**
+             * Cancellation Terms
+             * @default Full refund prior to loom warping; 50% thereafter
+             * @example Cancellation terms
+             */
+            cancellation_terms: string;
+            /** Customisation Details */
+            customisation_details?: string | null;
+            /** Costing Breakdown */
+            costing_breakdown?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** ProposalVersionDetail */
+        ProposalVersionDetail: {
+            /** Version */
+            version: number;
+            spec: components["schemas"]["ProposalSpec"];
+            /**
+             * Status
+             * @description 'draft' | 'submitted' | 'revised' | 'superseded' | 'confirmed'
+             */
+            status: string;
+            /** Created By */
+            created_by: string;
+            /** Created At */
+            created_at: string;
+            coordinator_approval?: components["schemas"]["ApprovalRecord"] | null;
+            buyer_approval?: components["schemas"]["ApprovalRecord"] | null;
+            /**
+             * Is Immutable
+             * @default false
+             */
+            is_immutable: boolean;
+        };
+        /** SampleRequestCreate */
+        SampleRequestCreate: {
+            /**
+             * Spec Version
+             * @description Proposal version this sample verifies
+             */
+            spec_version: number;
+            /**
+             * Fee Inr
+             * @example 1200
+             */
+            fee_inr: number;
+            /**
+             * Notes
+             * @default Pre-production physical sample review
+             * @example Pre-production sample
+             */
+            notes: string | null;
+        };
+        /** SampleResponse */
+        SampleResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Proposal Id
+             * Format: uuid
+             */
+            proposal_id: string;
+            /** Spec Version */
+            spec_version: number;
+            /** Fee Inr */
+            fee_inr: number;
+            /** Status */
+            status: string;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Feedback */
+            feedback?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** SampleStatusUpdateRequest */
+        SampleStatusUpdateRequest: {
+            /**
+             * New Status
+             * @description 'approved_for_production' | 'in_production' | 'dispatched' | 'delivered' | 'approved' | 'revision_requested' | 'cancelled'
+             */
+            new_status: string;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Feedback */
+            feedback?: string | null;
+        };
+        /** SessionDetailResponse */
+        SessionDetailResponse: {
+            /** Session Id */
+            session_id: string;
+            /** Phone */
+            phone: string;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /** Step */
+            step: string;
+            /** Status */
+            status: string;
+            /** Image Url */
+            image_url?: string | null;
+            /** Cloudinary Public Id */
+            cloudinary_public_id?: string | null;
+            /** Transcript */
+            transcript?: string | null;
+            /** Extracted Craft */
+            extracted_craft?: {
+                [key: string]: unknown;
+            } | null;
+            /** Fair Price */
+            fair_price?: {
+                [key: string]: unknown;
+            } | null;
+            /** Draft Id */
+            draft_id?: string | null;
+            /** Draft Status */
+            draft_status?: string | null;
+            /** Last Activity At */
+            last_activity_at: string;
+            /**
+             * Mode
+             * @default demo
+             */
+            mode: string;
+        };
+        /** SkillRecord */
+        SkillRecord: {
+            /**
+             * Skill
+             * @example Kantha hand embroidery
+             */
+            skill: string;
+            /**
+             * Level
+             * @default core
+             * @example expert
+             * @example core
+             * @example apprentice
+             */
+            level: string;
+            /** Notes */
+            notes?: string | null;
+        };
         /** SpeechSynthesisRequest */
         SpeechSynthesisRequest: {
             /** Text */
@@ -611,6 +1897,75 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VoiceProcessRequest */
+        VoiceProcessRequest: {
+            /**
+             * Phone
+             * @description Artisan E.164 phone number
+             */
+            phone: string;
+            /**
+             * Audio Url
+             * @description Direct URL to audio note
+             */
+            audio_url?: string | null;
+            /**
+             * Audio Base64
+             * @description Optional base64 audio data
+             */
+            audio_base64?: string | null;
+            /**
+             * Audio Id
+             * @description WhatsApp Meta media ID
+             */
+            audio_id?: string | null;
+            /**
+             * Language
+             * @description ISO language code (default: hi)
+             * @default hi
+             */
+            language: string;
+            /**
+             * Stt Provider
+             * @description Optional provider override: sarvam, whisper, mock
+             */
+            stt_provider?: string | null;
+        };
+        /** VoiceProcessResponse */
+        VoiceProcessResponse: {
+            /** Session Id */
+            session_id: string;
+            /** Phone */
+            phone: string;
+            /** Step */
+            step: string;
+            /** Status */
+            status: string;
+            /** Transcript */
+            transcript: string;
+            /** Draft Id */
+            draft_id?: string | null;
+            extracted_craft?: components["schemas"]["CraftExtractionResult"] | null;
+            fair_price?: components["schemas"]["FairPriceEstimate"] | null;
+            /** Hindi Text */
+            hindi_text: string;
+            /** Audio Script Text */
+            audio_script_text: string;
+            /** Interactive Buttons */
+            interactive_buttons?: components["schemas"]["InteractiveButton"][];
+            /** Missing Fields */
+            missing_fields?: string[];
+            /**
+             * Needs Clarification
+             * @default false
+             */
+            needs_clarification: boolean;
+            /**
+             * Mode
+             * @default demo
+             */
+            mode: string;
         };
         /** WhatsAppListingDraftRequest */
         WhatsAppListingDraftRequest: {
@@ -1213,6 +2568,637 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WhatsAppListingDraftResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_artisan_media_api_v1_internal_whatsapp_media_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaUploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    process_artisan_voice_api_v1_internal_whatsapp_voice_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoiceProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceProcessResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_artisan_draft_api_v1_internal_whatsapp_approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApproveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_artisan_session_api_v1_internal_whatsapp_session__phone__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path: {
+                phone: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calculate_fair_price_endpoint_api_v1_pricing_calculate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FairPriceCalculateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FairPriceCalculateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    estimate_fair_price_alias_api_v1_pricing_fairprice_estimate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FairPriceCalculateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FairPriceCalculateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    evaluate_custom_request_feasibility_api_v1_makepossible_evaluate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MakePossibleEvaluationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MakePossibleEvaluationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_new_proposal_api_v1_proposals_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposalCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_proposal_detail_api_v1_proposals__proposal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_proposal_endpoint_api_v1_proposals__proposal_id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revise_proposal_endpoint_api_v1_proposals__proposal_id__revise_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposalReviseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_proposal_version_endpoint_api_v1_proposals__proposal_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposalApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_sample_request_endpoint_api_v1_proposals__proposal_id__samples_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_sample_status_endpoint_api_v1_proposals__proposal_id__samples__sample_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                proposal_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_artisan_media_internal_whatsapp_media_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaUploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    process_artisan_voice_internal_whatsapp_voice_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoiceProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceProcessResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_artisan_draft_internal_whatsapp_approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApproveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_artisan_session_internal_whatsapp_session__phone__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Service-Token"?: string;
+                Authorization?: string;
+            };
+            path: {
+                phone: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionDetailResponse"];
                 };
             };
             /** @description Validation Error */

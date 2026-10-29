@@ -50,3 +50,36 @@ def get_audit() -> AuditService:
 
 def get_supabase() -> SupabaseAdapter:
     return supabase_adapter
+
+
+async def verify_service_token(
+    x_service_token: str = Header(None, alias="X-Service-Token"),
+    authorization: str = Header(None, alias="Authorization"),
+) -> str:
+    """
+    Dependency guard for internal teammate endpoints (WhatsApp Bot, Mobile, Edge QC).
+    Accepts X-Service-Token or Bearer token matching configured internal secret.
+    """
+    from app.core.config import settings
+
+    valid_tokens = {
+        tok for tok in [
+            settings.INTERNAL_SERVICE_TOKEN,
+            settings.WHATSAPP_SHARED_SERVICE_TOKEN,
+        ] if tok
+    }
+
+    # 1. Check direct X-Service-Token header
+    if x_service_token and x_service_token.strip() in valid_tokens:
+        return x_service_token.strip()
+
+    # 2. Check Bearer token in Authorization header
+    if authorization:
+        parts = authorization.split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            tok = parts[1].strip()
+            if tok in valid_tokens:
+                return tok
+
+    raise AuthError("Invalid or missing internal service token")
+
