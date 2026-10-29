@@ -1,33 +1,34 @@
-# Frontend — Kalaswar application
+# Web — Kalaswar Web Application
 
-React 19 single-page experience served by TanStack Start v1 (file-based routing,
-server functions, SSR for public routes) and styled with Tailwind CSS v4 through
-a semantic design-token theme.
+React 19 web experience served by TanStack Start v1 (file-based routing, server functions, SSR for public routes) and styled with Tailwind CSS v4 through a semantic design-token theme.
 
 ```
-frontend/
+web/
 ├── public/           Static assets served as-is (favicon, robots.txt)
-└── src/              Application source
-    ├── routes/       Pages and screens + api/public/ voice endpoints
-    ├── components/   Shared UI components (editorial design system)
-    ├── lib/          Data layer, i18n (EN/HI/MR), business engines
-    ├── hooks/        Shared React hooks
-    ├── integrations/ Generated database client bindings
-    ├── assets/       Brand and image assets
-    └── styles.css    Tailwind CSS v4 theme and design tokens
+├── src/              Application source
+│   ├── routes/       Pages and screens (file-based routing)
+│   │   └── api/public/ Voice pipeline endpoints (STT, TTS, Assistant)
+│   ├── components/   Shared UI components (editorial design system)
+│   ├── lib/          Data layer (TanStack Query / Supabase), i18n (EN/HI/MR), business engines
+│   ├── hooks/        Shared React hooks
+│   ├── integrations/ Generated Supabase database client bindings
+│   ├── assets/       Brand and image assets
+│   └── styles.css    Tailwind CSS v4 theme and design tokens
+├── package.json      Scripts and dependencies
+├── vite.config.ts    Vite configuration
+├── tsconfig.json     TypeScript configuration
+└── vitest.config.ts  Vitest test configuration
 ```
 
-The backend server routes (speech-to-text, assistant, text-to-speech) live at
-`src/routes/api/public/` — they run inside the same TanStack Start server
-runtime as the app. Database schema, migrations and the environment template
-live in the sibling `backend/` folder. See `../docs/REPOSITORY_STRUCTURE.md`.
+## Running Web Commands
 
-Tooling is configured at the repository root (`vite.config.ts` points TanStack
-Start at `frontend/src`); run all commands from the repo root:
+Run from within the `web/` directory:
 
 ```bash
-npm install
+cd web
+npm install --legacy-peer-deps
 npm run dev       # Vite dev server with SSR
-npm test          # vitest
-npm run lint
+npm test          # vitest (runs unit test suite)
+npm run build     # compiles client and SSR bundles
+npm run lint      # runs ESLint
 ```
