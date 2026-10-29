@@ -1,0 +1,235 @@
+### ==============================================================================
+### Kalaswar B2B Studio & Engine APIs: FairPrice, MakePossible, Proposals State Machine
+### ==============================================================================
+
+@baseUrl = http://localhost:8000
+@adminToken = kalaswar_demo_admin_jwt_placeholder
+@coordinatorToken = kalaswar_demo_coordinator_jwt_placeholder
+@buyerToken = kalaswar_demo_buyer_jwt_placeholder
+
+### ------------------------------------------------------------------------------
+### 1. FairPrice Engine — Full Cost Breakdown Calculation
+### materials + labour + packaging + overhead + wastage + commission + margin
+### Distinct markup (on cost) vs margin (on selling price), stale material flags, quote validity
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/pricing/calculate
+Content-Type: application/json
+
+{
+  "product_title": "Handcrafted Kantha Silk Cushion Cover",
+  "craft_category": "Kantha Embroidery",
+  "quantity": 50,
+  "materials": [
+    {
+      "name": "Tussar Silk Fabric",
+      "quantity": 1.2,
+      "unit": "meter",
+      "unit_cost_inr": 450.0,
+      "wastage_percent": 8.0,
+      "price_confirmed_at": "2026-10-25T10:00:00Z"
+    },
+    {
+      "name": "Cotton Embroidery Threads (Lac dyed)",
+      "quantity": 4.0,
+      "unit": "skein",
+      "unit_cost_inr": 35.0,
+      "wastage_percent": 12.0,
+      "price_confirmed_at": "2026-08-01T10:00:00Z"
+    }
+  ],
+  "labour_stages": [
+    {
+      "stage_name": "Pattern cutting & marking",
+      "hours_spent": 1.5,
+      "artisan_hourly_rate_inr": 120.0,
+      "skill_level": "intermediate"
+    },
+    {
+      "stage_name": "Intricate Kantha stitch embroidery",
+      "hours_spent": 8.0,
+      "artisan_hourly_rate_inr": 150.0,
+      "skill_level": "master_artisan"
+    },
+    {
+      "stage_name": "Final stitching & edge lining",
+      "hours_spent": 1.0,
+      "artisan_hourly_rate_inr": 110.0,
+      "skill_level": "intermediate"
+    }
+  ],
+  "packaging_cost_inr": 45.0,
+  "overhead_cost_inr": 35.0,
+  "commission_percent": 5.0,
+  "pricing_mode": "margin",
+  "target_percentage": 15.0,
+  "validity_days": 14
+}
+
+
+### ------------------------------------------------------------------------------
+### 2. MakePossible Feasibility Engine — Deterministic Decision Engine
+### Evaluates skills, inventory (with freshness), current collective workload, and deadline.
+### Golden Rule: Unknown / stale data outputs "uncertain", NEVER "feasible".
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/makepossible/evaluate
+Content-Type: application/json
+
+{
+  "request": {
+    "request_id": "REQ-B2B-2026-001",
+    "buyer_name": "FabIndia Sourcing Team",
+    "craft_preference": "Kantha embroidery",
+    "category": "Cushion Covers",
+    "quantity": 60,
+    "materials": "Tussar silk fabric",
+    "deadline_in_days": 35,
+    "budget_inr_per_unit": 1600.0,
+    "notes": "Premium corporate festive gift set requirement"
+  },
+  "snapshot": {
+    "shg_id": "bbbbbbbb-0001-0000-0000-000000000001",
+    "shg_name": "Santiniketan Mahila Hastakala Samiti",
+    "state": "West Bengal",
+    "active_artisans_count": 8,
+    "skills": [
+      { "skill": "Kantha embroidery", "level": "master_artisan", "active_artisans": 5 },
+      { "skill": "Silk fabric finishing", "level": "intermediate", "active_artisans": 3 }
+    ],
+    "materials": [
+      {
+        "name": "Tussar silk fabric",
+        "quantity": 150.0,
+        "unit": "meters",
+        "low_stock_threshold": 20.0,
+        "unit_cost_inr": 450.0,
+        "updated_at": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "monthly_capacity": 150,
+    "active_workload_units": 40,
+    "price_stats": {
+      "min": 950.0,
+      "avg": 1450.0,
+      "max": 1850.0,
+      "count": 18
+    }
+  },
+  "inventory_freshness_threshold_days": 60
+}
+
+
+### ------------------------------------------------------------------------------
+### 3. B2B Proposal State Machine — Draft Creation
+### Status initializes to 'draft' at version 1
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals
+Content-Type: application/json
+
+{
+  "custom_request_id": "req-festive-2026-001",
+  "buyer_id": "user-buyer-fabindia",
+  "coordinator_id": "user-coordinator-santiniketan",
+  "shg_id": "bbbbbbbb-0001-0000-0000-000000000001",
+  "initial_spec": {
+    "item_title": "Kantha Festive Silk Stole Set",
+    "quantity": 100,
+    "unit_price_inr": 1450.0,
+    "lead_time_days": 30,
+    "materials_summary": "Handspun Tussar Silk with Azo-free dyes",
+    "production_notes": "First batch of 50 to be dispatched in 15 days"
+  }
+}
+
+
+### ------------------------------------------------------------------------------
+### 4. B2B Proposal State Machine — Submit Proposal
+### Transitions draft → submitted
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/submit
+Content-Type: application/json
+
+{
+  "actor_id": "user-coordinator-santiniketan",
+  "actor_role": "coordinator"
+}
+
+
+### ------------------------------------------------------------------------------
+### 5. B2B Proposal State Machine — Revise Proposal (Creates Immutable New Version)
+### Material changes create version 2; version 1 marked 'superseded'
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/revise
+Content-Type: application/json
+
+{
+  "actor_id": "user-buyer-fabindia",
+  "actor_role": "buyer",
+  "change_reason": "Increase order quantity to 150 units with revised unit price agreement",
+  "new_spec": {
+    "item_title": "Kantha Festive Silk Stole Set (Expanded Batch)",
+    "quantity": 150,
+    "unit_price_inr": 1380.0,
+    "lead_time_days": 38,
+    "materials_summary": "Handspun Tussar Silk with Azo-free dyes"
+  }
+}
+
+
+### ------------------------------------------------------------------------------
+### 6. B2B Proposal State Machine — Two-Sided Version Approval
+### Step A: Coordinator Approves Version 2
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/approve
+Content-Type: application/json
+
+{
+  "version_number": 2,
+  "actor_id": "user-coordinator-santiniketan",
+  "actor_role": "coordinator",
+  "notes": "Collective capacity verified and artisans assigned."
+}
+
+
+### ------------------------------------------------------------------------------
+### 7. B2B Proposal State Machine — Step B: Buyer Approves Version 2
+### Both coordinator & buyer approve same version -> Status automatically transitions to 'confirmed'
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/approve
+Content-Type: application/json
+
+{
+  "version_number": 2,
+  "actor_id": "user-buyer-fabindia",
+  "actor_role": "buyer",
+  "notes": "Approved and purchase order released."
+}
+
+
+### ------------------------------------------------------------------------------
+### 8. B2B Sample Request Flow — Create Sample Request
+### ------------------------------------------------------------------------------
+POST {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/samples
+Content-Type: application/json
+
+{
+  "buyer_id": "user-buyer-fabindia",
+  "quantity": 2,
+  "spec_notes": "Sample stoles in Marigold Ochre and Indigo Blue",
+  "shipping_address": "FabIndia HQ, Okhla Phase 3, New Delhi - 110020"
+}
+
+
+### ------------------------------------------------------------------------------
+### 9. B2B Sample Request Flow — Dispatch Sample
+### Status updates: requested -> approved_for_production -> in_production -> dispatched -> delivered -> approved
+### ------------------------------------------------------------------------------
+PATCH {{baseUrl}}/api/v1/proposals/PRP-REPLACE-WITH-ID/samples/SMP-REPLACE-WITH-ID
+Content-Type: application/json
+
+{
+  "status": "dispatched",
+  "actor_id": "user-coordinator-santiniketan",
+  "actor_role": "coordinator",
+  "tracking_carrier": "Bluedart Express",
+  "tracking_number": "BD99482710IN"
+}

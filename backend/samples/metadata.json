@@ -1,0 +1,25 @@
+{
+  "product_name": "हाथ से कढ़ाई किया गया सूती कुशन कवर (Hand Embroidered Cotton Cushion Cover)",
+  "artisan_name": "राधा देवी (Radha Devi)",
+  "cluster": "शांतिनिकेतन कांथा क्लस्टर, पश्चिम बंगाल (Shantiniketan Kantha Cluster, West Bengal)",
+  "phone": "+919876543210",
+  "files": {
+    "photo": "sample_cushion.jpg",
+    "audio": "sample_voice_note.wav",
+    "audio_mp3": "sample_voice_note.mp3"
+  },
+  "transcript": "हाथ से कढ़ाई किया गया सूती कुशन कवर, लाल रेशम धागा, आरी शिल्प, नीला रंग",
+  "expected_extraction": {
+    "title": "हाथ से कढ़ाई किया गया सूती कुशन कवर",
+    "craft": "Aari Hand Embroidery",
+    "materials": ["Cotton fabric", "Silk thread"],
+    "colour": "लाल (Red), नीला (Blue)",
+    "language": "hi"
+  },
+  "expected_pricing": {
+    "currency": "INR",
+    "suggested_price": 1099.0,
+    "artisan_earnings": 691.0,
+    "floor_price": 1008.0
+  }
+}

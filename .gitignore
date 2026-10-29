@@ -15,6 +15,10 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+.env
+.env.*
+!.env.example
+.temp/
 
 # Wrangler / Cloudflare
 .wrangler/
@@ -33,3 +37,13 @@ dist-ssr
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+

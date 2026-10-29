@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: kalaswar-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+      - key: PROJECT_NAME
+        value: Kalaswar Core Services API
+      - key: VERSION
+        value: 3.0.0
+      - key: CHAIN_ADAPTER_TYPE
+        value: mock
+      - key: SECRET_KEY
+        generateValue: true
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      # Secure secrets - configured via Render Dashboard (never committed to repository)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: WHATSAPP_SHARED_SERVICE_TOKEN
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RPC_URL
+        sync: false
+      - key: DPP_CONTRACT_ADDRESS
+        sync: false
+      - key: DPP_PRIVATE_KEY
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

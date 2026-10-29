@@ -1045,29 +1045,46 @@ Commands depend on the repository's actual framework and package manager. Verify
 
 ### Prerequisites
 
-- Node.js compatible with the project
-- npm, pnpm, or the repository's package manager
-- GitHub repository
-- Supabase project
-- Cloudinary account
-- External AI provider credentials
-- Vercel account, if Vercel is the chosen host
+- Node.js (v20+)
+- Python (3.11+)
+- Supabase CLI or project connection
+- Cloudinary account (unsigned preset for development)
 
-### Example setup
+### Quickstart
 
 ```bash
 git clone <your-repository-url>
-cd <repository-directory>
+cd kalaswar
 
-# Use the package manager specified by the repository
-npm install
+# 1. Install Web dependencies
+cd web
+npm install --legacy-peer-deps
+cd ..
 
-# Copy the example configuration
-cp .env.example .env.local
+# 2. Database Seeding (Idempotent Demo Data)
+make seed
+# Or on Windows without make:
+# python backend/scripts/seed.py
 
-# Run the script defined in package.json
+# 3. Start Web application
+cd web
 npm run dev
 ```
+
+### Development Demo Accounts
+
+> **Notice:** The following accounts are pre-configured in `supabase/seed.sql` for **local development and hackathon evaluation only**. All mock accounts share a common development password. Never use these credentials in production environments.
+
+| Role | Email / Username | Password | Purpose & Scoped Permissions |
+|---|---|---|---|
+| **Platform Admin** | `admin@kalaswar.demo` | `KalaswarDemo@2025` | Full administrative oversight across all SHG clusters and audit logs |
+| **SHG Coordinator** | `coordinator.sunita@kalaswar.demo` | `KalaswarDemo@2025` | Manages Dahanu Warli collective, artisan assignments, and quote approvals |
+| **Master Artisan** | `artisan.anita@kalaswar.demo` | `KalaswarDemo@2025` | Banarasi handloom weaver; views orders, logs production progress, reviews voice drafts |
+| **Retail Customer** | `customer.priya@kalaswar.demo` | `KalaswarDemo@2025` | Places retail and custom concierge orders; manages shopping cart |
+| **B2B Buyer** | `buyer.fabindia@kalaswar.demo` | `KalaswarDemo@2025` | FabIndia sourcing lead; submits RFPs, reviews quotations, approves samples |
+| **Micro-Financier** | `financier.sbi@kalaswar.demo` | `KalaswarDemo@2025` | NABARD / Bank lead; reviews PO factoring advances and DBT wage ledger |
+
+
 
 
 
