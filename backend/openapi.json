@@ -1,0 +1,1459 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Kalaswar Core Services",
+    "description": "\n    Kalaswar Core Services Backend API\n    - Production FastAPI service with Supabase JWT & role-based access control\n    - WhatsApp Automation & Indic Voice Pipeline\n    - Action audit logging, DPP Provenance, and Cloudinary Media\n    ",
+    "version": "3.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Get Health",
+        "description": "Health check endpoint reporting service status, version, uptime, and remote DB reachability.",
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Get My Profile",
+        "description": "Returns current authenticated user profile and validated roles.",
+        "operationId": "get_my_profile_api_v1_auth_me_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/admin-only": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Admin Portal",
+        "description": "Guarded endpoint: accessible strictly to users with the 'admin' role.",
+        "operationId": "admin_portal_api_v1_auth_admin_only_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/coordinator-only": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Coordinator Dashboard",
+        "description": "Guarded endpoint: accessible strictly to SHG Coordinators.",
+        "operationId": "coordinator_dashboard_api_v1_auth_coordinator_only_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/artisan-only": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Artisan Space",
+        "description": "Guarded endpoint: accessible strictly to Artisans.",
+        "operationId": "artisan_space_api_v1_auth_artisan_only_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/financier-only": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Financier Console",
+        "description": "Guarded endpoint: accessible strictly to Financiers (Micro-factoring / DBT).",
+        "operationId": "financier_console_api_v1_auth_financier_only_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/logs": {
+      "post": {
+        "tags": [
+          "Action Audit Logs"
+        ],
+        "summary": "Create Audit Log",
+        "description": "Appends an immutable event entry to action_audit_logs.\nCaptures actor, action, entity, user_id, client IP, and request_id.",
+        "operationId": "create_audit_log_api_v1_audit_logs_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuditLogCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Action Audit Logs"
+        ],
+        "summary": "List Audit Logs",
+        "description": "Retrieves recent action_audit_logs.\nRestricted to Platform Admins and SHG Coordinators.",
+        "operationId": "list_audit_logs_api_v1_audit_logs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/": {
+      "post": {
+        "tags": [
+          "Product Catalog & Auto-Publishing"
+        ],
+        "summary": "Create Product",
+        "description": "Publish a newly verified product to the Kalaswar catalog and ONDC adapter.",
+        "operationId": "create_product_api_v1_products__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}": {
+      "get": {
+        "tags": [
+          "Product Catalog & Auto-Publishing"
+        ],
+        "summary": "Get Product",
+        "description": "Retrieve product details with GI watermark status.",
+        "operationId": "get_product_api_v1_products__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dpp/batch-commit": {
+      "post": {
+        "tags": [
+          "Digital Product Passports & Blockchain Provenance"
+        ],
+        "summary": "Batch Commit Logs",
+        "description": "Batch artisan production logs into a cryptographic Merkle root.\nDesigned for daily Layer-2 commit (Polygon / Solana) keeping costs under $0.001 per unit.",
+        "operationId": "batch_commit_logs_api_v1_dpp_batch_commit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DPPBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dpp/passport/{product_id}": {
+      "get": {
+        "tags": [
+          "Digital Product Passports & Blockchain Provenance"
+        ],
+        "summary": "Get Digital Product Passport",
+        "description": "Public QR token resolution endpoint:\nReturns immutable craft provenance, maker identity, GPS coordinates, and fair wage breakdown.",
+        "operationId": "get_digital_product_passport_api_v1_dpp_passport__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DPPPassportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/voice/transcribe": {
+      "post": {
+        "tags": [
+          "AI Voice & Speech Services"
+        ],
+        "summary": "Transcribe Audio",
+        "description": "Speech-to-text transcription endpoint powered by Whisper / Sarvam AI.\nHandles Indic dialects (Hindi, Marathi, English).\nLabelled as demo mode when live API key is unset.",
+        "operationId": "transcribe_audio_api_v1_voice_transcribe_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_transcribe_audio_api_v1_voice_transcribe_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/voice/synthesize": {
+      "post": {
+        "tags": [
+          "AI Voice & Speech Services"
+        ],
+        "summary": "Synthesize Speech",
+        "description": "Text-to-speech audio synthesis endpoint returning audio stream for WhatsApp voice note playback.",
+        "operationId": "synthesize_speech_api_v1_voice_synthesize_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpeechSynthesisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/whatsapp/webhook": {
+      "get": {
+        "tags": [
+          "WhatsApp Bot Integration"
+        ],
+        "summary": "Verify Webhook",
+        "description": "Verification endpoint for Meta WhatsApp Cloud API / Webhook.",
+        "operationId": "verify_webhook_api_v1_whatsapp_webhook_get",
+        "parameters": [
+          {
+            "name": "hub.mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Mode"
+            }
+          },
+          {
+            "name": "hub.verify_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Verify Token"
+            }
+          },
+          {
+            "name": "hub.challenge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Hub.Challenge"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "WhatsApp Bot Integration"
+        ],
+        "summary": "Receive Webhook",
+        "description": "Incoming webhook for WhatsApp events: text messages, voice notes, and media uploads.",
+        "operationId": "receive_webhook_api_v1_whatsapp_webhook_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WhatsAppWebhookPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/whatsapp/draft-listing": {
+      "post": {
+        "tags": [
+          "WhatsApp Bot Integration"
+        ],
+        "summary": "Draft Listing From Voice",
+        "description": "Voice-first auto-drafting endpoint:\nParses artisan voice note + photo, calculates fair price, and generates draft listing.",
+        "operationId": "draft_listing_from_voice_api_v1_whatsapp_draft_listing_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WhatsAppListingDraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppListingDraftResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Root Health",
+        "description": "Top-level health check endpoint for container orchestrators and load balancers.",
+        "operationId": "root_health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuditLogCreate": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "examples": [
+              "product_created"
+            ]
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity",
+            "examples": [
+              "products"
+            ]
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id",
+            "examples": [
+              "dddddddd-0001-0000-0000-000000000001"
+            ]
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload",
+            "examples": [
+              {
+                "price": 1200
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "AuditLogCreate"
+      },
+      "Body_transcribe_audio_api_v1_voice_transcribe_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_transcribe_audio_api_v1_voice_transcribe_post"
+      },
+      "DPPBatchRequest": {
+        "properties": {
+          "product_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "title": "Product Ids",
+            "description": "Batch of up to 500 product IDs to aggregate into Merkle tree"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_ids"
+        ],
+        "title": "DPPBatchRequest"
+      },
+      "DPPPassportResponse": {
+        "properties": {
+          "passport_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Passport Id"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "artisan_name": {
+            "type": "string",
+            "title": "Artisan Name"
+          },
+          "shg_cluster_name": {
+            "type": "string",
+            "title": "Shg Cluster Name"
+          },
+          "craft_origin": {
+            "type": "string",
+            "title": "Craft Origin"
+          },
+          "gps_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Coordinates"
+          },
+          "wage_distribution_pct": {
+            "type": "number",
+            "title": "Wage Distribution Pct",
+            "description": "Percentage of retail price paid to artisan",
+            "default": 68.0
+          },
+          "merkle_root": {
+            "type": "string",
+            "title": "Merkle Root"
+          },
+          "polygon_tx_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Polygon Tx Hash"
+          },
+          "qr_code_url": {
+            "type": "string",
+            "title": "Qr Code Url"
+          },
+          "is_verified_on_chain": {
+            "type": "boolean",
+            "title": "Is Verified On Chain",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "passport_id",
+          "product_id",
+          "artisan_name",
+          "shg_cluster_name",
+          "craft_origin",
+          "merkle_root",
+          "qr_code_url"
+        ],
+        "title": "DPPPassportResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "healthy",
+            "examples": [
+              "healthy"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "title": "Service",
+            "examples": [
+              "Kalaswar Core Services"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "examples": [
+              "3.0.0"
+            ]
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment",
+            "examples": [
+              "development"
+            ]
+          },
+          "database_connected": {
+            "type": "boolean",
+            "title": "Database Connected",
+            "default": true,
+            "examples": [
+              true
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "service",
+          "version",
+          "environment"
+        ],
+        "title": "HealthResponse"
+      },
+      "ProductCreate": {
+        "properties": {
+          "artisan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Artisan Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "default": ""
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "default": "Crafts"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Price"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "cloudinary_public_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cloudinary Public Id"
+          },
+          "availability": {
+            "type": "boolean",
+            "title": "Availability",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "artisan_id",
+          "title",
+          "price"
+        ],
+        "title": "ProductCreate"
+      },
+      "ProductResponse": {
+        "properties": {
+          "artisan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Artisan Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "default": ""
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "default": "Crafts"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Price"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "cloudinary_public_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cloudinary Public Id"
+          },
+          "availability": {
+            "type": "boolean",
+            "title": "Availability",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "published"
+          },
+          "gi_watermarked": {
+            "type": "boolean",
+            "title": "Gi Watermarked",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "artisan_id",
+          "title",
+          "price",
+          "id"
+        ],
+        "title": "ProductResponse"
+      },
+      "SpeechSynthesisRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "target_language": {
+            "type": "string",
+            "title": "Target Language",
+            "default": "hi"
+          },
+          "voice_gender": {
+            "type": "string",
+            "title": "Voice Gender",
+            "default": "female"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "SpeechSynthesisRequest"
+      },
+      "TranscriptionResponse": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "detected_language": {
+            "type": "string",
+            "title": "Detected Language"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "demo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "detected_language",
+          "confidence"
+        ],
+        "title": "TranscriptionResponse"
+      },
+      "UserProfileResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "roles"
+        ],
+        "title": "UserProfileResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WhatsAppListingDraftRequest": {
+        "properties": {
+          "artisan_phone": {
+            "type": "string",
+            "title": "Artisan Phone",
+            "description": "E.164 phone number of the artisan"
+          },
+          "image_media_id": {
+            "type": "string",
+            "title": "Image Media Id",
+            "description": "WhatsApp media ID or Cloudinary URL"
+          },
+          "voice_media_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Media Id",
+            "description": "WhatsApp audio media ID"
+          },
+          "transcript": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript",
+            "description": "Transcribed audio text if already processed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "artisan_phone",
+          "image_media_id"
+        ],
+        "title": "WhatsAppListingDraftRequest"
+      },
+      "WhatsAppListingDraftResponse": {
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "title": "Draft Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "craft_type": {
+            "type": "string",
+            "title": "Craft Type"
+          },
+          "extracted_materials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Extracted Materials"
+          },
+          "suggested_price": {
+            "type": "number",
+            "title": "Suggested Price"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "draft | published | rejected",
+            "default": "draft"
+          },
+          "audio_reply_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Reply Url"
+          },
+          "interactive_buttons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Interactive Buttons",
+            "default": [
+              "Approve & Publish",
+              "Edit Details",
+              "Cancel"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "draft_id",
+          "title",
+          "craft_type",
+          "extracted_materials",
+          "suggested_price"
+        ],
+        "title": "WhatsAppListingDraftResponse"
+      },
+      "WhatsAppWebhookEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "changes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Changes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "changes"
+        ],
+        "title": "WhatsAppWebhookEntry"
+      },
+      "WhatsAppWebhookPayload": {
+        "properties": {
+          "object": {
+            "type": "string",
+            "title": "Object"
+          },
+          "entry": {
+            "items": {
+              "$ref": "#/components/schemas/WhatsAppWebhookEntry"
+            },
+            "type": "array",
+            "title": "Entry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "object",
+          "entry"
+        ],
+        "title": "WhatsAppWebhookPayload"
+      }
+    }
+  }
+}

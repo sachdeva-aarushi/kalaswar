@@ -1,6 +1,7 @@
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class ProductBase(BaseModel):
     artisan_id: UUID
@@ -12,13 +13,14 @@ class ProductBase(BaseModel):
     cloudinary_public_id: Optional[str] = None
     availability: bool = True
 
+
 class ProductCreate(ProductBase):
     pass
+
 
 class ProductResponse(ProductBase):
     id: UUID
     status: str = "published"
     gi_watermarked: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
