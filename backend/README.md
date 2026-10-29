@@ -1,27 +1,46 @@
-# Backend — Kalaswar data layer
+# Backend — Kalaswar FastAPI Core Services
 
-Everything that defines the database and its environment:
+FastAPI backend application orchestrating the WhatsApp Bot webhook, AI speech pipeline (Whisper/Sarvam), dynamic Cloudinary media optimization, and Layer-2 Blockchain Provenance / DPP.
 
 ```
 backend/
-├── drizzle/
-│   ├── schema.ts           Full typed schema for all application tables
-│   └── migrations/         Versioned SQL migrations (0000–0012)
-├── drizzle.config.ts       Drizzle Kit configuration
-└── .env.example            Variable names only — never commit real values
+├── app/
+│   ├── main.py                # FastAPI entrypoint, OpenAPI docs & CORS
+│   ├── config.py              # Pydantic Settings configuration
+│   ├── routers/
+│   │   ├── whatsapp.py        # Meta WhatsApp Cloud API webhooks & voice listing
+│   │   ├── ai_voice.py        # Whisper / Sarvam STT & TTS pipeline
+│   │   ├── products.py        # Product catalog & auto-publishing
+│   │   └── dpp.py             # Digital Product Passport & Merkle root batching
+│   ├── schemas/               # Pydantic data contract models
+│   └── services/              # External provider adapters (Cloudinary, Whisper, L2)
+├── requirements.txt           # Python dependencies
+├── .env.example               # Environment variables template
+└── README.md
 ```
 
-The runtime application code (including the voice API server routes) lives in
-`frontend/src` and talks to the managed database through the generated browser
-client, so Row Level Security always applies. This folder exists so the schema,
-its migration history and the environment template are reviewable in one place.
+## Setup & Running Locally
 
-## Commands (from the repo root)
+1. Create and activate a Python virtual environment:
+   ```bash
+   cd backend
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Linux/macOS:
+   source venv/bin/activate
+   ```
 
-```bash
-npx drizzle-kit --config=backend/drizzle.config.ts generate   # after schema edits
-npx drizzle-kit --config=backend/drizzle.config.ts migrate    # apply pending migrations
-```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-`LOVABLE_DB_MIGRATION_URL` is provisioned by the platform; copy
-`backend/.env.example` and fill values only for external deployments.
+3. Run the development server:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+4. View interactive API documentation (OpenAPI):
+   - Swagger UI: `http://localhost:8000/api/v1/docs`
+   - ReDoc: `http://localhost:8000/api/v1/redoc`

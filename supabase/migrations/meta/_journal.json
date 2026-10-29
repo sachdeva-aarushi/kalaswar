@@ -92,6 +92,13 @@
       "when": 1793005704211,
       "tag": "0012_grant_notifications_anon_demo",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793012800000,
+      "tag": "0013_kalaswar_full_schema_extension",
+      "breakpoints": true
     }
   ]
 }
