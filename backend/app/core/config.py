@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     # Blockchain L2 Provenance
     RPC_URL: str = "https://polygon-rpc.com"
     DPP_CONTRACT_ADDRESS: str = ""
+    DPP_PRIVATE_KEY: str = ""
+    CHAIN_ADAPTER_TYPE: str = "mock"  # "mock" | "polygon"
     MERKLE_BATCH_SIZE: int = 500
 
     model_config = SettingsConfigDict(

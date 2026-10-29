@@ -157,13 +157,41 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Products
+         * @description Public catalog endpoint with category filters, price bounds, full text search, and pagination.
+         */
+        get: operations["list_products_api_v1_products__get"];
         put?: never;
         /**
          * Create Product
-         * @description Publish a newly verified product to the Kalaswar catalog and ONDC adapter.
+         * @description Publish a newly verified product to the catalog. Requires coordinator, artisan, or admin role.
          */
         post: operations["create_product_api_v1_products__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Products
+         * @description Public catalog endpoint with category filters, price bounds, full text search, and pagination.
+         */
+        get: operations["list_products_api_v1_products_get"];
+        put?: never;
+        /**
+         * Create Product
+         * @description Publish a newly verified product to the catalog. Requires coordinator, artisan, or admin role.
+         */
+        post: operations["create_product_api_v1_products_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -179,11 +207,40 @@ export interface paths {
         };
         /**
          * Get Product
-         * @description Retrieve product details with GI watermark status.
+         * @description Retrieve single product detail by ID with GI provenance status.
          */
         get: operations["get_product_api_v1_products__product_id__get"];
         put?: never;
         post?: never;
+        /**
+         * Delete Product
+         * @description Delete a product from the catalog. Requires coordinator or admin role.
+         */
+        delete: operations["delete_product_api_v1_products__product_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Product
+         * @description Update product details. Requires coordinator, artisan, or admin role.
+         */
+        patch: operations["update_product_api_v1_products__product_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/dpp/issue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue Product Passport
+         * @description Issue a Digital Product Passport upon product verification / publication.
+         *     Computes canonical leaf hash from product ID, maker ID, regional GPS, and fair wage split.
+         */
+        post: operations["issue_product_passport_api_v1_dpp_issue_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -200,18 +257,18 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Batch Commit Logs
-         * @description Batch artisan production logs into a cryptographic Merkle root.
-         *     Designed for daily Layer-2 commit (Polygon / Solana) keeping costs under $0.001 per unit.
+         * Batch Commit Merkle Roots
+         * @description Batch job endpoint: builds Merkle tree from pending passport leaf hashes
+         *     and anchors the root to Polygon Layer-2 using the active ChainAdapter.
          */
-        post: operations["batch_commit_logs_api_v1_dpp_batch_commit_post"];
+        post: operations["batch_commit_merkle_roots_api_v1_dpp_batch_commit_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/dpp/passport/{product_id}": {
+    "/api/v1/public/passports/{token}": {
         parameters: {
             query?: never;
             header?: never;
@@ -219,11 +276,100 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Digital Product Passport
+         * Get Public Passport
          * @description Public QR token resolution endpoint:
-         *     Returns immutable craft provenance, maker identity, GPS coordinates, and fair wage breakdown.
+         *     Returns immutable craft provenance, maker identity (privacy-safe: first name + initial only),
+         *     regional GPS coordinates, and guaranteed fair wage breakdown.
          */
-        get: operations["get_digital_product_passport_api_v1_dpp_passport__product_id__get"];
+        get: operations["get_public_passport_api_v1_public_passports__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dpp/public/passports/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Public Passport
+         * @description Public QR token resolution endpoint:
+         *     Returns immutable craft provenance, maker identity (privacy-safe: first name + initial only),
+         *     regional GPS coordinates, and guaranteed fair wage breakdown.
+         */
+        get: operations["get_public_passport_api_v1_dpp_public_passports__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dpp/verify/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_api_v1_dpp_verify__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/passports/{token}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_api_v1_public_passports__token__verify_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dpp/public/passports/{token}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_api_v1_dpp_public_passports__token__verify_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -636,6 +782,754 @@ export interface paths {
         patch: operations["update_sample_status_endpoint_api_v1_proposals__proposal_id__samples__sample_id__patch"];
         trace?: never;
     };
+    "/api/v1/cart/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cart
+         * @description Retrieve current customer shopping cart (authenticated or anonymous guest).
+         */
+        get: operations["get_cart_api_v1_cart__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cart
+         * @description Retrieve current customer shopping cart (authenticated or anonymous guest).
+         */
+        get: operations["get_cart_api_v1_cart_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Cart Item
+         * @description Add a product to the cart with quantity and optional customisation.
+         */
+        post: operations["add_cart_item_api_v1_cart_items_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cart/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Cart Item
+         * @description Remove an item from the cart.
+         */
+        delete: operations["remove_cart_item_api_v1_cart_items__item_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Cart Item
+         * @description Update quantity of a line item in the cart.
+         */
+        patch: operations["update_cart_item_api_v1_cart_items__item_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/cart/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Checkout
+         * @description Simulated checkout endpoint with DEMO payment confirmation.
+         *     Transitions active cart to checked_out, generates an order record, payment log, and order event.
+         */
+        post: operations["checkout_api_v1_cart_checkout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Orders
+         * @description List orders with filters, assignments, events, and pagination.
+         */
+        get: operations["list_orders_api_v1_orders_get"];
+        put?: never;
+        /**
+         * Create Order
+         * @description Directly create a customer or custom B2B order.
+         */
+        post: operations["create_order_api_v1_orders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Order
+         * @description Retrieve single order by ID with assignments and timeline events.
+         */
+        get: operations["get_order_api_v1_orders__order_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Order Status
+         * @description Transition order lifecycle status: pending -> in_production -> ready_for_dispatch -> delivered / delayed.
+         *     Requires coordinator or admin role. Appends an immutable order event.
+         */
+        patch: operations["update_order_status_api_v1_orders__order_id__status_patch"];
+        trace?: never;
+    };
+    "/api/v1/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Assignments
+         * @description Query production assignments for orders and artisans.
+         */
+        get: operations["list_assignments_api_v1_assignments_get"];
+        put?: never;
+        /**
+         * Assign Artisan To Order
+         * @description Assign an artisan to an order for production. Requires coordinator or admin role.
+         */
+        post: operations["assign_artisan_to_order_api_v1_assignments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Assignment
+         * @description Remove an artisan assignment. Requires coordinator or admin role.
+         */
+        delete: operations["delete_assignment_api_v1_assignments__assignment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventory/materials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Materials
+         * @description List raw materials inventory with freshness tracking and low stock indicators.
+         */
+        get: operations["list_materials_api_v1_inventory_materials_get"];
+        put?: never;
+        /**
+         * Create Material
+         * @description Add a new raw material record to collective inventory.
+         */
+        post: operations["create_material_api_v1_inventory_materials_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventory/materials/{material_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Material
+         * @description Remove a material from inventory.
+         */
+        delete: operations["delete_material_api_v1_inventory_materials__material_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Material
+         * @description Update stock levels or threshold. Refreshes updated_at timestamp to clear stale flag.
+         */
+        patch: operations["update_material_api_v1_inventory_materials__material_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/inventory/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Inventory Summary
+         * @description Aggregated inventory metrics across SHGs.
+         */
+        get: operations["get_inventory_summary_api_v1_inventory_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/production-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Production Events
+         * @description List production milestone events for orders and production plans.
+         */
+        get: operations["list_production_events_api_v1_production_events_get"];
+        put?: never;
+        /**
+         * Create Production Event
+         * @description Record a new production milestone event (cutting, embroidery, finishing).
+         */
+        post: operations["create_production_event_api_v1_production_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quality-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Quality Checks
+         * @description Query quality check inspection records.
+         */
+        get: operations["list_quality_checks_api_v1_quality_checks_get"];
+        put?: never;
+        /**
+         * Create Quality Check
+         * @description Record a QA inspection verdict (pass, fail, conditional) for an order. Requires coordinator or admin role.
+         */
+        post: operations["create_quality_check_api_v1_quality_checks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Shipments
+         * @description Query shipments and tracking status.
+         */
+        get: operations["list_shipments_api_v1_shipments_get"];
+        put?: never;
+        /**
+         * Create Shipment
+         * @description Create a shipment dispatch record with carrier and tracking reference.
+         */
+        post: operations["create_shipment_api_v1_shipments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shipments/{shipment_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Append Shipment Event
+         * @description Append an in-transit tracking event to a shipment.
+         */
+        post: operations["append_shipment_event_api_v1_shipments__shipment_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/craft-stories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Craft Stories
+         * @description List cultural craft stories and artisan provenance narratives.
+         *     Public visitors see published stories; coordinators and admins see all.
+         */
+        get: operations["list_craft_stories_api_v1_craft_stories__get"];
+        put?: never;
+        /**
+         * Create Craft Story
+         * @description Submit a living craft story draft with artisan raw notes and consent flags.
+         */
+        post: operations["create_craft_story_api_v1_craft_stories__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/craft-stories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Craft Stories
+         * @description List cultural craft stories and artisan provenance narratives.
+         *     Public visitors see published stories; coordinators and admins see all.
+         */
+        get: operations["list_craft_stories_api_v1_craft_stories_get"];
+        put?: never;
+        /**
+         * Create Craft Story
+         * @description Submit a living craft story draft with artisan raw notes and consent flags.
+         */
+        post: operations["create_craft_story_api_v1_craft_stories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/craft-stories/{story_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Craft Story
+         * @description Retrieve single craft story with maker consent profile.
+         */
+        get: operations["get_craft_story_api_v1_craft_stories__story_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Craft Story
+         * @description Update or approve/publish a craft story. Requires coordinator or admin role.
+         */
+        patch: operations["update_craft_story_api_v1_craft_stories__story_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/payouts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Payouts
+         * @description List immutable wage payout ledger entries.
+         *     Artisans can view their own ledger; financiers, coordinators, and admins view collective records.
+         */
+        get: operations["list_payouts_api_v1_payouts__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Payouts
+         * @description List immutable wage payout ledger entries.
+         *     Artisans can view their own ledger; financiers, coordinators, and admins view collective records.
+         */
+        get: operations["list_payouts_api_v1_payouts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payouts/simulate-dbt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate Dbt Payout
+         * @description Simulate a Direct Benefit Transfer (DBT) wage payout to an artisan bank account/Aadhaar in DEMO mode.
+         *     Creates an immutable row in the payout ledger.
+         */
+        post: operations["simulate_dbt_payout_api_v1_payouts_simulate_dbt_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Notifications
+         * @description List notifications for current audience or user.
+         */
+        get: operations["list_notifications_api_v1_notifications__get"];
+        put?: never;
+        /**
+         * Create Notification
+         * @description Create a new system notification.
+         */
+        post: operations["create_notification_api_v1_notifications__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Notifications
+         * @description List notifications for current audience or user.
+         */
+        get: operations["list_notifications_api_v1_notifications_get"];
+        put?: never;
+        /**
+         * Create Notification
+         * @description Create a new system notification.
+         */
+        post: operations["create_notification_api_v1_notifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Notifications Summary
+         * @description Get unread and total notification counts.
+         */
+        get: operations["get_notifications_summary_api_v1_notifications_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Mark Notification As Read
+         * @description Mark a notification as read.
+         */
+        patch: operations["mark_notification_as_read_api_v1_notifications__notification_id__read_patch"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/coordinator": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Coordinator Dashboard
+         * @description Coordinator dashboard aggregates with live operational counts and automated risk flags with explanatory text.
+         *     Identifies production bottlenecks, stale inventory items, and delayed orders.
+         */
+        get: operations["get_coordinator_dashboard_api_v1_dashboard_coordinator_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Po Factoring
+         * @description List all PO micro-factoring requests with simulated escrow ledger history.
+         */
+        get: operations["list_po_factoring_api_v1_factoring_po_get"];
+        put?: never;
+        /**
+         * Create Po Factoring
+         * @description Register a corporate Purchase Order for micro-factoring (status='po_created').
+         */
+        post: operations["create_po_factoring_api_v1_factoring_po_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po/{factoring_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Po Factoring Detail
+         * @description Retrieve single PO factoring record with full simulated ledger trail.
+         */
+        get: operations["get_po_factoring_detail_api_v1_factoring_po__factoring_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po/{factoring_id}/tokenize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tokenize Purchase Order
+         * @description Step 2: Transition po_created -> tokenized.
+         *     Mints a simulated Layer-2 factoring voucher locking the PO in escrow.
+         */
+        post: operations["tokenize_purchase_order_api_v1_factoring_po__factoring_id__tokenize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po/{factoring_id}/disburse-advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disburse Factoring Advance
+         * @description Step 3: Transition tokenized -> advance_disbursed (70%).
+         *     Disburses 70% upfront working capital to the SHG collective via simulated DBT.
+         */
+        post: operations["disburse_factoring_advance_api_v1_factoring_po__factoring_id__disburse_advance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po/{factoring_id}/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Po Delivered
+         * @description Step 4: Transition advance_disbursed -> delivered.
+         *     Buyer confirms goods delivery and releases escrow lock condition.
+         */
+        post: operations["mark_po_delivered_api_v1_factoring_po__factoring_id__deliver_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/factoring/po/{factoring_id}/release-escrow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Release Factoring Escrow
+         * @description Step 5: Transition delivered -> escrow_released (30%).
+         *     Releases the remaining 30% balance to the SHG collective, fully closing the PO.
+         */
+        post: operations["release_factoring_escrow_api_v1_factoring_po__factoring_id__release_escrow_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/internal/whatsapp/media": {
         parameters: {
             query?: never;
@@ -723,6 +1617,158 @@ export interface paths {
          * @description Returns active or recent conversation session state, draft details, and media for an artisan.
          */
         get: operations["get_artisan_session_internal_whatsapp_session__phone__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpp/issue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue Product Passport
+         * @description Issue a Digital Product Passport upon product verification / publication.
+         *     Computes canonical leaf hash from product ID, maker ID, regional GPS, and fair wage split.
+         */
+        post: operations["issue_product_passport_dpp_issue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpp/batch-commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Batch Commit Merkle Roots
+         * @description Batch job endpoint: builds Merkle tree from pending passport leaf hashes
+         *     and anchors the root to Polygon Layer-2 using the active ChainAdapter.
+         */
+        post: operations["batch_commit_merkle_roots_dpp_batch_commit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/passports/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Public Passport
+         * @description Public QR token resolution endpoint:
+         *     Returns immutable craft provenance, maker identity (privacy-safe: first name + initial only),
+         *     regional GPS coordinates, and guaranteed fair wage breakdown.
+         */
+        get: operations["get_public_passport_public_passports__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpp/public/passports/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Public Passport
+         * @description Public QR token resolution endpoint:
+         *     Returns immutable craft provenance, maker identity (privacy-safe: first name + initial only),
+         *     regional GPS coordinates, and guaranteed fair wage breakdown.
+         */
+        get: operations["get_public_passport_dpp_public_passports__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpp/verify/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_dpp_verify__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/passports/{token}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_public_passports__token__verify_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpp/public/passports/{token}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Passport Proof
+         * @description Cryptographic verification endpoint:
+         *     Verifies that the passport leaf hash resolves to the Merkle root via sibling proof hashes,
+         *     and checks on-chain transaction receipt.
+         */
+        get: operations["verify_passport_proof_dpp_public_passports__token__verify_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -866,6 +1912,31 @@ export interface components {
                 [key: string]: unknown;
             } | null;
         };
+        /** BatchCommitResponse */
+        BatchCommitResponse: {
+            /** Status */
+            status: string;
+            /** Message */
+            message: string;
+            /** Total Passports */
+            total_passports: number;
+            /** Merkle Root */
+            merkle_root?: string | null;
+            /** Polygon Tx Hash */
+            polygon_tx_hash?: string | null;
+            /**
+             * Chain
+             * @default polygon_amoy
+             */
+            chain: string;
+            /** Committed At */
+            committed_at?: string | null;
+            /**
+             * Is Simulated
+             * @default true
+             */
+            is_simulated: boolean;
+        };
         /** Body_transcribe_audio_api_v1_voice_transcribe_post */
         Body_transcribe_audio_api_v1_voice_transcribe_post: {
             /**
@@ -875,6 +1946,158 @@ export interface components {
             file: string;
             /** Language */
             language?: string | null;
+        };
+        /** CartItemCreate */
+        CartItemCreate: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+            /** Customisation */
+            customisation?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** CartItemResponse */
+        CartItemResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Cart Id
+             * Format: uuid
+             */
+            cart_id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Product Title */
+            product_title?: string | null;
+            /** Product Image Url */
+            product_image_url?: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Total Price */
+            total_price: number;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Customisation */
+            customisation?: {
+                [key: string]: unknown;
+            };
+        };
+        /** CartItemUpdate */
+        CartItemUpdate: {
+            /** Quantity */
+            quantity: number;
+        };
+        /** CartResponse */
+        CartResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** User Id */
+            user_id?: string | null;
+            /** Session Id */
+            session_id?: string | null;
+            /**
+             * Status
+             * @default active
+             */
+            status: string;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Items */
+            items?: components["schemas"]["CartItemResponse"][];
+            /**
+             * Subtotal Inr
+             * @default 0
+             */
+            subtotal_inr: number;
+            /**
+             * Total Items
+             * @default 0
+             */
+            total_items: number;
+        };
+        /** CheckoutRequest */
+        CheckoutRequest: {
+            /**
+             * Customer Reference
+             * @description Customer name / identifier
+             */
+            customer_reference: string;
+            /** Shipping Name */
+            shipping_name?: string | null;
+            /** Shipping Phone */
+            shipping_phone?: string | null;
+            /** Shipping Address */
+            shipping_address?: string | null;
+            /**
+             * Payment Method
+             * @description Payment method: upi_qr, card, cod
+             * @default upi_qr
+             */
+            payment_method: string;
+        };
+        /** CheckoutResponse */
+        CheckoutResponse: {
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /**
+             * Order Status
+             * @default pending
+             */
+            order_status: string;
+            /** Amount Inr */
+            amount_inr: number;
+            /**
+             * Payment Status
+             * @default demo_verified
+             */
+            payment_status: string;
+            /** Payment Reference */
+            payment_reference: string;
+            /**
+             * Payment Method
+             * @default upi_qr
+             */
+            payment_method: string;
+            /**
+             * Is Demo
+             * @default true
+             */
+            is_demo: boolean;
+            /** Customer Reference */
+            customer_reference: string;
+            /**
+             * Message
+             * @default Payment successfully simulated in demo mode
+             */
+            message: string;
         };
         /** CollectiveSnapshot */
         CollectiveSnapshot: {
@@ -927,6 +2150,22 @@ export interface components {
              * @default 0
              */
             count: number;
+        };
+        /** CoordinatorDashboardResponse */
+        CoordinatorDashboardResponse: {
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Shg Name */
+            shg_name?: string | null;
+            /** Cluster Name */
+            cluster_name?: string | null;
+            /** Generated At */
+            generated_at: string;
+            counts: components["schemas"]["DashboardCounts"];
+            /** Risk Flags */
+            risk_flags?: components["schemas"]["RiskFlag"][];
+            /** Recent Activity */
+            recent_activity?: components["schemas"]["RecentActivityItem"][];
         };
         /** CostBreakdownItem */
         CostBreakdownItem: {
@@ -986,6 +2225,91 @@ export interface components {
              */
             confidence: number;
         };
+        /** CraftStoryCreate */
+        CraftStoryCreate: {
+            /** Product Id */
+            product_id?: string | null;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Language
+             * @default en
+             */
+            language: string;
+            /** Source Notes */
+            source_notes?: string | null;
+            /** Original Notes */
+            original_notes?: string | null;
+            /**
+             * Ai Assisted
+             * @default false
+             */
+            ai_assisted: boolean;
+            /** Consents */
+            consents?: components["schemas"]["StoryConsentItem"][];
+        };
+        /** CraftStoryResponse */
+        CraftStoryResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /** Artisan Name */
+            artisan_name?: string | null;
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Language */
+            language: string;
+            /** Status */
+            status: string;
+            /** Source Notes */
+            source_notes?: string | null;
+            /** Original Notes */
+            original_notes?: string | null;
+            /** Ai Assisted */
+            ai_assisted: boolean;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Consents */
+            consents?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** CraftStoryUpdate */
+        CraftStoryUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
+            /**
+             * Status
+             * @description draft, in_review, published, retired
+             */
+            status?: string | null;
+            /** Approved By */
+            approved_by?: string | null;
+        };
         /** CustomRequestSpec */
         CustomRequestSpec: {
             /**
@@ -1029,48 +2353,148 @@ export interface components {
         /** DPPBatchRequest */
         DPPBatchRequest: {
             /**
-             * Product Ids
-             * @description Batch of up to 500 product IDs to aggregate into Merkle tree
+             * Batch Size
+             * @description Max passports to commit in this batch
+             * @default 500
              */
-            product_ids: string[];
+            batch_size: number;
         };
         /** DPPPassportResponse */
         DPPPassportResponse: {
             /**
-             * Passport Id
+             * Id
              * Format: uuid
              */
-            passport_id: string;
+            id: string;
+            /** Token */
+            token: string;
             /**
              * Product Id
              * Format: uuid
              */
             product_id: string;
-            /** Artisan Name */
-            artisan_name: string;
-            /** Shg Cluster Name */
-            shg_cluster_name: string;
-            /** Craft Origin */
-            craft_origin: string;
-            /** Gps Coordinates */
-            gps_coordinates?: string | null;
-            /**
-             * Wage Distribution Pct
-             * @description Percentage of retail price paid to artisan
-             * @default 68
-             */
-            wage_distribution_pct: number;
+            /** Product Title */
+            product_title: string;
+            /** Craft Category */
+            craft_category: string;
+            /** Maker Display Name */
+            maker_display_name: string;
+            /** Cluster Name */
+            cluster_name: string;
+            /** Gps Region */
+            gps_region: string;
+            /** Wage Split Pct */
+            wage_split_pct: number;
+            /** Leaf Hash */
+            leaf_hash: string;
             /** Merkle Root */
             merkle_root: string;
             /** Polygon Tx Hash */
             polygon_tx_hash?: string | null;
+            /**
+             * Chain
+             * @default polygon_amoy
+             */
+            chain: string;
+            /** Committed At */
+            committed_at?: string | null;
             /** Qr Code Url */
             qr_code_url: string;
+            /**
+             * Is Committed
+             * @default false
+             */
+            is_committed: boolean;
             /**
              * Is Verified On Chain
              * @default false
              */
             is_verified_on_chain: boolean;
+        };
+        /** DashboardCounts */
+        DashboardCounts: {
+            /**
+             * Active Orders
+             * @default 0
+             */
+            active_orders: number;
+            /**
+             * Pending Production
+             * @default 0
+             */
+            pending_production: number;
+            /**
+             * In Production
+             * @default 0
+             */
+            in_production: number;
+            /**
+             * Ready For Dispatch
+             * @default 0
+             */
+            ready_for_dispatch: number;
+            /**
+             * Delivered Orders
+             * @default 0
+             */
+            delivered_orders: number;
+            /**
+             * Delayed Orders
+             * @default 0
+             */
+            delayed_orders: number;
+            /**
+             * Total Artisans
+             * @default 0
+             */
+            total_artisans: number;
+            /**
+             * Active Artisans
+             * @default 0
+             */
+            active_artisans: number;
+            /**
+             * Pending Quality Checks
+             * @default 0
+             */
+            pending_quality_checks: number;
+            /**
+             * At Risk Assignments
+             * @default 0
+             */
+            at_risk_assignments: number;
+            /**
+             * Low Stock Materials
+             * @default 0
+             */
+            low_stock_materials: number;
+            /**
+             * Stale Inventory Items
+             * @default 0
+             */
+            stale_inventory_items: number;
+        };
+        /** FactoringLedgerItem */
+        FactoringLedgerItem: {
+            /** Step */
+            step: string;
+            /** Action */
+            action: string;
+            /** Amount Inr */
+            amount_inr: number;
+            /** Direction */
+            direction: string;
+            /** Tx Reference */
+            tx_reference: string;
+            /** Note */
+            note: string;
+            /** Timestamp */
+            timestamp: string;
+            /**
+             * Is Simulated
+             * @default true
+             */
+            is_simulated: boolean;
         };
         /** FairPriceCalculateRequest */
         FairPriceCalculateRequest: {
@@ -1316,6 +2740,19 @@ export interface components {
              */
             title: string;
         };
+        /** InventorySummaryResponse */
+        InventorySummaryResponse: {
+            /** Total Materials */
+            total_materials: number;
+            /** Low Stock Count */
+            low_stock_count: number;
+            /** Stale Materials Count */
+            stale_materials_count: number;
+            /** Total Finished Products */
+            total_finished_products: number;
+            /** Active Shgs Count */
+            active_shgs_count: number;
+        };
         /** LabourStageCostLine */
         LabourStageCostLine: {
             /**
@@ -1416,6 +2853,92 @@ export interface components {
              */
             supplier?: string | null;
         };
+        /** MaterialInventoryCreate */
+        MaterialInventoryCreate: {
+            /**
+             * Shg Id
+             * Format: uuid
+             */
+            shg_id: string;
+            /**
+             * Name
+             * @description Raw material name (e.g. Tussar Silk, Indigo Dye)
+             */
+            name: string;
+            /**
+             * Unit
+             * @description Unit of measurement (meters, kg, skeins, units)
+             * @default meters
+             */
+            unit: string;
+            /**
+             * Quantity
+             * @default 0
+             */
+            quantity: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+            /**
+             * Updated By
+             * @default Coordinator
+             */
+            updated_by: string | null;
+        };
+        /** MaterialInventoryResponse */
+        MaterialInventoryResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Shg Id
+             * Format: uuid
+             */
+            shg_id: string;
+            /** Shg Name */
+            shg_name?: string | null;
+            /** Name */
+            name: string;
+            /** Unit */
+            unit: string;
+            /** Quantity */
+            quantity: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+            /** Updated At */
+            updated_at: string;
+            /** Updated By */
+            updated_by?: string | null;
+            /**
+             * Is Low Stock
+             * @default false
+             */
+            is_low_stock: boolean;
+            /**
+             * Is Stale
+             * @default false
+             */
+            is_stale: boolean;
+            /**
+             * Age In Days
+             * @default 0
+             */
+            age_in_days: number;
+        };
+        /** MaterialInventoryUpdate */
+        MaterialInventoryUpdate: {
+            /** Quantity */
+            quantity?: number | null;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Unit */
+            unit?: string | null;
+            /** Updated By */
+            updated_by?: string | null;
+        };
         /** MaterialRecord */
         MaterialRecord: {
             /**
@@ -1496,6 +3019,415 @@ export interface components {
              */
             mode: string;
         };
+        /** NotificationCreate */
+        NotificationCreate: {
+            /**
+             * Audience
+             * @description Target audience: coordinator, artisan, buyer
+             */
+            audience: string;
+            /** Audience Ref */
+            audience_ref?: string | null;
+            /**
+             * Event Type
+             * @description Event type: order_update, stock_alert, quality_review, dbt_payout, proposal_action
+             */
+            event_type: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body?: string | null;
+            /** Link */
+            link?: string | null;
+        };
+        /** NotificationResponse */
+        NotificationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Audience */
+            audience: string;
+            /** Audience Ref */
+            audience_ref?: string | null;
+            /** Event Type */
+            event_type: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body?: string | null;
+            /** Link */
+            link?: string | null;
+            /** Read At */
+            read_at?: string | null;
+            /**
+             * Is Read
+             * @default false
+             */
+            is_read: boolean;
+            /** Created At */
+            created_at: string;
+        };
+        /** NotificationSummaryResponse */
+        NotificationSummaryResponse: {
+            /** Unread Count */
+            unread_count: number;
+            /** Total Count */
+            total_count: number;
+        };
+        /** OrderAssignmentCreate */
+        OrderAssignmentCreate: {
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /**
+             * Artisan Id
+             * Format: uuid
+             */
+            artisan_id: string;
+            /**
+             * Assigned By
+             * @default Coordinator
+             */
+            assigned_by: string | null;
+        };
+        /** OrderAssignmentResponse */
+        OrderAssignmentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /**
+             * Artisan Id
+             * Format: uuid
+             */
+            artisan_id: string;
+            /** Artisan Name */
+            artisan_name?: string | null;
+            /** Assigned At */
+            assigned_at: string;
+            /** Assigned By */
+            assigned_by: string;
+        };
+        /** OrderCreate */
+        OrderCreate: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Customer Reference */
+            customer_reference: string;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+            /** Expected Dispatch At */
+            expected_dispatch_at?: string | null;
+        };
+        /** OrderEventResponse */
+        OrderEventResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Note */
+            note?: string | null;
+            /** Created At */
+            created_at: string;
+        };
+        /** OrderResponse */
+        OrderResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Product Title */
+            product_title?: string | null;
+            /** Product Image Url */
+            product_image_url?: string | null;
+            /** Customer Reference */
+            customer_reference: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price?: number | null;
+            /** Total Amount */
+            total_amount?: number | null;
+            /** Status */
+            status: string;
+            /** Expected Dispatch At */
+            expected_dispatch_at?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Assignments */
+            assignments?: components["schemas"]["OrderAssignmentResponse"][];
+            /** Events */
+            events?: components["schemas"]["OrderEventResponse"][];
+        };
+        /** OrderStatusUpdate */
+        OrderStatusUpdate: {
+            /**
+             * Status
+             * @description Status: pending, in_production, ready_for_dispatch, delivered, delayed
+             */
+            status: string;
+            /** Note */
+            note?: string | null;
+        };
+        /** POFactoringCreate */
+        POFactoringCreate: {
+            /**
+             * Po Reference
+             * @description Purchase Order number (e.g. 'PO-FABINDIA-2026-881')
+             */
+            po_reference: string;
+            /**
+             * Po Amount Inr
+             * @description Total Purchase Order value in INR
+             */
+            po_amount_inr: number;
+            /** Buyer Id */
+            buyer_id?: string | null;
+            /**
+             * Buyer Name
+             * @description Buyer / Retailer organisation name
+             * @default Corporate Buyer
+             */
+            buyer_name: string;
+            /** Shg Id */
+            shg_id?: string | null;
+            /**
+             * Shg Name
+             * @description Fulfilling SHG collective name
+             * @default Santiniketan Mahila Hastakala Samiti
+             */
+            shg_name: string;
+            /** Order Id */
+            order_id?: string | null;
+            /**
+             * Advance Percent
+             * @description Advance percentage (standard 70%)
+             * @default 70
+             */
+            advance_percent: number;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** POFactoringResponse */
+        POFactoringResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Po Reference */
+            po_reference: string;
+            /** Buyer Id */
+            buyer_id?: string | null;
+            /** Buyer Name */
+            buyer_name: string;
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Shg Name */
+            shg_name: string;
+            /** Order Id */
+            order_id?: string | null;
+            /** Po Amount Inr */
+            po_amount_inr: number;
+            /** Advance Percent */
+            advance_percent: number;
+            /** Advance Amount Inr */
+            advance_amount_inr: number;
+            /** Escrow Amount Inr */
+            escrow_amount_inr: number;
+            /**
+             * Status
+             * @description po_created, tokenized, advance_disbursed, delivered, escrow_released
+             */
+            status: string;
+            /**
+             * Is Simulated
+             * @default true
+             */
+            is_simulated: boolean;
+            /**
+             * Simulation Notice
+             * @default DEMO SIMULATED PO FACTORING: Tokenization, escrow locking, and disbursements are simulated.
+             */
+            simulation_notice: string;
+            /** Ledger */
+            ledger?: components["schemas"]["FactoringLedgerItem"][];
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** POFactoringTransitionRequest */
+        POFactoringTransitionRequest: {
+            /** Notes */
+            notes?: string | null;
+            /** Tx Reference */
+            tx_reference?: string | null;
+        };
+        /** PaginatedOrderResponse */
+        PaginatedOrderResponse: {
+            /** Items */
+            items: components["schemas"]["OrderResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** PaginatedProductResponse */
+        PaginatedProductResponse: {
+            /** Items */
+            items: components["schemas"]["ProductResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** PassportIssueRequest */
+        PassportIssueRequest: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Maker Id
+             * Format: uuid
+             */
+            maker_id: string;
+            /** Product Title */
+            product_title: string;
+            /** Craft Category */
+            craft_category: string;
+            /**
+             * Maker Display Name
+             * @description Privacy-safe artisan name (e.g. 'Radha D.')
+             */
+            maker_display_name: string;
+            /**
+             * Cluster Name
+             * @description SHG cluster / collective name
+             */
+            cluster_name: string;
+            /**
+             * Gps Region
+             * @description Coarse regional location (e.g. 'Bolpur, Birbhum, West Bengal')
+             */
+            gps_region: string;
+            /**
+             * Wage Split Pct
+             * @description Percentage of retail price paid to artisan
+             * @default 68
+             */
+            wage_split_pct: number;
+        };
+        /** PassportVerificationResponse */
+        PassportVerificationResponse: {
+            /** Verified */
+            verified: boolean;
+            /** Leaf Verified */
+            leaf_verified: boolean;
+            /** On Chain Verified */
+            on_chain_verified: boolean;
+            /** Token */
+            token: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Leaf Hash */
+            leaf_hash: string;
+            /** Merkle Root */
+            merkle_root: string;
+            /** Polygon Tx Hash */
+            polygon_tx_hash?: string | null;
+            /**
+             * Chain
+             * @default polygon_amoy
+             */
+            chain: string;
+            /** Committed At */
+            committed_at?: string | null;
+            /** Proof Elements Count */
+            proof_elements_count: number;
+            /** Message */
+            message: string;
+        };
+        /** PayoutResponse */
+        PayoutResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /** Artisan Name */
+            artisan_name?: string | null;
+            /** Shg Id */
+            shg_id?: string | null;
+            /** Order Id */
+            order_id?: string | null;
+            /** Payout Type */
+            payout_type: string;
+            /** Amount Inr */
+            amount_inr: number;
+            /** Reference */
+            reference?: string | null;
+            /** Channel */
+            channel: string;
+            /** Status */
+            status: string;
+            /** Initiated At */
+            initiated_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Is Demo
+             * @default true
+             */
+            is_demo: boolean;
+        };
         /** ProductCreate */
         ProductCreate: {
             /**
@@ -1503,7 +3435,10 @@ export interface components {
              * Format: uuid
              */
             artisan_id: string;
-            /** Title */
+            /**
+             * Title
+             * @description Product title / name
+             */
             title: string;
             /**
              * Description
@@ -1515,7 +3450,10 @@ export interface components {
              * @default Crafts
              */
             category: string;
-            /** Price */
+            /**
+             * Price
+             * @description Price in INR
+             */
             price: number;
             /** Image Url */
             image_url?: string | null;
@@ -1534,7 +3472,10 @@ export interface components {
              * Format: uuid
              */
             artisan_id: string;
-            /** Title */
+            /**
+             * Title
+             * @description Product title / name
+             */
             title: string;
             /**
              * Description
@@ -1546,7 +3487,10 @@ export interface components {
              * @default Crafts
              */
             category: string;
-            /** Price */
+            /**
+             * Price
+             * @description Price in INR
+             */
             price: number;
             /** Image Url */
             image_url?: string | null;
@@ -1572,6 +3516,64 @@ export interface components {
              * @default false
              */
             gi_watermarked: boolean;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** ProductUpdate */
+        ProductUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Price */
+            price?: number | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Cloudinary Public Id */
+            cloudinary_public_id?: string | null;
+            /** Availability */
+            availability?: boolean | null;
+        };
+        /** ProductionEventCreate */
+        ProductionEventCreate: {
+            /** Order Id */
+            order_id?: string | null;
+            /** Plan Id */
+            plan_id?: string | null;
+            /**
+             * Stage
+             * @description Production milestone stage (e.g. cutting, embroidery, finishing)
+             */
+            stage: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Recorded By
+             * @default Coordinator
+             */
+            recorded_by: string | null;
+        };
+        /** ProductionEventResponse */
+        ProductionEventResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Plan Id */
+            plan_id?: string | null;
+            /** Order Id */
+            order_id?: string | null;
+            /** Stage */
+            stage: string;
+            /** Note */
+            note?: string | null;
+            /** Recorded By */
+            recorded_by?: string | null;
+            /** Occurred At */
+            occurred_at: string;
         };
         /** ProposalApproveRequest */
         ProposalApproveRequest: {
@@ -1727,6 +3729,140 @@ export interface components {
              */
             is_immutable: boolean;
         };
+        /** PublicPassportDetailResponse */
+        PublicPassportDetailResponse: {
+            /** Token */
+            token: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Product Title */
+            product_title: string;
+            /** Craft Category */
+            craft_category: string;
+            /**
+             * Maker Display Name
+             * @description Privacy-preserving maker name without Aadhaar or phone
+             */
+            maker_display_name: string;
+            /** Cluster Name */
+            cluster_name: string;
+            /**
+             * Gps Region
+             * @description Regional coordinates / craft territory without exact residence
+             */
+            gps_region: string;
+            /**
+             * Wage Split Pct
+             * @description Guaranteed artisan wage percentage breakdown
+             */
+            wage_split_pct: number;
+            /** Merkle Root */
+            merkle_root: string;
+            /** Polygon Tx Hash */
+            polygon_tx_hash?: string | null;
+            /**
+             * Chain
+             * @default polygon_amoy
+             */
+            chain: string;
+            /** Committed At */
+            committed_at?: string | null;
+            /**
+             * Is Verified On Chain
+             * @default false
+             */
+            is_verified_on_chain: boolean;
+            /** Explorer Url */
+            explorer_url?: string | null;
+            /**
+             * Privacy Policy Notice
+             * @default PII protected: Maker identity anonymized to first name and collective cluster.
+             */
+            privacy_policy_notice: string;
+        };
+        /** QualityCheckCreate */
+        QualityCheckCreate: {
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /**
+             * Result
+             * @description Result: pass, fail, conditional
+             */
+            result: string;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Checked By
+             * @default Coordinator
+             */
+            checked_by: string | null;
+        };
+        /** QualityCheckResponse */
+        QualityCheckResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /** Artisan Id */
+            artisan_id?: string | null;
+            /** Result */
+            result: string;
+            /** Notes */
+            notes?: string | null;
+            /** Checked By */
+            checked_by?: string | null;
+            /** Checked At */
+            checked_at: string;
+        };
+        /** RecentActivityItem */
+        RecentActivityItem: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Timestamp */
+            timestamp: string;
+        };
+        /** RiskFlag */
+        RiskFlag: {
+            /**
+             * Severity
+             * @description Risk severity: high, medium, low
+             */
+            severity: string;
+            /**
+             * Type
+             * @description Risk category: delayed_orders, stale_inventory, low_stock, missing_qa, capacity_overload
+             */
+            type: string;
+            /** Title */
+            title: string;
+            /**
+             * Explanation
+             * @description Actionable descriptive explanation text of the risk
+             */
+            explanation: string;
+            /** Affected Ids */
+            affected_ids?: string[];
+        };
         /** SampleRequestCreate */
         SampleRequestCreate: {
             /**
@@ -1823,6 +3959,159 @@ export interface components {
              */
             mode: string;
         };
+        /** ShipmentCreate */
+        ShipmentCreate: {
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /** Carrier */
+            carrier: string;
+            /** Tracking Ref */
+            tracking_ref: string;
+            /**
+             * Provider
+             * @default Standard Logistics
+             */
+            provider: string | null;
+            /**
+             * Status
+             * @default preparing
+             */
+            status: string;
+        };
+        /** ShipmentEventCreate */
+        ShipmentEventCreate: {
+            /**
+             * Event Type
+             * @description Event type: dispatched, in_transit, out_for_delivery, delivered, delayed
+             */
+            event_type: string;
+            /** Note */
+            note?: string | null;
+        };
+        /** ShipmentEventResponse */
+        ShipmentEventResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Shipment Id
+             * Format: uuid
+             */
+            shipment_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Note */
+            note?: string | null;
+            /** Occurred At */
+            occurred_at: string;
+        };
+        /** ShipmentResponse */
+        ShipmentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Order Id
+             * Format: uuid
+             */
+            order_id: string;
+            /** Status */
+            status: string;
+            /** Carrier */
+            carrier?: string | null;
+            /** Tracking Ref */
+            tracking_ref?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Events */
+            events?: components["schemas"]["ShipmentEventResponse"][];
+        };
+        /** SimulateDbtRequest */
+        SimulateDbtRequest: {
+            /**
+             * Artisan Id
+             * Format: uuid
+             */
+            artisan_id: string;
+            /** Amount Inr */
+            amount_inr: number;
+            /** Order Id */
+            order_id?: string | null;
+            /**
+             * Bank Account Last4
+             * @default 4092
+             */
+            bank_account_last4: string | null;
+            /**
+             * Ifsc Code
+             * @default SBIN0001234
+             */
+            ifsc_code: string | null;
+            /**
+             * Aadhaar Last4
+             * @default 8821
+             */
+            aadhaar_last4: string | null;
+            /**
+             * Note
+             * @default Direct Benefit Transfer (DBT) wage disbursement
+             */
+            note: string | null;
+        };
+        /** SimulateDbtResponse */
+        SimulateDbtResponse: {
+            /**
+             * Payout Id
+             * Format: uuid
+             */
+            payout_id: string;
+            /** Reference */
+            reference: string;
+            /**
+             * Artisan Id
+             * Format: uuid
+             */
+            artisan_id: string;
+            /** Artisan Name */
+            artisan_name?: string | null;
+            /** Amount Inr */
+            amount_inr: number;
+            /**
+             * Channel
+             * @default dbt
+             */
+            channel: string;
+            /**
+             * Status
+             * @default completed
+             */
+            status: string;
+            /** Pfms Txn Id */
+            pfms_txn_id: string;
+            /** Initiated At */
+            initiated_at: string;
+            /** Completed At */
+            completed_at: string;
+            /**
+             * Is Demo
+             * @default true
+             */
+            is_demo: boolean;
+            /**
+             * Message
+             * @default Direct Benefit Transfer simulated successfully in DEMO mode
+             */
+            message: string;
+        };
         /** SkillRecord */
         SkillRecord: {
             /**
@@ -1855,6 +4144,19 @@ export interface components {
              * @default female
              */
             voice_gender: string;
+        };
+        /** StoryConsentItem */
+        StoryConsentItem: {
+            /**
+             * Consent Type
+             * @description maker_name, maker_photo, voice_transcript, workshop_photo, cultural_notes, marketing_reuse
+             */
+            consent_type: string;
+            /**
+             * Granted
+             * @default true
+             */
+            granted: boolean;
         };
         /** TranscriptionResponse */
         TranscriptionResponse: {
@@ -2288,10 +4590,60 @@ export interface operations {
             };
         };
     };
+    list_products_api_v1_products__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by craft category */
+                category?: string | null;
+                /** @description Search keyword in craft title/description */
+                craft?: string | null;
+                /** @description Filter by specific artisan */
+                artisan_id?: string | null;
+                /** @description Minimum price filter */
+                min_price?: number | null;
+                /** @description Maximum price filter */
+                max_price?: number | null;
+                /** @description Filter by stock availability */
+                availability?: boolean | null;
+                /** @description Full text search on title or description */
+                search?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     create_product_api_v1_products__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                Authorization?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -2302,7 +4654,90 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_products_api_v1_products_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by craft category */
+                category?: string | null;
+                /** @description Search keyword in craft title/description */
+                craft?: string | null;
+                /** @description Filter by specific artisan */
+                artisan_id?: string | null;
+                /** @description Minimum price filter */
+                min_price?: number | null;
+                /** @description Maximum price filter */
+                max_price?: number | null;
+                /** @description Filter by stock availability */
+                availability?: boolean | null;
+                /** @description Full text search on title or description */
+                search?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_product_api_v1_products_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2352,18 +4787,18 @@ export interface operations {
             };
         };
     };
-    batch_commit_logs_api_v1_dpp_batch_commit_post: {
+    delete_product_api_v1_products__product_id__delete: {
         parameters: {
             query?: never;
-            header?: never;
-            path?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                product_id: string;
+            };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DPPBatchRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -2385,12 +4820,119 @@ export interface operations {
             };
         };
     };
-    get_digital_product_passport_api_v1_dpp_passport__product_id__get: {
+    update_product_api_v1_products__product_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_product_passport_api_v1_dpp_issue_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PassportIssueRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DPPPassportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    batch_commit_merkle_roots_api_v1_dpp_batch_commit_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DPPBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchCommitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_passport_api_v1_public_passports__token__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                product_id: string;
+                token: string;
             };
             cookie?: never;
         };
@@ -2402,7 +4944,131 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DPPPassportResponse"];
+                    "application/json": components["schemas"]["PublicPassportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_passport_api_v1_dpp_public_passports__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPassportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_api_v1_dpp_verify__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_api_v1_public_passports__token__verify_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_api_v1_dpp_public_passports__token__verify_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3070,6 +5736,1702 @@ export interface operations {
             };
         };
     };
+    get_cart_api_v1_cart__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cart_api_v1_cart_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_cart_item_api_v1_cart_items_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_cart_item_api_v1_cart_items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_cart_item_api_v1_cart_items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    checkout_api_v1_cart_checkout_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Session-Id"?: string | null;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_orders_api_v1_orders_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by status */
+                status?: string | null;
+                /** @description Filter by customer name */
+                customer_reference?: string | null;
+                /** @description Filter by assigned artisan */
+                artisan_id?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_order_api_v1_orders_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_order_api_v1_orders__order_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_order_status_api_v1_orders__order_id__status_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderStatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_assignments_api_v1_assignments_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by order */
+                order_id?: string | null;
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderAssignmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_artisan_to_order_api_v1_assignments_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderAssignmentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderAssignmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_assignment_api_v1_assignments__assignment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_materials_api_v1_inventory_materials_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by SHG collective */
+                shg_id?: string | null;
+                /** @description Filter for low stock only */
+                low_stock?: boolean | null;
+                /** @description Filter for stale materials only (>60 days unverified) */
+                stale_only?: boolean | null;
+                /** @description Threshold in days to flag stale materials */
+                freshness_threshold_days?: number;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialInventoryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_material_api_v1_inventory_materials_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialInventoryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialInventoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_material_api_v1_inventory_materials__material_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                material_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_material_api_v1_inventory_materials__material_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                material_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialInventoryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialInventoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_inventory_summary_api_v1_inventory_summary_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventorySummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_production_events_api_v1_production_events_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by order */
+                order_id?: string | null;
+                /** @description Filter by production plan */
+                plan_id?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductionEventResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_production_event_api_v1_production_events_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductionEventCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductionEventResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_quality_checks_api_v1_quality_checks_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by order */
+                order_id?: string | null;
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityCheckResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_quality_check_api_v1_quality_checks_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QualityCheckCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityCheckResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_shipments_api_v1_shipments_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by order */
+                order_id?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_shipment_api_v1_shipments_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    append_shipment_event_api_v1_shipments__shipment_id__events_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                shipment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentEventCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentEventResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_craft_stories_api_v1_craft_stories__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by product */
+                product_id?: string | null;
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+                /** @description Filter by status (draft, published) */
+                status?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_craft_story_api_v1_craft_stories__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CraftStoryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_craft_stories_api_v1_craft_stories_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by product */
+                product_id?: string | null;
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+                /** @description Filter by status (draft, published) */
+                status?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_craft_story_api_v1_craft_stories_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CraftStoryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_craft_story_api_v1_craft_stories__story_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                story_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_craft_story_api_v1_craft_stories__story_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                story_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CraftStoryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CraftStoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_payouts_api_v1_payouts__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+                /** @description Filter by SHG */
+                shg_id?: string | null;
+                /** @description Filter by status */
+                status?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_payouts_api_v1_payouts_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by artisan */
+                artisan_id?: string | null;
+                /** @description Filter by SHG */
+                shg_id?: string | null;
+                /** @description Filter by status */
+                status?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_dbt_payout_api_v1_payouts_simulate_dbt_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulateDbtRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulateDbtResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_notifications__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by audience (coordinator, artisan, buyer) */
+                audience?: string | null;
+                /** @description Filter for unread notifications only */
+                unread_only?: boolean;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_notification_api_v1_notifications__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_notifications_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by audience (coordinator, artisan, buyer) */
+                audience?: string | null;
+                /** @description Filter for unread notifications only */
+                unread_only?: boolean;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_notification_api_v1_notifications_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_notifications_summary_api_v1_notifications_summary_get: {
+        parameters: {
+            query?: {
+                /** @description Audience filter */
+                audience?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_notification_as_read_api_v1_notifications__notification_id__read_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_coordinator_dashboard_api_v1_dashboard_coordinator_get: {
+        parameters: {
+            query?: {
+                /** @description Optional SHG cluster filter */
+                shg_id?: string | null;
+            };
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoordinatorDashboardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_po_factoring_api_v1_factoring_po_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_po_factoring_api_v1_factoring_po_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["POFactoringCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_po_factoring_detail_api_v1_factoring_po__factoring_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                factoring_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tokenize_purchase_order_api_v1_factoring_po__factoring_id__tokenize_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                factoring_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["POFactoringTransitionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disburse_factoring_advance_api_v1_factoring_po__factoring_id__disburse_advance_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                factoring_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["POFactoringTransitionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_po_delivered_api_v1_factoring_po__factoring_id__deliver_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                factoring_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["POFactoringTransitionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    release_factoring_escrow_api_v1_factoring_po__factoring_id__release_escrow_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                factoring_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["POFactoringTransitionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["POFactoringResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     upload_artisan_media_internal_whatsapp_media_post: {
         parameters: {
             query?: never;
@@ -3199,6 +7561,231 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_product_passport_dpp_issue_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PassportIssueRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DPPPassportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    batch_commit_merkle_roots_dpp_batch_commit_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DPPBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchCommitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_passport_public_passports__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPassportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_passport_dpp_public_passports__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPassportDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_dpp_verify__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_public_passports__token__verify_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_passport_proof_dpp_public_passports__token__verify_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVerificationResponse"];
                 };
             };
             /** @description Validation Error */

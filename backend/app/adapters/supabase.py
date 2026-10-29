@@ -77,4 +77,48 @@ class SupabaseAdapter:
             return res.json()
 
 
+    async def update_records(
+        self,
+        table: str,
+        filters: Dict[str, str],
+        values: Dict[str, Any],
+        use_service_role: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Updates records matching filters in Supabase PostgREST table."""
+        if not self.base_url:
+            return [values]
+
+        url = f"{self.base_url}/rest/v1/{table}"
+        headers = self._headers(use_service_role=use_service_role)
+        headers["Prefer"] = "return=representation"
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            res = await client.patch(url, params=filters, json=values, headers=headers)
+            if res.status_code not in (200, 204):
+                logger.error("Update failed on %s: status=%d, body=%s", table, res.status_code, res.text)
+                res.raise_for_status()
+            data = res.json() if res.content else []
+            return data if isinstance(data, list) else [data]
+
+    async def delete_records(
+        self,
+        table: str,
+        filters: Dict[str, str],
+        use_service_role: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Deletes records matching filters in Supabase PostgREST table."""
+        if not self.base_url:
+            return []
+
+        url = f"{self.base_url}/rest/v1/{table}"
+        headers = self._headers(use_service_role=use_service_role)
+        headers["Prefer"] = "return=representation"
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            res = await client.delete(url, params=filters, headers=headers)
+            if res.status_code not in (200, 204):
+                logger.error("Delete failed on %s: status=%d, body=%s", table, res.status_code, res.text)
+                res.raise_for_status()
+            data = res.json() if res.content else []
+            return data if isinstance(data, list) else [data]
+
+
 supabase_adapter = SupabaseAdapter()

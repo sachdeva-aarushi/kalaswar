@@ -20,6 +20,21 @@ async def get_current_user(authorization: str = Header(None, alias="Authorizatio
     return parse_current_user(token)
 
 
+async def get_optional_current_user(
+    authorization: str = Header(None, alias="Authorization"),
+) -> CurrentUser | None:
+    """Dependency returning CurrentUser if valid Bearer token provided, otherwise None."""
+    if not authorization:
+        return None
+    try:
+        parts = authorization.split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            return parse_current_user(parts[1].strip())
+    except Exception:
+        pass
+    return None
+
+
 def require_role(required_role: str) -> Callable[[CurrentUser], CurrentUser]:
     """Dependency guard enforcing that the current user possesses a specific role."""
     async def role_guard(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:

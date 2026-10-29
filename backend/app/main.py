@@ -48,13 +48,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.api.v1.endpoints import internal_whatsapp
+from app.api.v1.endpoints import dpp, internal_whatsapp
 
 # Mount API v1 Routes
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # Direct root-level mount for internal teammate integrations (/internal/whatsapp/...)
 app.include_router(internal_whatsapp.router)
+
+# Direct root-level mount for public Digital Product Passports (/public/passports/...)
+app.include_router(dpp.router)
 
 
 # Top-level Health check endpoint
