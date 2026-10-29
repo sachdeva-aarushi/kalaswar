@@ -40,17 +40,26 @@ ALTER TABLE public.whatsapp_incoming_messages ENABLE ROW LEVEL SECURITY;
 GRANT SELECT, INSERT, UPDATE ON public.whatsapp_incoming_messages TO authenticated;
 GRANT ALL ON public.whatsapp_incoming_messages TO service_role;
 
+DROP POLICY IF EXISTS "Coordinator reads own SHG incoming whatsapp messages" ON public.whatsapp_incoming_messages;
 CREATE POLICY "Coordinator reads own SHG incoming whatsapp messages" ON public.whatsapp_incoming_messages
   FOR SELECT TO authenticated
   USING (
     EXISTS (
-      SELECT 1 FROM public.artisans a
-      WHERE a.phone = whatsapp_incoming_messages.phone
-        AND a.shg_id IS NOT NULL
-        AND public.is_shg_coordinator(auth.uid(), a.shg_id)
+      SELECT 1 FROM public.voice_sessions vs
+      WHERE vs.whatsapp_phone = whatsapp_incoming_messages.phone
+        AND vs.shg_id IS NOT NULL
+        AND public.is_shg_coordinator(auth.uid(), vs.shg_id)
+    )
+    OR
+    EXISTS (
+      SELECT 1 FROM public.listing_drafts ld
+      WHERE ld.id = whatsapp_incoming_messages.listing_draft_id
+        AND ld.shg_id IS NOT NULL
+        AND public.is_shg_coordinator(auth.uid(), ld.shg_id)
     )
   );
 
+DROP POLICY IF EXISTS "Admin reads all incoming whatsapp messages" ON public.whatsapp_incoming_messages;
 CREATE POLICY "Admin reads all incoming whatsapp messages" ON public.whatsapp_incoming_messages
   FOR SELECT TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
