@@ -1,0 +1,103 @@
+{
+  "common": {
+    "appName": "Kalaswar",
+    "tagline": "Empowering Rural Women Artisans & Craft Collectives",
+    "loading": "Loading...",
+    "save": "Save",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "refresh": "Refresh",
+    "logout": "Sign Out",
+    "online": "Connected",
+    "offline": "Offline Mode",
+    "role": "Active Role",
+    "language": "Language",
+    "switchRole": "Switch Demo Account",
+    "viewDetails": "View Details"
+  },
+  "auth": {
+    "title": "Welcome to Kalaswar",
+    "subtitle": "Sign in to access your artisan workroom and orders",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "name@kalaswar.demo",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "signInButton": "Sign In",
+    "signingIn": "Signing In...",
+    "demoSection": "Quick Demo Sign-In",
+    "demoHint": "Tap a persona to auto-fill verified seed credentials:",
+    "coordinatorRole": "SHG Coordinator (Sunita)",
+    "artisanRole": "Master Artisan (Anita)",
+    "shopperRole": "Retail Shopper (Priya)",
+    "errorInvalid": "Invalid email or password. Please try again.",
+    "errorNetwork": "Network error. Please check your connection."
+  },
+  "roles": {
+    "coordinator": "SHG Coordinator",
+    "artisan": "Artisan",
+    "shopper": "Shopper / Buyer"
+  },
+  "tabs": {
+    "coordinator": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "inventory": "Inventory",
+      "profile": "Profile"
+    },
+    "artisan": {
+      "home": "My Work",
+      "camera": "Record Craft",
+      "earnings": "Earnings",
+      "profile": "Profile"
+    },
+    "shopper": {
+      "explore": "Explore",
+      "concierge": "Custom Gift",
+      "orders": "Orders",
+      "profile": "Profile"
+    }
+  },
+  "coordinator": {
+    "title": "Workroom Coordinator Hub",
+    "subtitle": "Dahanu Warli & Sahyadri Craft Clusters",
+    "activeArtisans": "Active Artisans",
+    "pendingApprovals": "Pending Approvals",
+    "weeklyQuota": "Weekly Quota Met",
+    "activeOrders": "Active Cluster Orders",
+    "urgentActions": "Urgent Actions & Inspections",
+    "inspectBatch": "Inspect Warli Coaster Lot #42",
+    "approveQuote": "Approve FabIndia Sample Quote",
+    "newIntake": "+ New Craft Intake",
+    "stockLevel": "Cluster Raw Material Stock",
+    "dbtLedger": "Direct Benefit Transfer (DBT) Status"
+  },
+  "artisan": {
+    "title": "Artisan Workroom",
+    "welcome": "Namaste, Anita Ji",
+    "clusterBadge": "Banarasi Weaving Federation",
+    "currentTask": "Current Craft Task",
+    "taskName": "Pure Silk Zari Dupatta (Order #KW-8821)",
+    "stage": "Stage 3: Border Zari Weaving",
+    "deadline": "Due in 3 Days (20 Nov)",
+    "logProgress": "Log Today's Work",
+    "voicePrompt": "Tap to speak craft details or update status",
+    "takePhoto": "Capture Finished Piece",
+    "recentEarnings": "Direct Payouts (DBT)",
+    "pendingPayment": "₹4,250 Pending Release",
+    "paidThisMonth": "₹18,500 Deposited in SBI"
+  },
+  "shopper": {
+    "title": "Authentic Indian Crafts",
+    "subtitle": "Direct from women Self-Help Groups (SHGs) under DAY-NRLM",
+    "featured": "Featured Creations",
+    "customRequestBanner": "Need Personalised Wedding Gifts or Corporate Hampers?",
+    "startConcierge": "Ask MakePossible Concierge",
+    "verifiedGI": "GI Certified & Blockchain Provenance",
+    "dppScan": "Scan Craft Passport QR",
+    "cart": "Bag",
+    "addToBag": "Add to Bag",
+    "price": "Fair Craft Price"
+  }
+}
+
