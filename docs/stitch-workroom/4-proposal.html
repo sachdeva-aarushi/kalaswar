@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container-highest":"#dde4de","tertiary":"#3f2a00","tertiary-fixed-dim":"#eebf70","on-surface":"#161d19","on-error":"#ffffff","on-tertiary-container":"#d7ab5e","surface-container-lowest":"#ffffff","on-error-container":"#93000a","outline-variant":"#c0c8c3","outline":"#717974","on-secondary":"#ffffff","on-background":"#161d19","surface-tint":"#3d6656","primary-fixed-dim":"#a4d0bc","secondary":"#98462e","inverse-on-surface":"#ebf3ec","secondary-container":"#ff987a","background":"#f4fbf5","error":"#ba1a1a","surface-container-low":"#eef5ef","error-container":"#ffdad6","on-secondary-fixed-variant":"#793019","inverse-surface":"#2b322e","secondary-fixed":"#ffdbd1","primary-fixed":"#c0ecd8","primary":"#083527","on-tertiary":"#ffffff","surface-variant":"#dde4de","on-tertiary-fixed":"#271900","surface":"#f4fbf5","on-secondary-fixed":"#3b0900","tertiary-container":"#5c3f00","secondary-fixed-dim":"#ffb5a0","on-primary-fixed-variant":"#254e3f","on-primary-container":"#90bba8","on-tertiary-fixed-variant":"#5f4100","primary-container":"#234c3d","surface-container-high":"#e3eae4","inverse-primary":"#a4d0bc","tertiary-fixed":"#ffdeab","on-secondary-container":"#782e18","on-primary":"#ffffff","on-surface-variant":"#414844","surface-bright":"#f4fbf5","on-primary-fixed":"#002116","surface-dim":"#d5dcd6","surface-container":"#e8f0e9"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gutter-mobile":"1rem","space-md":"1rem","space-lg":"1.5rem","margin-mobile":"1rem","space-2xl":"3rem","space-xs":"0.5rem","margin":"2rem","space-xl":"2rem","space-sm":"0.75rem","gutter":"1.5rem"},"fontFamily":{"body-md-medium":["Inter"],"headline-xl":["Manrope"],"body-lg":["Inter"],"headline-lg":["Manrope"],"headline-md":["Manrope"],"body-sm":["Inter"],"body-md":["Inter"],"headline-sm":["Manrope"],"label-sm":["Inter"],"headline-xl-mobile":["Manrope"],"label-md":["Inter"],"caption":["Inter"]},"fontSize":{"body-md-medium":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"500"}],"headline-xl":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.02em","fontWeight":"700"}],"body-lg":["1rem",{"lineHeight":"1.5rem","fontWeight":"400"}],"headline-lg":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.75rem",{"lineHeight":"1.125rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","fontWeight":"600"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.02em","fontWeight":"600"}],"headline-xl-mobile":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.015em","fontWeight":"700"}],"label-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"caption":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.02em","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-16 bg-surface-container-low border-r border-outline-variant/30 flex flex-col items-center py-4 z-50 select-none"><div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center relative shadow-[0_1px_2px_rgba(0,0,0,0.04)] mb-4 cursor-pointer"><span class="font-headline-md text-primary font-bold tracking-tight">K</span><div class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-tertiary-fixed-dim ring-2 ring-surface-container-low"></div></div><nav class="flex-1 flex flex-col items-center gap-1.5 w-full px-2.5 overflow-y-auto" data-active-classes="bg-surface-container-high text-primary font-semibold rounded-xl"><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="today" href="#" title="Today"><span class="material-symbols-outlined text-[20px]">calendar_today</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="products" href="#" title="Products"><span class="material-symbols-outlined text-[20px]">category</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="requests" href="#" title="Requests"><span class="material-symbols-outlined text-[20px]">inbox</span></a><a aria-current="page" class="w-11 h-11 flex items-center justify-center transition-all bg-surface-container-high text-primary font-semibold rounded-xl" data-path="proposals" href="#" title="Proposals"><span class="material-symbols-outlined text-[20px]">description</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="orders" href="#" title="Orders"><span class="material-symbols-outlined text-[20px]">shopping_bag</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="production" href="#" title="Production"><span class="material-symbols-outlined text-[20px]">precision_manufacturing</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all relative" data-path="inventory" href="#" title="Inventory"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-secondary"></span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="team" href="#" title="Team"><span class="material-symbols-outlined text-[20px]">groups</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="passports" href="#" title="Passports"><span class="material-symbols-outlined text-[20px]">badge</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="earnings" href="#" title="Earnings"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span></a></nav><div class="flex flex-col items-center gap-2 pt-2 border-t border-outline-variant/20 w-full px-2.5"><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[20px]">settings</span></a><div class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-md text-label-sm shadow-[0_1px_2px_rgba(0,0,0,0.06)] cursor-pointer select-none" title="Surabhi Das (SD)">SD</div></div></aside><div class="pl-16 min-h-screen bg-surface"><main class="w-full"><!-- KALASWAR WORKROOM — PROPOSAL EDITOR (KS-P-0042) -->
+<div class="flex flex-col w-full h-[1024px] overflow-hidden select-none bg-[#F8F5EE] text-[#242B27]">
+<!-- TOP HEADER (Persistent, 72px) -->
+<header class="h-[72px] shrink-0 px-8 flex items-center justify-between border-b border-[#E6E1D8] bg-[#F8F5EE] z-20">
+<!-- Left Meta & Title -->
+<div class="flex items-center gap-6">
+<div class="flex flex-col">
+<a class="inline-flex items-center gap-1 font-body-sm text-[13px] text-[#68736C] hover:text-[#234C3D] transition-colors mb-0.5" href="#">
+<span class="material-symbols-outlined text-[16px] leading-none">arrow_back</span>
+<span>Proposals</span>
+</a>
+<div class="flex items-baseline gap-3">
+<h1 class="font-headline-lg text-[28px] font-semibold text-[#18372D] tracking-tight font-['Lora',serif]">
+            Proposal for Aarav Tech
+          </h1>
+<span class="font-body-sm text-[13px] text-[#68736C] tracking-wide">
+            500 laptop sleeves · KS-P-0042
+          </span>
+</div>
+</div>
+<div class="h-8 w-px bg-[#E6E1D8] mx-1"></div>
+<!-- Status Pill -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAE5DA] text-[#18372D] text-[13px] font-medium font-body-sm">
+<span class="material-symbols-outlined text-[15px] text-[#234C3D]">edit_note</span>
+<span>Draft · Version 2 · Not sent</span>
+</div>
+</div>
+<!-- Right Utility Actions -->
+<div class="flex items-center gap-3">
+<button class="h-10 px-4 rounded-[10px] bg-white border border-[#E6E1D8] hover:bg-[#F4F1EA] text-[#242B27] font-body-md-medium text-[13px] inline-flex items-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#68736C]">visibility</span>
+<span>Preview as buyer</span>
+</button>
+<button class="h-10 px-3 rounded-[10px] bg-white border border-[#E6E1D8] hover:bg-[#F4F1EA] text-[#18372D] font-semibold text-[14px] transition-all" title="Toggle Language" type="button">
+        हि
+      </button>
+<button class="relative w-10 h-10 rounded-[10px] bg-white border border-[#E6E1D8] hover:bg-[#F4F1EA] flex items-center justify-center text-[#68736C] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#B85F45]"></span>
+</button>
+</div>
+</header>
+<!-- WORKSPACE SPLIT (Calculated to sit exactly above 80px fixed footer) -->
+<div class="flex-1 w-full grid grid-cols-12 overflow-hidden h-[calc(100vh-72px-80px)]">
+<!-- LEFT COLUMN (8 of 12) - THE PROPOSAL DOCUMENT -->
+<div class="col-span-8 h-full overflow-y-auto px-10 py-6 scroll-smooth" id="left-scroll-pane" style="scrollbar-width: thin; scrollbar-color: #E6E1D8 transparent;">
+<!-- Top Sub-Bar Controls -->
+<div class="max-w-[680px] mx-auto mb-5 flex items-center justify-between">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DDE8DA] text-[#18372D] text-[12px] font-medium tracking-wide">
+<span class="text-[#234C3D] font-bold">✦</span>
+<span>Created from MakePossible, Option 1</span>
+</div>
+<!-- Segmented Toggle -->
+<div class="inline-flex h-10 p-1 rounded-[10px] bg-[#EAE5DA] border border-[#E0DACE]">
+<button class="px-3.5 h-full rounded-[7px] text-[13px] font-semibold transition-all bg-white text-[#18372D] shadow-sm" id="show-changes-btn" type="button">
+            Show changes
+          </button>
+<button class="px-3.5 h-full rounded-[7px] text-[13px] font-medium transition-all text-[#68736C] hover:text-[#18372D]" id="clean-view-btn" type="button">
+            Clean view
+          </button>
+</div>
+</div>
+<!-- THE WHITE PHYSICAL SHEET -->
+<article class="max-w-[680px] mx-auto bg-white rounded-[20px] border border-[#E6E1D8] p-12 mb-10 text-[#242B27]">
+<!-- Document Masthead -->
+<div class="border-b border-[#E6E1D8] pb-8 mb-8">
+<div class="flex items-center justify-between mb-2">
+<span class="font-['Manrope'] text-[12px] font-bold tracking-[0.08em] text-[#68736C] uppercase">
+              PROPOSAL · VERSION 2
+            </span>
+<span class="text-[12px] font-mono text-[#68736C]">REF: KS-P-0042-V2</span>
+</div>
+<h2 class="font-['Lora',serif] text-[30px] font-semibold leading-[1.3] text-[#18372D] mb-3">
+            500 Kantha-inspired laptop sleeves
+          </h2>
+<div class="font-body-md text-[14px] leading-relaxed text-[#68736C]">
+            For <span class="font-semibold text-[#242B27]">Aarav Tech Pvt Ltd</span> · Prepared by <span class="font-semibold text-[#242B27]">Sunita Devi</span>, Bhagirathi cluster · 30 Oct 2026
+          </div>
+</div>
+<!-- Section 1: ORDER -->
+<section class="mb-9">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase mb-4">
+            ORDER SPECIFICATIONS
+          </h3>
+<div class="grid grid-cols-2 gap-y-4 gap-x-6 text-[15px] pb-4">
+<div>
+<div class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">Quantity</div>
+<div class="font-medium text-[#18372D]">500 units</div>
+</div>
+<div>
+<div class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">Size</div>
+<div class="font-medium text-[#18372D]">34 × 25 cm, fits 14-inch laptops</div>
+</div>
+<div>
+<div class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">Colours</div>
+<div class="font-medium text-[#18372D]">Pastel sage, blush, sky (equal split)</div>
+</div>
+<div>
+<div class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">Style</div>
+<div class="font-medium text-[#18372D]">Handcrafted Kantha-inspired running stitch</div>
+</div>
+</div>
+<!-- Changed Line with Left Accent -->
+<div class="relative pl-4 py-2.5 bg-[#FAF8F5] rounded-r-md border-l-2 border-[#234C3D] flex items-center justify-between change-item">
+<div class="text-[15px]">
+<span class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] block mb-0.5">Logo Patch</span>
+<span class="font-medium text-[#18372D]">One corner, supplied by buyer</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#DDE8DA] text-[#234C3D] text-[12px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">add_circle</span> Added
+            </span>
+</div>
+</section>
+<!-- Section 2: DELIVERY -->
+<section class="mb-9 border-t border-[#E6E1D8] pt-7">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase mb-4">
+            DELIVERY SCHEDULE
+          </h3>
+<div class="space-y-3">
+<div class="py-2 flex items-center justify-between text-[15px]">
+<span class="text-[#242B27]">Batch 1 · 350 sleeves</span>
+<span class="font-medium text-[#18372D]">by 12 Nov 2026</span>
+</div>
+<div class="relative pl-4 py-2.5 bg-[#FAF8F5] rounded-r-md border-l-2 border-[#234C3D] flex items-center justify-between change-item">
+<div>
+<span class="text-[15px] text-[#242B27]">Batch 2 · 150 sleeves</span>
+<span class="ml-3 font-medium text-[#18372D]">by 19 Nov 2026</span>
+<del class="ml-2 text-[#68736C] line-through text-[14px]">20 Nov</del>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#DDE8DA] text-[#234C3D] text-[12px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">history</span> Changed
+              </span>
+</div>
+</div>
+<p class="mt-3 text-[14px] text-[#68736C]">
+            Delivery to Bengaluru facility. First-mile logistics included.
+          </p>
+</section>
+<!-- Section 3: PRODUCTION STEPS -->
+<section class="mb-9 border-t border-[#E6E1D8] pt-7">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase mb-5">
+            PRODUCTION TIMELINE
+          </h3>
+<div class="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1.5px] before:bg-[#E6E1D8]">
+<!-- Step 1 -->
+<div class="relative flex items-baseline justify-between text-[14px]">
+<span class="absolute -left-6 top-1.5 w-2 h-2 rounded-full bg-[#234C3D] ring-4 ring-white"></span>
+<span class="text-[#242B27]">Materials arrival and quality inspection</span>
+<span class="font-medium text-[#18372D]">5 Nov</span>
+</div>
+<!-- Step 2 -->
+<div class="relative flex items-baseline justify-between text-[14px]">
+<span class="absolute -left-6 top-1.5 w-2 h-2 rounded-full bg-[#234C3D] ring-4 ring-white"></span>
+<span class="text-[#242B27]">Batch 1 completed (350 units)</span>
+<span class="font-medium text-[#18372D]">10 Nov</span>
+</div>
+<!-- Step 3 -->
+<div class="relative flex items-baseline justify-between text-[14px]">
+<span class="absolute -left-6 top-1.5 w-2 h-2 rounded-full bg-[#234C3D] ring-4 ring-white"></span>
+<span class="text-[#242B27]">Batch 1 dispatched to Bengaluru</span>
+<span class="font-medium text-[#18372D]">12 Nov</span>
+</div>
+<!-- Step 4 -->
+<div class="relative flex items-baseline justify-between text-[14px]">
+<span class="absolute -left-6 top-1.5 w-2 h-2 rounded-full bg-[#234C3D] ring-4 ring-white"></span>
+<span class="text-[#242B27]">Batch 2 completed (150 units)</span>
+<span class="font-medium text-[#18372D]">17 Nov</span>
+</div>
+<!-- Step 5 -->
+<div class="relative flex items-baseline justify-between text-[14px]">
+<span class="absolute -left-6 top-1.5 w-2 h-2 rounded-full bg-[#234C3D] ring-4 ring-white"></span>
+<span class="text-[#242B27]">Batch 2 dispatched to Bengaluru</span>
+<span class="font-medium text-[#18372D]">19 Nov</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-[13px] text-[#68736C]">
+<span class="material-symbols-outlined text-[16px] text-[#68736C]">info</span>
+<span>Dates depend on fabric and thread arriving by 5 Nov.</span>
+</div>
+</section>
+<!-- Section 4: COST BREAKDOWN -->
+<section class="mb-9 border-t border-[#E6E1D8] pt-7">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase mb-4">
+            COST BREAKDOWN
+          </h3>
+<div class="space-y-2.5 text-[15px]">
+<div class="flex justify-between py-1.5 border-b border-[#F4F1EA]">
+<span class="text-[#242B27]">Raw materials (sal-cotton, lining, thread)</span>
+<span class="font-medium text-[#18372D]">₹1,38,000</span>
+</div>
+<div class="flex justify-between py-1.5 border-b border-[#F4F1EA]">
+<span class="text-[#242B27]">Artisan making time, approx 1,500 hrs</span>
+<span class="font-medium text-[#18372D]">₹2,10,000</span>
+</div>
+<!-- Changed Item -->
+<div class="relative pl-4 py-2 bg-[#FAF8F5] rounded-r-md border-l-2 border-[#234C3D] flex items-center justify-between change-item">
+<div class="flex items-center gap-2">
+<span class="text-[#242B27]">Logo patch application (500 pieces)</span>
+<span class="px-2 py-0.5 rounded-full bg-[#DDE8DA] text-[#234C3D] text-[11px] font-semibold">Added</span>
+</div>
+<span class="font-medium text-[#18372D]">₹18,000</span>
+</div>
+<div class="flex justify-between py-1.5 border-b border-[#F4F1EA]">
+<span class="text-[#242B27]">Packaging and first-mile logistics</span>
+<span class="font-medium text-[#18372D]">₹22,000</span>
+</div>
+<div class="flex justify-between py-1.5 border-b border-[#F4F1EA]">
+<span class="text-[#242B27]">Second dispatch surcharge</span>
+<span class="font-medium text-[#18372D]">₹1,600</span>
+</div>
+<div class="flex justify-between py-1.5 border-b border-[#F4F1EA]">
+<span class="text-[#242B27]">Federation &amp; platform fee</span>
+<span class="font-medium text-[#18372D]">₹24,400</span>
+</div>
+</div>
+<!-- Total Calculation Banner -->
+<div class="mt-5 p-4 rounded-xl bg-[#F8F5EE] flex items-baseline justify-between">
+<span class="font-['Manrope'] font-bold text-[18px] text-[#18372D]">Total</span>
+<div class="flex items-baseline gap-3">
+<del class="text-[#68736C] line-through font-normal text-[15px]">was ₹3,96,000</del>
+<span class="text-[13px] font-semibold text-[#234C3D] bg-[#DDE8DA] px-2 py-0.5 rounded">+₹18,000</span>
+<span class="font-['Manrope'] font-bold text-[22px] text-[#18372D]">₹4,14,000</span>
+</div>
+</div>
+<!-- Budget Validations -->
+<div class="mt-4 space-y-1.5">
+<div class="flex items-center gap-2 text-[13px] text-[#234C3D] font-medium">
+<span class="material-symbols-outlined text-[17px] text-[#234C3D]">check_circle</span>
+<span>Within the buyer's budget of ₹4,25,000.</span>
+</div>
+<div class="flex items-center gap-2 text-[13px] text-[#68736C]">
+<span class="material-symbols-outlined text-[17px] text-[#68736C]">info</span>
+<span>Taxes extra as applicable. Costs are estimates until approved.</span>
+</div>
+</div>
+</section>
+<!-- Section 5: TERMS -->
+<section class="mb-9 border-t border-[#E6E1D8] pt-7">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase mb-4">
+            COMMERCIAL TERMS
+          </h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="group p-3 rounded-lg border border-[#E6E1D8] hover:border-[#234C3D] transition-colors cursor-pointer bg-white">
+<div class="flex items-center justify-between text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">
+<span>Payment Terms</span>
+<span class="material-symbols-outlined text-[14px] opacity-0 group-hover:opacity-100 transition-opacity text-[#234C3D]">edit</span>
+</div>
+<div class="font-medium text-[14px] text-[#18372D]">50% when approved, 50% on final delivery</div>
+</div>
+<div class="p-3 rounded-lg border border-[#E6E1D8] bg-white">
+<div class="text-[12px] uppercase font-['Manrope'] tracking-[0.04em] text-[#68736C] mb-1">
+                Valid Until
+              </div>
+<div class="font-medium text-[14px] text-[#18372D]">6 Nov 2026</div>
+</div>
+</div>
+</section>
+<!-- Section 6: NOTE TO BUYER -->
+<section class="border-t border-[#E6E1D8] pt-7">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-['Manrope'] text-[13px] font-semibold tracking-[0.06em] text-[#68736C] uppercase">
+              NOTE TO BUYER
+            </h3>
+<span class="text-[12px] font-mono text-[#68736C]" id="char-count">74 / 400</span>
+</div>
+<div class="relative">
+<textarea class="w-full p-3.5 rounded-xl border border-[#E6E1D8] focus:border-[#234C3D] focus:ring-1 focus:ring-[#234C3D] outline-none text-[15px] leading-relaxed text-[#242B27] bg-[#FAF8F5] resize-none transition-all" id="buyer-note" rows="3">We've added your logo patch and moved Batch 2 to 19 Nov, as you asked.</textarea>
+</div>
+</section>
+</article>
+</div>
+<!-- RIGHT COLUMN (4 of 12) - MARGINALIA & AUDIT TRAIL -->
+<div class="col-span-4 h-full overflow-y-auto px-8 py-6 border-l border-[#E6E1D8] bg-[#F8F5EE]" id="right-scroll-pane" style="scrollbar-width: thin; scrollbar-color: #E6E1D8 transparent;">
+<div class="max-w-[400px] space-y-8">
+<!-- 1. WHERE THIS STANDS -->
+<section>
+<h4 class="font-['Manrope'] text-[12px] font-bold tracking-[0.08em] text-[#68736C] uppercase mb-4">
+            WHERE THIS STANDS
+          </h4>
+<div class="bg-white p-4 rounded-xl border border-[#E6E1D8]">
+<!-- 4-step Horizontal Progress -->
+<div class="grid grid-cols-4 gap-1 text-center mb-3">
+<div class="flex flex-col items-center">
+<span class="w-2.5 h-2.5 rounded-full bg-[#18372D] mb-1.5 ring-2 ring-[#DDE8DA]"></span>
+<span class="text-[12px] font-semibold text-[#18372D] border-b-2 border-[#234C3D] pb-0.5 w-full">Draft</span>
+</div>
+<div class="flex flex-col items-center opacity-60">
+<span class="w-2.5 h-2.5 rounded-full border border-[#68736C] mb-1.5"></span>
+<span class="text-[12px] text-[#68736C]">Sent</span>
+</div>
+<div class="flex flex-col items-center opacity-60">
+<span class="w-2.5 h-2.5 rounded-full border border-[#68736C] mb-1.5"></span>
+<span class="text-[12px] text-[#68736C]">Approved</span>
+</div>
+<div class="flex flex-col items-center opacity-60">
+<span class="w-2.5 h-2.5 rounded-full border border-[#68736C] mb-1.5"></span>
+<span class="text-[12px] text-[#68736C]">Ordered</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[12px] text-[#68736C] pt-2 border-t border-[#F4F1EA]">
+<span class="material-symbols-outlined text-[15px]">info</span>
+<span>Not binding until Aarav Tech approves.</span>
+</div>
+</div>
+</section>
+<!-- 2. VERSION HISTORY -->
+<section>
+<h4 class="font-['Manrope'] text-[12px] font-bold tracking-[0.08em] text-[#68736C] uppercase mb-4">
+            VERSION HISTORY
+          </h4>
+<div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-[#E6E1D8]">
+<!-- V2 (Current) -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-white border border-[#234C3D] flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-[#234C3D]"></span>
+</span>
+<div class="flex items-baseline justify-between mb-1">
+<span class="text-[14px] font-semibold text-[#18372D]">Version 2 · Draft</span>
+<span class="px-1.5 py-0.5 rounded bg-[#DDE8DA] text-[#18372D] text-[10px] font-semibold tracking-wide uppercase">Current</span>
+</div>
+<div class="text-[12px] text-[#68736C] mb-2">Today, 7:15 pm · Sunita Devi</div>
+<div class="flex gap-3 text-[12px]">
+<a class="text-[#234C3D] font-medium hover:underline" href="#">View</a>
+<a class="text-[#234C3D] font-medium hover:underline" href="#">Compare with v1</a>
+</div>
+</div>
+<!-- Buyer Response -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#EAE5DA] border border-[#68736C] flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-[#18372D]">chat</span>
+</span>
+<div class="text-[14px] font-semibold text-[#18372D] mb-0.5">Buyer response · Changes requested</div>
+<div class="text-[12px] text-[#68736C] mb-2">Today, 6:40 pm · Aarav Tech</div>
+<div class="p-3 rounded-lg bg-white border border-[#E6E1D8] text-[13px] italic text-[#242B27] leading-snug">
+                “Please add our logo patch and deliver the second batch by 19 Nov.”
+              </div>
+</div>
+<!-- V1 -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-white border border-[#C0C8C3] flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-[#68736C]"></span>
+</span>
+<div class="text-[14px] font-medium text-[#242B27] mb-0.5">Version 1 · Sent</div>
+<div class="text-[12px] text-[#68736C] mb-2">Today, 2:10 pm · ₹3,96,000</div>
+<div class="flex gap-3 text-[12px]">
+<a class="text-[#68736C] hover:text-[#234C3D]" href="#">View</a>
+<a class="text-[#68736C] hover:text-[#234C3D]" href="#">Compare with v2</a>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. WHAT CHANGED SINCE VERSION 1 -->
+<section>
+<h4 class="font-['Manrope'] text-[12px] font-bold tracking-[0.08em] text-[#68736C] uppercase mb-4">
+            WHAT CHANGED SINCE VERSION 1 (3)
+          </h4>
+<div class="bg-white rounded-xl border border-[#E6E1D8] divide-y divide-[#F4F1EA]">
+<a class="p-3.5 flex items-center justify-between hover:bg-[#FAF8F5] transition-colors group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-[#234C3D]">add_circle</span>
+<span class="text-[13px] text-[#242B27] group-hover:text-[#234C3D]">Logo patch added · <strong class="font-semibold">+₹18,000</strong></span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-[#68736C] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<a class="p-3.5 flex items-center justify-between hover:bg-[#FAF8F5] transition-colors group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-[#234C3D]">schedule</span>
+<span class="text-[13px] text-[#242B27] group-hover:text-[#234C3D]">Batch 2 moved · <strong class="font-semibold">20 Nov to 19 Nov</strong></span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-[#68736C] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<a class="p-3.5 flex items-center justify-between hover:bg-[#FAF8F5] transition-colors group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-[#234C3D]">payments</span>
+<span class="text-[13px] text-[#242B27] group-hover:text-[#234C3D]">Total · <span class="line-through text-[#68736C]">₹3,96,000</span> to <strong class="font-semibold">₹4,14,000</strong></span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-[#68736C] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+</div>
+</section>
+<!-- 4. BEFORE YOU SEND (Alert Card) -->
+<section>
+<h4 class="font-['Manrope'] text-[12px] font-bold tracking-[0.08em] text-[#68736C] uppercase mb-4">
+            BEFORE YOU SEND
+          </h4>
+<div class="bg-white rounded-xl border border-[#E6E1D8] p-4 space-y-3.5">
+<!-- Terracotta Warning Block -->
+<div class="flex items-start gap-2.5 text-[#B85F45]">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">warning</span>
+<div class="text-[14px] leading-snug">
+<span>The logo patch and the 19 Nov date change the plan MakePossible checked.</span>
+<a class="inline-block mt-1 text-[13px] font-semibold underline text-[#B85F45] hover:opacity-85" href="#">
+                  Re-run check →
+                </a>
+</div>
+</div>
+<div class="h-px bg-[#F4F1EA]"></div>
+<!-- Check Line -->
+<div class="flex items-center gap-2 text-[13px] text-[#234C3D] font-medium">
+<span class="material-symbols-outlined text-[16px] text-[#234C3D]">check</span>
+<span>Dates and costs match the sheet.</span>
+</div>
+<!-- Quiet Permission Note -->
+<p class="text-[12px] text-[#68736C] leading-normal pt-1">
+              Sending is still allowed. The coordinator decides.
+            </p>
+</div>
+</section>
+</div>
+</div>
+</div>
+<!-- FIXED BOTTOM DECISION BAR (80px, #F8F5EE) -->
+<footer class="h-[80px] shrink-0 w-full px-12 bg-[#F8F5EE] border-t border-[#E6E1D8] flex items-center justify-between z-30">
+<!-- Left Summary & Advisory -->
+<div class="flex flex-col justify-center">
+<div class="font-body-md text-[15px] font-semibold text-[#18372D] tracking-tight">
+        Version 2 · Total ₹4,14,000
+      </div>
+<div class="flex items-center gap-1.5 text-[13px] text-[#68736C] mt-0.5">
+<span class="material-symbols-outlined text-[15px] leading-none text-[#68736C]">info</span>
+<span>Not binding until Aarav Tech approves. Nothing is sent yet.</span>
+</div>
+</div>
+<!-- Right Actions Group -->
+<div class="flex items-center gap-4">
+<button class="h-[44px] px-4 font-body-md-medium text-[14px] text-[#68736C] hover:text-[#B85F45] transition-colors" type="button">
+        Discard draft
+      </button>
+<button class="h-[44px] px-6 rounded-[10px] bg-white border border-[#234C3D] text-[#234C3D] font-semibold text-[14px] hover:bg-[#F4F1EA] transition-all" type="button">
+        Save draft
+      </button>
+<button class="h-[44px] px-8 rounded-[10px] bg-[#234C3D] hover:bg-[#18372D] active:bg-[#122921] text-white font-semibold text-[14px] shadow-sm transition-all flex items-center gap-2" type="button">
+<span>Send proposal</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</footer>
+</div>
+<!-- INTERACTIVITY CONTROLS -->
+<script>
+  // Segmented toggle behavior: Show Changes vs Clean View
+  const showBtn = document.getElementById('show-changes-btn');
+  const cleanBtn = document.getElementById('clean-view-btn');
+  const changeItems = document.querySelectorAll('.change-item');
+
+  cleanBtn.addEventListener('click', () => {
+    cleanBtn.classList.add('bg-white', 'text-[#18372D]', 'shadow-sm');
+    cleanBtn.classList.remove('text-[#68736C]');
+    showBtn.classList.remove('bg-white', 'text-[#18372D]', 'shadow-sm');
+    showBtn.classList.add('text-[#68736C]');
+
+    changeItems.forEach(el => {
+      el.classList.remove('border-l-2', 'border-[#234C3D]', 'bg-[#FAF8F5]');
+      const badges = el.querySelectorAll('span.rounded-full');
+      badges.forEach(b => b.style.display = 'none');
+      const dels = el.querySelectorAll('del');
+      dels.forEach(d => d.style.display = 'none');
+    });
+  });
+
+  showBtn.addEventListener('click', () => {
+    showBtn.classList.add('bg-white', 'text-[#18372D]', 'shadow-sm');
+    showBtn.classList.remove('text-[#68736C]');
+    cleanBtn.classList.remove('bg-white', 'text-[#18372D]', 'shadow-sm');
+    cleanBtn.classList.add('text-[#68736C]');
+
+    changeItems.forEach(el => {
+      el.classList.add('border-l-2', 'border-[#234C3D]', 'bg-[#FAF8F5]');
+      const badges = el.querySelectorAll('span.rounded-full');
+      badges.forEach(b => b.style.display = 'inline-flex');
+      const dels = el.querySelectorAll('del');
+      dels.forEach(d => d.style.display = 'inline');
+    });
+  });
+
+  // Dynamic character count on Note to Buyer textarea
+  const buyerNote = document.getElementById('buyer-note');
+  const charCount = document.getElementById('char-count');
+  if (buyerNote && charCount) {
+    buyerNote.addEventListener('input', () => {
+      const len = buyerNote.value.length;
+      charCount.textContent = `${len} / 400`;
+      if (len > 380) {
+        charCount.classList.add('text-[#B85F45]');
+      } else {
+        charCount.classList.remove('text-[#B85F45]');
+      }
+    });
+  }
+</script></main></div></body></html>

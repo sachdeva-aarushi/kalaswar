@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { StatusBadge } from "@/components/status-badge";
 import { OrderRecordTimeline } from "@/components/order-record";
+import { useOrderDetail } from "@/features/orders/hooks";
 import { DemoNote } from "@/components/demo-note";
 
 export const Route = createFileRoute("/orders/$id")({
@@ -41,7 +42,16 @@ function OrderTracking() {
   const { id } = Route.useParams();
   const { data: orders } = useSuspenseQuery(ordersQuery());
   const { data: shipments } = useSuspenseQuery(orderShipmentsQuery(id));
-  const order = orders.find((o) => o.id === id);
+  const { data: apiOrder } = useOrderDetail(id);
+  const dbOrder = orders.find((o) => o.id === id);
+  const order = dbOrder || (apiOrder ? {
+    id: apiOrder.id,
+    customer_reference: apiOrder.customer_reference,
+    product: { name: apiOrder.product_title, price: apiOrder.unit_price ?? 0 },
+    quantity: apiOrder.quantity,
+    status: apiOrder.status,
+    expected_dispatch_at: apiOrder.expected_dispatch_at,
+  } : null);
 
   if (!order) {
     return (
@@ -132,7 +142,7 @@ function OrderTracking() {
 
         {/* The order record — same timeline the coordinator records */}
         <section className="mt-8 border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
-          <OrderRecordTimeline orderId={order.id} />
+          <OrderRecordTimeline orderId={order.id} initialEvents={apiOrder?.events} />
         </section>
 
         <DemoNote className="mt-8">{t("ord_demo")}</DemoNote>

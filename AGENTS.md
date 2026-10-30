@@ -89,3 +89,31 @@ Before marking any task as complete, every agent must execute the respective tes
 - Never use `git push --force` or rebase/squash commits that have already been shared.
 - When relocating existing files across folders, always use `git mv` to preserve commit history.
 - Never delete existing code without explicitly asking the human operator first.
+
+---
+
+## 9. Visual Freeze — Landing & Auth Pages
+
+The **landing page** (`web/src/routes/index.tsx`) and **auth page** (`web/src/routes/auth.tsx`)
+are **visually frozen**. They must look and behave visually exactly as they do today:
+same layout, markup structure, copy, styles, fonts, colours, spacing, animations and assets.
+
+**You MAY change their logic** (form submit handlers, auth state, redirects, API calls,
+route links, data fetching) to wire them to the real backend, but:
+
+1. **Do not add, remove or restyle any visible element.** For loading, error and success
+   feedback, reuse elements or components already present on those pages; if no suitable
+   one exists, STOP and ask the developer.
+
+2. **New design tokens must be scoped under `.kw-app`** and used only by new routes.
+   Never edit global `:root` variables, Tailwind base colours, global fonts, or shared
+   components in a way that changes how these two pages render. If a shared component
+   must change, create a variant.
+
+3. **Take Playwright screenshots** of both pages at 375, 768 and 1280 px into
+   `docs/frozen-baseline/` (reuse existing ones if present) and compare after every task.
+   Any visual diff: revert and fix.
+
+4. **Report changed files** in `docs/FROZEN.md` after each task. See that file for the
+   full frozen file list and change log.
+

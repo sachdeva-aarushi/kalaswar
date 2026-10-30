@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthProvider } from "@/features/auth";
 
 function NotFoundComponent() {
   return (
@@ -45,6 +46,42 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  const errObj = error as { status?: number; statusCode?: number; message?: string } | null;
+  const is403 =
+    errObj?.status === 403 ||
+    errObj?.statusCode === 403 ||
+    errObj?.message?.includes("403") ||
+    errObj?.message?.toLowerCase().includes("forbidden");
+
+  if (is403) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md text-center">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+            No Access
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You do not have permission to view this page or resource (403 Forbidden).
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <a
+              href="/auth"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Sign in with another account
+            </a>
+            <a
+              href="/"
+              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              Go home
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -62,7 +99,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Retry
           </button>
           <a
             href="/"
@@ -147,9 +184,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster position="top-center" />
+        <AuthProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster position="top-center" />
+        </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );

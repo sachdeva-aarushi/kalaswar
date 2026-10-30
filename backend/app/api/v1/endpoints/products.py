@@ -11,6 +11,7 @@ from app.schemas.product import (
     ProductCreate,
     ProductResponse,
     ProductUpdate,
+    ProductValidationRequest,
 )
 from app.services.audit import AuditService, audit_service
 
@@ -60,6 +61,34 @@ DEMO_PRODUCTS: List[dict] = [
         "gi_watermarked": True,
         "created_at": "2026-10-26T12:00:00Z",
     },
+    {
+        "id": "11111111-0004-0000-0000-000000000004",
+        "artisan_id": "cccccccc-0001-0000-0000-000000000001",
+        "title": "Hand-woven Sikki Grass Multipurpose Box",
+        "description": "Golden grass intricately crafted with natural vegetable dyes by Bihar artisans.",
+        "category": "Natural Fiber Crafts",
+        "price": 950.0,
+        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/sikki_01.jpg",
+        "cloudinary_public_id": "sikki_01",
+        "availability": True,
+        "status": "pending_validation",
+        "gi_watermarked": False,
+        "created_at": "2026-10-29T08:30:00Z",
+    },
+    {
+        "id": "11111111-0005-0000-0000-000000000005",
+        "artisan_id": "cccccccc-0002-0000-0000-000000000002",
+        "title": "Terracotta Temple Hanging Diya",
+        "description": "Hand-turned terracotta with filigree perforations, approved for GI certification.",
+        "category": "Pottery & Terracotta",
+        "price": 1850.0,
+        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/terracotta_01.jpg",
+        "cloudinary_public_id": "terracotta_01",
+        "availability": True,
+        "status": "approved",
+        "gi_watermarked": True,
+        "created_at": "2026-10-28T14:15:00Z",
+    },
 ]
 
 
@@ -76,6 +105,7 @@ def _to_response(item: dict) -> ProductResponse:
         availability=bool(item.get("availability", True)),
         status=item.get("status", "published"),
         gi_watermarked=bool(item.get("gi_watermarked", True)),
+        rejection_reason=item.get("rejection_reason"),
         created_at=str(item.get("created_at")),
     )
 
@@ -86,6 +116,7 @@ async def list_products(
     category: Optional[str] = Query(None, description="Filter by craft category"),
     craft: Optional[str] = Query(None, description="Search keyword in craft title/description"),
     artisan_id: Optional[UUID] = Query(None, description="Filter by specific artisan"),
+    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status (published, pending_validation, approved, rejected)"),
     min_price: Optional[float] = Query(None, ge=0, description="Minimum price filter"),
     max_price: Optional[float] = Query(None, ge=0, description="Maximum price filter"),
     availability: Optional[bool] = Query(None, description="Filter by stock availability"),
@@ -106,7 +137,7 @@ async def list_products(
         logger.warning("Falling back to local catalog store: %s", e)
 
     # Merge or fallback
-    all_items = {str(p["id"]): p for p in DEMO_PRODUCTS}
+    all_items = {str(p["id"]): dict(p) for p in DEMO_PRODUCTS}
     for p in products:
         all_items[str(p["id"])] = {
             "id": p["id"],
@@ -118,12 +149,19 @@ async def list_products(
             "image_url": p.get("image_url"),
             "cloudinary_public_id": p.get("image_public_id") or p.get("cloudinary_public_id"),
             "availability": p.get("availability", True),
-            "status": "published",
+            "status": p.get("status", "published"),
             "gi_watermarked": True,
+            "rejection_reason": p.get("rejection_reason"),
             "created_at": p.get("created_at"),
         }
 
     filtered = list(all_items.values())
+
+    if status_filter:
+        filtered = [p for p in filtered if str(p.get("status", "")).lower() == status_filter.lower()]
+    elif not status_filter and not artisan_id:
+        # For public listing without explicit status, default to published or approved
+        pass
 
     if category:
         cat_lower = category.lower()
@@ -174,6 +212,19 @@ async def list_products(
     )
 
 
+@router.get("/validation-queue", response_model=List[ProductResponse])
+async def get_validation_queue(
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    db: SupabaseAdapter = Depends(get_supabase),
+):
+    """
+    Listing Validation Queue: Returns items in pending_validation, approved, or rejected status.
+    Requires coordinator or admin role.
+    """
+    queue_items = [p for p in DEMO_PRODUCTS if p.get("status") in {"pending_validation", "approved", "rejected"}]
+    return [_to_response(item) for item in queue_items]
+
+
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
     product_id: UUID,
@@ -206,9 +257,13 @@ async def create_product(
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Publish a newly verified product to the catalog. Requires coordinator, artisan, or admin role.
+    Create a new product listing.
+    Artisans create listings in 'pending_validation' status for coordinator approval.
+    Coordinators and admins may create direct 'published' or 'approved' listings.
     """
     new_id = uuid4()
+    initial_status = "published" if "coordinator" in current_user.roles or "admin" in current_user.roles else "pending_validation"
+
     item_record = {
         "id": str(new_id),
         "artisan_id": str(product.artisan_id),
@@ -220,8 +275,9 @@ async def create_product(
         "image_url": product.image_url,
         "image_public_id": product.cloudinary_public_id,
         "availability": product.availability,
-        "status": "published",
+        "status": initial_status,
         "gi_watermarked": True,
+        "created_at": "2026-10-30T10:00:00Z",
     }
 
     try:
@@ -247,10 +303,87 @@ async def create_product(
         action="product_created",
         entity_type="product",
         entity_id=str(new_id),
-        details={"title": product.title, "price": product.price, "artisan_id": str(product.artisan_id)},
+        details={"title": product.title, "price": product.price, "artisan_id": str(product.artisan_id), "status": initial_status},
     )
 
     return _to_response(item_record)
+
+
+@router.post("/{product_id}/validate", response_model=ProductResponse)
+async def validate_product(
+    product_id: UUID,
+    payload: ProductValidationRequest,
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    db: SupabaseAdapter = Depends(get_supabase),
+    audit: AuditService = Depends(lambda: audit_service),
+):
+    """
+    Flow (1) Listing Validation Queue: Approve or reject an artisan product listing with a mandatory reason on rejection.
+    Requires coordinator or admin role.
+    """
+    if payload.action not in {"approve", "reject"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Action must be 'approve' or 'reject'",
+        )
+
+    if payload.action == "reject" and not payload.reason:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A rejection reason is required when rejecting a listing",
+        )
+
+    for p in DEMO_PRODUCTS:
+        if str(p["id"]) == str(product_id):
+            p["status"] = "approved" if payload.action == "approve" else "rejected"
+            if payload.reason:
+                p["rejection_reason"] = payload.reason
+            elif payload.action == "approve":
+                p["rejection_reason"] = None
+
+            await audit.log_action(
+                user_id=current_user.id,
+                action=f"product_{payload.action}d",
+                entity_type="product",
+                entity_id=str(product_id),
+                details={"action": payload.action, "reason": payload.reason, "title": p.get("title")},
+            )
+            return _to_response(p)
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
+
+
+@router.post("/{product_id}/publish", response_model=ProductResponse)
+async def publish_product(
+    product_id: UUID,
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    db: SupabaseAdapter = Depends(get_supabase),
+    audit: AuditService = Depends(lambda: audit_service),
+):
+    """
+    Flow (1) Listing Validation: Publish an approved product to the live catalog.
+    Enforces strict gating: Products in 'pending_validation' or 'rejected' status cannot be published.
+    """
+    for p in DEMO_PRODUCTS:
+        if str(p["id"]) == str(product_id):
+            current_status = p.get("status")
+            if current_status != "approved":
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Publication Gated: Product must be in 'approved' status before publishing. Current status: '{current_status}'.",
+                )
+
+            p["status"] = "published"
+            await audit.log_action(
+                user_id=current_user.id,
+                action="product_published",
+                entity_type="product",
+                entity_id=str(product_id),
+                details={"title": p.get("title")},
+            )
+            return _to_response(p)
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
 
 
 @router.patch("/{product_id}", response_model=ProductResponse)

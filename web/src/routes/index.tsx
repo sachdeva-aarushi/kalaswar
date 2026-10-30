@@ -117,7 +117,7 @@ function Index() {
                     size="lg"
                     className="h-12 bg-[oklch(0.977_0.009_84.6)] px-7 text-base text-primary hover:bg-white"
                   >
-                    <Link to="/explore">
+                    <Link to="/shop">
                       {t("hero2_cta_craft")}
                       <ArrowRight className="size-4" aria-hidden="true" />
                     </Link>
@@ -185,7 +185,7 @@ function Index() {
                   {t("hands_body")}
                 </p>
                 <Button asChild variant="ghost" className="mt-6 px-0 text-primary hover:bg-transparent hover:text-primary/80">
-                  <Link to="/explore">
+                  <Link to="/shop">
                     {t("hero2_cta_craft")}
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
@@ -210,7 +210,7 @@ function Index() {
               </div>
               <Reveal delay={0.1}>
                 <Button asChild variant="ghost" className="text-primary">
-                  <Link to="/explore">
+                  <Link to="/shop">
                     {t("crafts_explore_all")}
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
@@ -222,8 +222,7 @@ function Index() {
               {TILES.map((tile, i) => (
                 <Reveal key={tile.category} delay={i * 0.06} className={`col-span-1 ${tile.span}`}>
                   <Link
-                    to="/explore"
-                    search={{ category: tile.category }}
+                    to="/shop"
                     className={`group relative block overflow-hidden border border-border bg-muted transition-colors duration-300 hover:border-gold/70 ${tile.aspect}`}
                   >
                     <img
@@ -258,7 +257,7 @@ function Index() {
                   </h2>
                 </Reveal>
                 <Button asChild variant="ghost" className="text-primary">
-                  <Link to="/explore" search={{}}>
+                  <Link to="/shop">
                     {t("view_all")}
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
@@ -431,13 +430,16 @@ function Index() {
             </div>
             <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {[
-                { icon: Mic, title: t("pillar_voice_t"), body: t("pillar_voice_b") },
-                { icon: BookOpen, title: t("pillar_stories_t"), body: t("pillar_stories_b") },
-                { icon: Scale, title: t("pillar_fair_t"), body: t("pillar_fair_b") },
-                { icon: Handshake, title: t("pillar_b2b_t"), body: t("pillar_b2b_b") },
+                { icon: Mic, title: t("pillar_voice_t"), body: t("pillar_voice_b"), to: "/workroom" },
+                { icon: BookOpen, title: t("pillar_stories_t"), body: t("pillar_stories_b"), to: "/stories" },
+                { icon: Scale, title: t("pillar_fair_t"), body: t("pillar_fair_b"), to: "/gift" },
+                { icon: Handshake, title: t("pillar_b2b_t"), body: t("pillar_b2b_b"), to: "/b2b" },
               ].map((pillar, i) => (
                 <Reveal key={pillar.title} delay={i * 0.06} className="h-full">
-                  <div className="group flex h-full flex-col border border-border bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+                  <Link
+                    to={pillar.to}
+                    className="group flex h-full flex-col border border-border bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg no-underline text-foreground"
+                  >
                     <span className="grid h-11 w-11 shrink-0 place-items-center border border-primary/30 text-primary transition-colors duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
                       <pillar.icon className="size-5" aria-hidden="true" />
                     </span>
@@ -450,7 +452,7 @@ function Index() {
                     <span aria-hidden="true" className="mt-auto block pt-6">
                       <span className="block h-px w-10 bg-gold transition-all duration-300 group-hover:w-16" />
                     </span>
-                  </div>
+                  </Link>
                 </Reveal>
               ))}
             </div>
@@ -533,7 +535,7 @@ function Index() {
                   size="lg"
                   className="h-12 bg-[oklch(0.977_0.009_84.6)] px-7 text-base text-primary hover:bg-white"
                 >
-                  <Link to="/explore">{t("closing2_cta")}</Link>
+                  <Link to="/shop">{t("closing2_cta")}</Link>
                 </Button>
                 <Button
                   asChild

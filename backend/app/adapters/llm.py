@@ -136,7 +136,7 @@ NEVER GUESS. If the artisan did not mention a material or craft, leave that key 
         }
 
         try:
-            async with httpx.AsyncClient(timeout=20.0) as client:
+            async with httpx.AsyncClient(timeout=5.0) as client:
                 res = await client.post(self.endpoint, headers=headers, json=body)
                 res.raise_for_status()
                 data = res.json()

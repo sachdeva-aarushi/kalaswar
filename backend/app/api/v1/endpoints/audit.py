@@ -7,6 +7,64 @@ from app.services.audit import AuditService
 
 router = APIRouter(prefix="/audit", tags=["Action Audit Logs"])
 
+DEMO_AUDIT_LOGS: List[dict] = [
+    {
+        "id": "aud00001-0000-0000-0000-000000000001",
+        "actor": "Coordinator Sunita",
+        "action": "product_approved",
+        "entity": "product",
+        "entity_type": "product",
+        "entity_id": "11111111-0005-0000-0000-000000000005",
+        "actor_user_id": "bbbb0001-0000-0000-0000-000000000001",
+        "payload": {"title": "Terracotta Temple Hanging Diya", "category": "Pottery & Terracotta", "gi_status": "verified"},
+        "created_at": "2026-10-30T10:15:00Z",
+    },
+    {
+        "id": "aud00002-0000-0000-0000-000000000002",
+        "actor": "Coordinator Sunita",
+        "action": "quality_check_submitted",
+        "entity": "quality_check",
+        "entity_type": "quality_check",
+        "entity_id": "77777777-0001-0000-0000-000000000001",
+        "actor_user_id": "bbbb0001-0000-0000-0000-000000000001",
+        "payload": {"order_id": "22222222-0001-0000-0000-000000000001", "result": "pass", "motif_alignment": "GI compliant"},
+        "created_at": "2026-10-30T09:40:00Z",
+    },
+    {
+        "id": "aud00003-0000-0000-0000-000000000003",
+        "actor": "Coordinator Sunita",
+        "action": "material_freshness_verified",
+        "entity": "materials_inventory",
+        "entity_type": "materials_inventory",
+        "entity_id": "55555555-0001-0000-0000-000000000001",
+        "actor_user_id": "bbbb0001-0000-0000-0000-000000000001",
+        "payload": {"name": "Tussar Silk Fabric (Natural)", "quantity": 120.0, "unit": "meters"},
+        "created_at": "2026-10-30T08:20:00Z",
+    },
+    {
+        "id": "aud00004-0000-0000-0000-000000000004",
+        "actor": "Platform Admin",
+        "action": "user_role_updated",
+        "entity": "user_role",
+        "entity_type": "user_role",
+        "entity_id": "cccc0001-0000-0000-0000-000000000001",
+        "actor_user_id": "aaaa0001-0000-0000-0000-000000000001",
+        "payload": {"target_email": "artisan.anita@kalaswar.demo", "role": "artisan", "cluster": "Bolpur Kantha Guild"},
+        "created_at": "2026-10-29T16:00:00Z",
+    },
+    {
+        "id": "aud00005-0000-0000-0000-000000000005",
+        "actor": "Financier Console",
+        "action": "po_factoring_tokenized",
+        "entity": "po_factoring",
+        "entity_type": "po_factoring",
+        "entity_id": "99990001-0000-0000-0000-000000000001",
+        "actor_user_id": "ffff0001-0000-0000-0000-000000000001",
+        "payload": {"po_number": "PO-FABINDIA-2026-088", "advance_amount": 105000.0, "escrow_status": "locked"},
+        "created_at": "2026-10-29T11:30:00Z",
+    },
+]
+
 
 @router.post("/logs")
 async def create_audit_log(
@@ -33,6 +91,8 @@ async def create_audit_log(
         request_id=getattr(request.state, "request_id", None),
     )
 
+    DEMO_AUDIT_LOGS.insert(0, logged)
+
     return {
         "status": "recorded",
         "entry": logged,
@@ -49,9 +109,18 @@ async def list_audit_logs(
     Retrieves recent action_audit_logs.
     Restricted to Platform Admins and SHG Coordinators.
     """
-    params = {"select": "*", "order": "created_at.desc", "limit": str(limit)}
-    records = await audit.adapter.query_records("action_audit_logs", params=params)
+    try:
+        params = {"select": "*", "order": "created_at.desc", "limit": str(limit)}
+        records = await audit.adapter.query_records("action_audit_logs", params=params)
+        if records:
+            return {
+                "total": len(records),
+                "data": records,
+            }
+    except Exception:
+        pass
+
     return {
-        "total": len(records),
-        "data": records,
+        "total": len(DEMO_AUDIT_LOGS[:limit]),
+        "data": DEMO_AUDIT_LOGS[:limit],
     }

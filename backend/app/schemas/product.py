@@ -32,9 +32,15 @@ class ProductResponse(ProductBase):
     id: UUID
     status: str = "published"
     gi_watermarked: bool = False
+    rejection_reason: Optional[str] = None
     created_at: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProductValidationRequest(BaseModel):
+    action: str = Field(..., description="Action: 'approve' or 'reject'")
+    reason: Optional[str] = Field(None, description="Mandatory reason if action is 'reject'")
 
 
 class PaginatedProductResponse(BaseModel):

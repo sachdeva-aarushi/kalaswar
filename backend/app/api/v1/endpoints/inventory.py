@@ -243,3 +243,34 @@ async def get_inventory_summary(
         total_finished_products=30,  # catalog count
         active_shgs_count=unique_shgs,
     )
+
+
+@router.post("/materials/{material_id}/verify", response_model=MaterialInventoryResponse)
+async def verify_material_freshness(
+    material_id: UUID,
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    db: SupabaseAdapter = Depends(get_supabase),
+    audit: AuditService = Depends(lambda: audit_service),
+):
+    """
+    Flow (3) Inventory Freshness Verification:
+    Updates material verification timestamp to now, resetting freshness flags.
+    Requires coordinator or admin role.
+    """
+    now_iso = datetime.now(timezone.utc).isoformat()
+    actor_name = current_user.user_metadata.get("full_name") or current_user.email or "Coordinator"
+
+    for m in DEMO_MATERIALS:
+        if str(m["id"]) == str(material_id):
+            m["updated_at"] = now_iso
+            m["updated_by"] = actor_name
+            await audit.log_action(
+                user_id=current_user.id,
+                action="material_freshness_verified",
+                entity_type="materials_inventory",
+                entity_id=str(material_id),
+                details={"name": m.get("name"), "verified_by": actor_name},
+            )
+            return _build_material_response(m)
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Material '{material_id}' not found")

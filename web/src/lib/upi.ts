@@ -1,7 +1,7 @@
 /** UPI deep-link helpers: build scannable payment QRs from a collective's UPI ID. */
 
 export function isValidUpiId(value: string): boolean {
-  return /^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(value.trim());
+  return /^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(value.trim());
 }
 
 export interface UpiPaymentParams {

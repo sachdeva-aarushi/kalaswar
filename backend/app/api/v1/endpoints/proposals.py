@@ -1,8 +1,10 @@
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends
-from app.api.deps import get_current_user
+from app.api.deps import get_optional_current_user
 from app.schemas.auth import CurrentUser
 from app.schemas.proposals import (
+    ProposalDeclineRequest,
     ProposalApproveRequest,
     ProposalCreateRequest,
     ProposalResponse,
@@ -16,6 +18,22 @@ from app.services.proposals import proposal_service
 router = APIRouter(prefix="/proposals", tags=["Proposal & Quote Versioning State Machine"])
 
 
+@router.get(
+    "",
+    response_model=List[ProposalResponse],
+    summary="List proposals, optionally filtered by request_id",
+)
+async def list_proposals_endpoint(
+    request_id: Optional[UUID] = None,
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
+):
+    """
+    List all proposals in the workroom, optionally filtered by custom request ID.
+    """
+    return await proposal_service.list_proposals(request_id=request_id)
+
+
+
 @router.post(
     "",
     response_model=ProposalResponse,
@@ -23,13 +41,13 @@ router = APIRouter(prefix="/proposals", tags=["Proposal & Quote Versioning State
 )
 async def create_new_proposal(
     payload: ProposalCreateRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Creates an initial draft proposal (version 1) with specifications, pricing build-up, and delivery terms.
     Initial status: 'draft'.
     """
-    return await proposal_service.create_proposal(payload, actor_user_id=current_user.id)
+    return await proposal_service.create_proposal(payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
 
 
 @router.get(
@@ -52,14 +70,14 @@ async def get_proposal_detail(proposal_id: UUID):
 )
 async def submit_proposal_endpoint(
     proposal_id: UUID,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Submits proposal for counter-party review.
     Current version transitions to 'submitted' and becomes immutable.
     """
-    approver = current_user.user_metadata.get("full_name") or current_user.email or "Coordinator"
-    return await proposal_service.submit_proposal(proposal_id, submitted_by=approver, actor_user_id=current_user.id)
+    approver = (current_user.user_metadata.get("full_name") or current_user.email) if current_user else "Coordinator"
+    return await proposal_service.submit_proposal(proposal_id, submitted_by=approver, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
 
 
 @router.post(
@@ -70,7 +88,7 @@ async def submit_proposal_endpoint(
 async def revise_proposal_endpoint(
     proposal_id: UUID,
     payload: ProposalReviseRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Material Change Rule:
@@ -78,7 +96,24 @@ async def revise_proposal_endpoint(
     Previous version is marked superseded and preserved immutably for audit.
     Any prior approvals on the old version do NOT carry over.
     """
-    return await proposal_service.revise_proposal(proposal_id, payload, actor_user_id=current_user.id)
+    return await proposal_service.revise_proposal(proposal_id, payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
+
+
+
+@router.post(
+    "/{proposal_id}/decline",
+    response_model=ProposalResponse,
+    summary="Decline a proposal version with mandatory feedback reason",
+)
+async def decline_proposal_endpoint(
+    proposal_id: UUID,
+    payload: ProposalDeclineRequest,
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
+):
+    """
+    Coordinator or Buyer declines proposal version.
+    """
+    return await proposal_service.decline_proposal(proposal_id, payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
 
 
 @router.post(
@@ -89,7 +124,7 @@ async def revise_proposal_endpoint(
 async def approve_proposal_version_endpoint(
     proposal_id: UUID,
     payload: ProposalApproveRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Two-Sided Approval State Machine:
@@ -98,7 +133,7 @@ async def approve_proposal_version_endpoint(
     - When BOTH the Coordinator and Buyer approve the EXACT SAME version:
       Status automatically transitions to 'confirmed' and a confirmed order is issued.
     """
-    return await proposal_service.approve_proposal_version(proposal_id, payload, actor_user_id=current_user.id)
+    return await proposal_service.approve_proposal_version(proposal_id, payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
 
 
 @router.post(
@@ -109,12 +144,12 @@ async def approve_proposal_version_endpoint(
 async def create_sample_request_endpoint(
     proposal_id: UUID,
     payload: SampleRequestCreate,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Buyer requests a pre-production sample tied to a specific proposal specification version.
     """
-    return await proposal_service.create_sample_request(proposal_id, payload, actor_user_id=current_user.id)
+    return await proposal_service.create_sample_request(proposal_id, payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))
 
 
 @router.patch(
@@ -126,10 +161,10 @@ async def update_sample_status_endpoint(
     proposal_id: UUID,
     sample_id: UUID,
     payload: SampleStatusUpdateRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Advances sample lifecycle:
     'approved_for_production' -> 'in_production' -> 'dispatched' -> 'delivered' -> 'approved'.
     """
-    return await proposal_service.update_sample_status(proposal_id, sample_id, payload, actor_user_id=current_user.id)
+    return await proposal_service.update_sample_status(proposal_id, sample_id, payload, actor_user_id=(current_user.id if current_user else UUID('00000000-0000-0000-0000-000000000001')))

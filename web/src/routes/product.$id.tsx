@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, ScrollText, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Bookmark, ScrollText, ShieldCheck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLang } from "@/lib/i18n";
@@ -28,6 +28,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FairPriceCostSheet } from "@/components/workroom/fair-price-cost-sheet";
+import { DppQrGenerator } from "@/components/workroom/dpp-qr-generator";
+import { LivingCraftStory } from "@/components/craft-story/living-craft-story";
+import { useAddToCart } from "@/features/cart/hooks";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 
 export const Route = createFileRoute("/product/$id")({
   head: (ctx) => {
@@ -69,6 +74,25 @@ function ProductDetail() {
   const product = productData as NonNullable<typeof productData>;
   const artisan = product.artisan;
   const shg = product.shg;
+
+  const addToCart = useAddToCart();
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const handleAddToCart = async () => {
+    try {
+      console.log("handleAddToCart starting for product:", product?.id);
+      await addToCart.mutateAsync({
+        product_id: product.id,
+        quantity: 1,
+      });
+      console.log("handleAddToCart success, opening cart drawer");
+      toast.success("Added to cart!");
+      setCartOpen(true);
+    } catch (err) {
+      console.error("Could not add to cart:", err);
+      toast.error("Could not add to cart");
+    }
+  };
 
   // One view per browser session is recorded as a demand signal.
   useEffect(() => {
@@ -162,7 +186,7 @@ function ProductDetail() {
                     {artisan.photo_url && (
                       <img
                         src={artisan.photo_url}
-                        alt=""
+                        alt={artisan.name}
                         className="size-16 shrink-0 rounded-full object-cover"
                       />
                     )}
@@ -269,9 +293,42 @@ function ProductDetail() {
               </aside>
             </Reveal>
 
+            {/* Living Craft Story with Verification Source Labels (Flow 1) */}
+            <Reveal delay={0.11}>
+              <div className="mt-10">
+                <LivingCraftStory productId={product.id} fallbackArtisanName={artisan?.name} />
+              </div>
+            </Reveal>
+
+            {/* FairPrice Cost Sheet (Flow 9) */}
+            <Reveal delay={0.12}>
+              <div className="mt-10">
+                <FairPriceCostSheet price={Number(product.price)} showTitle={true} />
+              </div>
+            </Reveal>
+
+            {/* DPP Cryptographic QR Code Generator (Flow 9) */}
+            <Reveal delay={0.13}>
+              <div className="mt-10">
+                <DppQrGenerator productId={product.id} productTitle={product.name} />
+              </div>
+            </Reveal>
+
             {/* Actions */}
             <Reveal delay={0.14}>
               <div className="mt-10 flex flex-wrap items-center gap-3">
+                <Button
+                  size="lg"
+                  className="h-12 px-7 bg-primary text-primary-foreground font-semibold inline-flex items-center gap-2 hover:bg-primary/90"
+                  disabled={addToCart.isPending}
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingBag className="size-4" />
+                  <span>Add to Cart</span>
+                </Button>
+
+                <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button

@@ -54,6 +54,12 @@ class ProposalReviseRequest(BaseModel):
     revised_by: str = "Coordinator"
 
 
+class ProposalDeclineRequest(BaseModel):
+    version: int = Field(..., description="Exact proposal version number being declined")
+    reason: str = Field(..., description="Mandatory decline or rejection reason")
+    declined_by: Optional[str] = "Coordinator"
+
+
 class ProposalApproveRequest(BaseModel):
     version: int = Field(..., description="Exact proposal version number being approved")
     approver_role: str = Field(..., description="'coordinator' or 'buyer'")

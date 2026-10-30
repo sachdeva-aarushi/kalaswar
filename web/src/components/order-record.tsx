@@ -5,6 +5,7 @@ import { useLang } from "@/lib/i18n";
 import { orderEventsQuery } from "@/lib/data";
 import { formatDate } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { useOrderDetail } from "@/features/orders/hooks";
 
 const EVENT_KEYS: Record<string, string> = {
   placed: "event_placed",
@@ -26,9 +27,22 @@ const EVENT_KEYS: Record<string, string> = {
  * Events are appended automatically as the order is assigned, produced,
  * dispatched, delivered and paid.
  */
-export function OrderRecordTimeline({ orderId }: { orderId: string }) {
+export function OrderRecordTimeline({
+  orderId,
+  initialEvents,
+}: {
+  orderId: string;
+  initialEvents?: Array<{ id: string; event_type: string; note?: string | null; created_at: string }>;
+}) {
   const { t } = useLang();
-  const { data: events, isLoading } = useQuery(orderEventsQuery(orderId));
+  const { data: dbEvents } = useQuery(orderEventsQuery(orderId));
+  const { data: apiOrder, isLoading: isApiLoading } = useOrderDetail(orderId);
+  const events = (dbEvents && dbEvents.length > 0)
+    ? dbEvents
+    : (apiOrder?.events && apiOrder.events.length > 0)
+    ? apiOrder.events
+    : (initialEvents ?? []);
+  const isLoading = !events.length && isApiLoading;
 
   return (
     <div aria-label={t("events_title")}>
