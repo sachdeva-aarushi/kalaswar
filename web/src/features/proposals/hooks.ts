@@ -161,3 +161,44 @@ export function useApproveProposal() {
   });
 }
 
+
+
+export interface ProposalDeclineRequest {
+  version: number;
+  reason: string;
+  declined_by?: string;
+}
+
+export function useDeclineProposal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ProposalDeclineRequest }) =>
+      apiClient.post<ProposalResponse>(`/api/v1/proposals/${id}/decline`, payload),
+    onSuccess: (_, { id }) => {
+      void qc.invalidateQueries({ queryKey: proposalKeys.all });
+      void qc.invalidateQueries({ queryKey: proposalKeys.detail(id) });
+    },
+  });
+}
+
+export function useUpdateSampleStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ proposalId, sampleId, new_status, feedback, tracking_number }: {
+      proposalId: string;
+      sampleId: string;
+      new_status: string;
+      feedback?: string;
+      tracking_number?: string;
+    }) =>
+      apiClient.patch<SampleResponse>(`/api/v1/proposals/${proposalId}/samples/${sampleId}`, {
+        new_status,
+        feedback,
+        tracking_number,
+      }),
+    onSuccess: (_, { proposalId }) => {
+      void qc.invalidateQueries({ queryKey: proposalKeys.detail(proposalId) });
+      void qc.invalidateQueries({ queryKey: proposalKeys.all });
+    },
+  });
+}

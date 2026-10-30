@@ -32,6 +32,19 @@ class OrderAssignmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ArtisanSuggestionResponse(BaseModel):
+    artisan_id: UUID
+    artisan_name: str
+    craft_skills: List[str]
+    cluster: str
+    match_score: int
+    recommended: bool
+    active_orders: int
+    reasons: List[str]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class OrderEventResponse(BaseModel):
     id: UUID
     order_id: UUID

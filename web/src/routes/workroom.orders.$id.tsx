@@ -1,8 +1,11 @@
 /**
  * /workroom/orders/$id — Kalaswar Workroom Order Detail & Production Tracking
  *
- * Stitch Screen ID: 8e785191e71341b482682a4b401eb864
  * Scoped under .kw-app.
+ * Flows handled:
+ * - Flow 2: Skills-aware artisan assignment suggestions
+ * - Flow 5: Quality checks & strict dispatch gating
+ * - RLS enforcement: Coordinators/Admins can assign, QC, and dispatch; Artisans are restricted.
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -16,12 +19,21 @@ import {
   UserCheck,
   CheckCircle2,
   ExternalLink,
+  Truck,
+  XCircle,
+  ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import {
   useOrderDetail,
   useUpdateOrderStatus,
   useAssignArtisan,
+  useQualityChecks,
+  useRecordQualityCheck,
+  useShipments,
+  useCreateShipment,
 } from "@/features/orders/hooks";
+import { useAuth } from "@/features/auth";
 import { KwLoadingState, KwErrorState } from "@/components/kw-primitives";
 import { MilestoneTimeline } from "@/components/workroom/timeline";
 import {
@@ -29,30 +41,41 @@ import {
   LogDelayModal,
   AssignArtisanModal,
   PutOnHoldModal,
+  RecordQualityCheckModal,
 } from "@/components/workroom/order-modals";
 
 export const Route = createFileRoute("/workroom/orders/$id")({
   head: () => ({
-    meta: [{ title: "Order Details — Kalaswar Workroom" }],
+    meta: [{ title: "Order Details & QC — Kalaswar Workroom" }],
   }),
   component: WorkroomOrderDetailPage,
 });
 
 function WorkroomOrderDetailPage() {
   const { id } = Route.useParams();
+  const { user } = useAuth();
+  const isArtisan = user?.role === "artisan";
+
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
+  const { data: qualityChecks, refetch: refetchQC } = useQualityChecks(id);
+  const { data: shipments, refetch: refetchShipments } = useShipments(id);
+
   const updateStatus = useUpdateOrderStatus();
   const assignArtisan = useAssignArtisan();
+  const recordQualityCheck = useRecordQualityCheck();
+  const createShipment = useCreateShipment();
 
   // Modals state
   const [progressOpen, setProgressOpen] = useState(false);
   const [delayOpen, setDelayOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
   const [holdOpen, setHoldOpen] = useState(false);
+  const [qcOpen, setQcOpen] = useState(false);
 
   // Recovery radio state
   const [recoveryAction, setRecoveryAction] = useState<string>("more_artisans");
   const [notifiedBuyer, setNotifiedBuyer] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   if (isLoading) {
     return <KwLoadingState label="Loading order details…" retry={() => void refetch()} />;
@@ -84,6 +107,58 @@ function WorkroomOrderDetailPage() {
       ];
 
   const leadArtisan = assignments[0]?.artisan_name || "Radha Devi";
+
+  // Flow 5: Check if there is at least one PASS quality check
+  const passingQc = qualityChecks?.find((qc) => qc.result === "pass");
+  const hasPassingQc = Boolean(passingQc);
+  const latestQc = qualityChecks && qualityChecks.length > 0 ? qualityChecks[qualityChecks.length - 1] : null;
+  const hasShipment = Boolean(shipments && shipments.length > 0);
+
+  const handleBookDispatch = async () => {
+    setActionError(null);
+    if (!hasPassingQc) {
+      setActionError("Dispatch Gated: Order cannot be shipped until a Quality Check with status 'PASS' is recorded.");
+      return;
+    }
+    try {
+      await createShipment.mutateAsync({
+        order_id: order.id,
+        carrier: "Delhivery Express",
+        tracking_ref: `DEL-${Date.now().toString().slice(-6)}`,
+        estimated_delivery_at: new Date(Date.now() + 4 * 86400000).toISOString(),
+      });
+      await updateStatus.mutateAsync({
+        id: order.id,
+        status: "ready_for_dispatch",
+        note: "QA Passed. Delhivery Express courier booking confirmed.",
+      });
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message || "Failed to book shipment.";
+      setActionError(msg);
+    }
+  };
+
+  const handleSaveQC = async (data: { result: "pass" | "fail" | "conditional"; notes: string }) => {
+    setActionError(null);
+    try {
+      await recordQualityCheck.mutateAsync({
+        order_id: order.id,
+        result: data.result,
+        notes: data.notes,
+        checked_by: user?.name || "Cluster Coordinator",
+      });
+      if (data.result === "pass") {
+        await updateStatus.mutateAsync({
+          id: order.id,
+          status: "in_production",
+          note: `Quality Check Passed: ${data.notes}`,
+        });
+      }
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message || "Failed to record quality check.";
+      setActionError(msg);
+    }
+  };
 
   return (
     <div className="space-y-6 pb-28">
@@ -132,13 +207,32 @@ function WorkroomOrderDetailPage() {
         </div>
       </div>
 
+      {/* Global Error Banner */}
+      {actionError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs"
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-4 shrink-0 text-red-600" />
+            <span>{actionError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            className="text-red-600 hover:text-red-900 font-bold"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* ── Order Quick Facts Strip ───────────────────────────────────────── */}
       <section
         aria-label="Order quick facts"
         className="w-full rounded-2xl px-6 py-4 bg-[var(--kw-surface-container-low)] border border-[var(--kw-outline-variant)] flex flex-wrap items-center justify-between gap-6 shadow-sm"
       >
         <div className="flex flex-wrap items-center gap-8">
-          {/* Thumbnail */}
           <div className="w-16 h-16 rounded-xl overflow-hidden bg-[var(--kw-surface-container)] shrink-0 border border-[var(--kw-outline-variant)]">
             <img
               src={
@@ -170,30 +264,35 @@ function WorkroomOrderDetailPage() {
 
           <div>
             <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px] block">
-              Due Date
+              Quality Status
             </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="kw-headline-sm text-[var(--kw-primary)] font-semibold">
-                {order.expected_dispatch_at
-                  ? new Date(order.expected_dispatch_at).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "1 Nov 2026"}
-              </span>
-              <span className="text-xs text-[var(--kw-on-surface-variant)] font-normal">
-                (2 days left)
-              </span>
-            </div>
+            <span
+              className={`kw-badge mt-0.5 ${
+                hasPassingQc
+                  ? "kw-badge-success"
+                  : latestQc?.result === "fail"
+                  ? "kw-badge-danger"
+                  : "kw-badge-warning"
+              }`}
+            >
+              {hasPassingQc ? "QC Passed ✓" : latestQc ? `QC ${latestQc.result}` : "Pending QC"}
+            </span>
           </div>
 
           <div>
             <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px] block">
-              Delivery
+              Dispatch Gating
             </span>
-            <span className="kw-headline-sm text-[var(--kw-primary)] font-semibold">
-              First-mile pickup confirmed
+            <span
+              className={`kw-badge mt-0.5 ${
+                hasShipment
+                  ? "kw-badge-primary"
+                  : hasPassingQc
+                  ? "kw-badge-success"
+                  : "kw-badge-neutral"
+              }`}
+            >
+              {hasShipment ? "Dispatched" : hasPassingQc ? "Ready to Dispatch" : "Gated (Locked)"}
             </span>
           </div>
         </div>
@@ -228,20 +327,25 @@ function WorkroomOrderDetailPage() {
           />
         </div>
 
-        {/* Right column (5/12): Context, Artisan Roster & Recovery Actions */}
+        {/* Right column (5/12): Context, Artisan Roster, QC & Dispatch Gating */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Section A: Who is making it */}
+          {/* Section A: Flow 2 - Skills-Aware Artisan Roster */}
           <div className="kw-card p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider font-bold text-xs">
-                Who is making it
+              <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider font-bold text-xs flex items-center gap-1">
+                <Sparkles className="size-3.5 text-amber-500" />
+                <span>Assigned Artisans</span>
               </span>
               <button
                 type="button"
                 onClick={() => setAssignOpen(true)}
-                className="kw-label-sm text-[var(--kw-primary)] hover:underline inline-flex items-center gap-1"
+                disabled={isArtisan}
+                className={`kw-label-sm inline-flex items-center gap-1 ${
+                  isArtisan ? "opacity-50 cursor-not-allowed" : "text-[var(--kw-primary)] hover:underline"
+                }`}
+                title={isArtisan ? "Coordinators or Admins only" : "Assign more artisans"}
               >
-                <span>Assign more</span>
+                <span>Skills Suggestions</span>
                 <ArrowRight className="size-3" />
               </button>
             </div>
@@ -276,14 +380,120 @@ function WorkroomOrderDetailPage() {
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="pt-2 border-t border-[var(--kw-outline-variant)] flex items-center justify-between text-xs text-[var(--kw-on-surface-variant)]">
-              <span>Kantha stitching load: 92% booked</span>
-              <span className="font-semibold text-[var(--kw-primary)]">Recorded: 22 / 40 pieces</span>
+          {/* Section B: Flow 5 - Quality Checks & Dispatch Gating Card */}
+          <div className="kw-card p-5 space-y-4 border-2 border-[var(--kw-outline-variant)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-4 text-[var(--kw-primary)]" />
+                <span className="kw-label-sm text-[var(--kw-primary)] uppercase tracking-wider font-bold text-xs">
+                  Quality Checks & Dispatch Gating
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled={isArtisan}
+                onClick={() => setQcOpen(true)}
+                className={`h-7 px-2.5 rounded text-xs font-semibold inline-flex items-center gap-1 ${
+                  isArtisan
+                    ? "opacity-50 cursor-not-allowed bg-[var(--kw-surface-container)]"
+                    : "bg-[var(--kw-primary)] hover:bg-[var(--kw-primary-container)] text-white"
+                }`}
+                title={isArtisan ? "Requires Coordinator or Admin role" : "Record quality check inspection"}
+              >
+                <span>Record QC</span>
+              </button>
+            </div>
+
+            {/* Status of inspection */}
+            <div className="rounded-xl p-3 bg-[var(--kw-surface-container-low)] space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[var(--kw-on-surface-variant)]">Inspection Verdict:</span>
+                <span
+                  className={`font-semibold ${
+                    hasPassingQc
+                      ? "text-emerald-700"
+                      : latestQc?.result === "fail"
+                      ? "text-red-600"
+                      : "text-amber-600"
+                  }`}
+                >
+                  {hasPassingQc ? "Verified & Passed ✓" : latestQc ? `Latest: ${latestQc.result.toUpperCase()}` : "Pending Verification"}
+                </span>
+              </div>
+
+              {latestQc?.notes && (
+                <p className="text-[11px] text-[var(--kw-on-surface)] bg-white p-2 rounded border border-[var(--kw-outline-variant)]">
+                  <strong>Notes:</strong> {latestQc.notes} ({latestQc.checked_by || "QA Inspector"})
+                </p>
+              )}
+
+              {/* Strict Gating Banner */}
+              {!hasPassingQc ? (
+                <div className="flex items-start gap-2 p-2 rounded bg-amber-50 text-amber-900 text-[11px] border border-amber-200">
+                  <AlertTriangle className="size-3.5 shrink-0 text-amber-600 mt-0.5" />
+                  <span>
+                    <strong>Dispatch Gated:</strong> Dispatch & Delhivery waybill generation are locked until a passing QC inspection is logged.
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2 p-2 rounded bg-emerald-50 text-emerald-900 text-[11px] border border-emerald-200">
+                  <CheckCircle2 className="size-3.5 shrink-0 text-emerald-600 mt-0.5" />
+                  <span>
+                    <strong>Dispatch Authorized:</strong> Quality verification passed. First-mile courier dispatch can now be booked.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Courier Booking Action */}
+            <div className="pt-2 border-t border-[var(--kw-outline-variant)] space-y-2">
+              <div className="flex items-center justify-between text-xs text-[var(--kw-on-surface-variant)]">
+                <span>Courier Partner:</span>
+                <span className="font-semibold text-[var(--kw-on-surface)]">Delhivery Express</span>
+              </div>
+
+              {hasShipment ? (
+                <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-800 text-xs flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-semibold">
+                    <Truck className="size-4" />
+                    <span>Shipment Booked</span>
+                  </div>
+                  <span className="font-mono text-[11px]">{shipments![0].tracking_ref}</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!hasPassingQc || isArtisan || createShipment.isPending}
+                  onClick={() => void handleBookDispatch()}
+                  className={`w-full h-10 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                    hasPassingQc && !isArtisan
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                      : "bg-[var(--kw-surface-container)] text-[var(--kw-on-surface-variant)] opacity-60 cursor-not-allowed"
+                  }`}
+                  title={
+                    !hasPassingQc
+                      ? "Dispatch is locked until passing QC is recorded"
+                      : isArtisan
+                      ? "Restricted to Coordinator or Admin role"
+                      : "Book courier dispatch"
+                  }
+                >
+                  <Truck className="size-4" />
+                  <span>
+                    {createShipment.isPending
+                      ? "Booking Courier…"
+                      : hasPassingQc
+                      ? "Book Delhivery Dispatch"
+                      : "Dispatch Gated (QC Pass Required)"}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Section B: The Delay & Recovery Options */}
+          {/* Section C: Delay & Recovery Options */}
           <div className="kw-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-[var(--kw-secondary)]" />
@@ -309,7 +519,6 @@ function WorkroomOrderDetailPage() {
               </div>
             </div>
 
-            {/* Recovery options */}
             <div className="space-y-2 pt-2">
               <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px] block">
                 Ways to recover
@@ -337,17 +546,6 @@ function WorkroomOrderDetailPage() {
                   />
                   <span>Ask buyer for 2 more days · due 3 Nov</span>
                 </label>
-                <label className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-[var(--kw-surface-container-low)] cursor-pointer">
-                  <input
-                    type="radio"
-                    name="recovery-choice"
-                    value="keep_date"
-                    checked={recoveryAction === "keep_date"}
-                    onChange={(e) => setRecoveryAction(e.target.value)}
-                    className="mt-0.5 accent-[var(--kw-primary)]"
-                  />
-                  <span>Keep date · finish on 31 Oct, dispatch same day</span>
-                </label>
               </div>
             </div>
 
@@ -367,27 +565,6 @@ function WorkroomOrderDetailPage() {
               {notifiedBuyer ? "Buyer notified via WhatsApp" : "Notify buyer of recovery plan"}
             </button>
           </div>
-
-          {/* Section C: Order Facts */}
-          <div className="kw-card p-5 space-y-3">
-            <span className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider font-bold text-xs block">
-              Order Commercial Facts
-            </span>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-baseline justify-between">
-                <span className="kw-headline-sm text-[var(--kw-primary)] font-bold">
-                  Value: ₹{totalAmount.toLocaleString("en-IN")}
-                </span>
-                <span className="text-[var(--kw-on-surface-variant)]">Cost-plus estimate</span>
-              </div>
-              <div className="text-[var(--kw-on-surface)]">
-                Payment: 50% received (advance) · 50% on verified delivery
-              </div>
-              <div className="text-[var(--kw-on-surface-variant)]">
-                Logistics: Delhivery Express · tracking REF-DL-4471
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -399,7 +576,9 @@ function WorkroomOrderDetailPage() {
           </span>
           <div className="flex items-center gap-1.5 text-xs text-[var(--kw-on-surface-variant)]">
             <ShieldCheck className="size-4 text-[var(--kw-primary)]" />
-            <span>Progress audit logs provenance and timestamp automatically.</span>
+            <span>
+              {hasPassingQc ? "Quality Check Passed. Ready for Dispatch." : "Awaiting Quality Check sign-off."}
+            </span>
           </div>
         </div>
 
@@ -417,6 +596,16 @@ function WorkroomOrderDetailPage() {
             className="kw-btn kw-btn-secondary h-11 text-xs"
           >
             Log a delay
+          </button>
+          <button
+            type="button"
+            onClick={() => setQcOpen(true)}
+            disabled={isArtisan}
+            className={`kw-btn h-11 text-xs ${
+              isArtisan ? "kw-btn-secondary opacity-50 cursor-not-allowed" : "kw-btn-secondary"
+            }`}
+          >
+            Inspect (QC)
           </button>
           <button
             type="button"
@@ -458,11 +647,14 @@ function WorkroomOrderDetailPage() {
       <AssignArtisanModal
         isOpen={assignOpen}
         onClose={() => setAssignOpen(false)}
+        orderId={order.id}
+        craft="Kantha"
+        isArtisan={isArtisan}
         onSubmit={({ artisanId, pieces }) => {
           assignArtisan.mutate({
             order_id: order.id,
             artisan_id: artisanId,
-            assigned_by: "Cluster Coordinator",
+            assigned_by: user?.name || "Cluster Coordinator",
           });
         }}
       />
@@ -478,7 +670,13 @@ function WorkroomOrderDetailPage() {
           });
         }}
       />
+
+      <RecordQualityCheckModal
+        isOpen={qcOpen}
+        onClose={() => setQcOpen(false)}
+        isArtisan={isArtisan}
+        onSubmit={(data) => void handleSaveQC(data)}
+      />
     </div>
   );
 }
-

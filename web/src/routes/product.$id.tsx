@@ -28,6 +28,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FairPriceCostSheet } from "@/components/workroom/fair-price-cost-sheet";
+import { DppQrGenerator } from "@/components/workroom/dpp-qr-generator";
 
 export const Route = createFileRoute("/product/$id")({
   head: (ctx) => {
@@ -267,6 +269,20 @@ function ProductDetail() {
                 </p>
                 <DemoNote className="mt-2">{t("demo_note")}</DemoNote>
               </aside>
+            </Reveal>
+
+            {/* FairPrice Cost Sheet (Flow 9) */}
+            <Reveal delay={0.12}>
+              <div className="mt-10">
+                <FairPriceCostSheet price={Number(product.price)} showTitle={true} />
+              </div>
+            </Reveal>
+
+            {/* DPP Cryptographic QR Code Generator (Flow 9) */}
+            <Reveal delay={0.13}>
+              <div className="mt-10">
+                <DppQrGenerator productId={product.id} productTitle={product.name} />
+              </div>
             </Reveal>
 
             {/* Actions */}

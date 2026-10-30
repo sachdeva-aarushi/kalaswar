@@ -56,6 +56,7 @@ import { Route as WorkroomIndexRouteImport } from './routes/workroom.index'
 import { Route as WorkroomAdminRouteImport } from './routes/workroom.admin'
 import { Route as WorkroomArtisanRouteImport } from './routes/workroom.artisan'
 import { Route as WorkroomArtisansRouteImport } from './routes/workroom.artisans'
+import { Route as WorkroomB2bRouteImport } from './routes/workroom.b2b'
 import { Route as WorkroomInventoryRouteImport } from './routes/workroom.inventory'
 import { Route as WorkroomOrdersRouteImport } from './routes/workroom.orders'
 import { Route as WorkroomProductsRouteImport } from './routes/workroom.products'
@@ -312,6 +313,11 @@ const WorkroomArtisansRoute = WorkroomArtisansRouteImport.update({
   path: '/artisans',
   getParentRoute: () => WorkroomRoute,
 } as any)
+const WorkroomB2bRoute = WorkroomB2bRouteImport.update({
+  id: '/b2b',
+  path: '/b2b',
+  getParentRoute: () => WorkroomRoute,
+} as any)
 const WorkroomInventoryRoute = WorkroomInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -456,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/b2b': typeof WorkroomB2bRoute
   '/workroom/inventory': typeof WorkroomInventoryRoute
   '/workroom/orders': typeof WorkroomOrdersRouteWithChildren
   '/workroom/products': typeof WorkroomProductsRouteWithChildren
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/b2b': typeof WorkroomB2bRoute
   '/workroom/inventory': typeof WorkroomInventoryRoute
   '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b': typeof B2bIndexRoute
@@ -584,6 +592,7 @@ export interface FileRoutesById {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/b2b': typeof WorkroomB2bRoute
   '/workroom/inventory': typeof WorkroomInventoryRoute
   '/workroom/orders': typeof WorkroomOrdersRouteWithChildren
   '/workroom/products': typeof WorkroomProductsRouteWithChildren
@@ -655,6 +664,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
+    | '/workroom/b2b'
     | '/workroom/inventory'
     | '/workroom/orders'
     | '/workroom/products'
@@ -716,6 +726,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
+    | '/workroom/b2b'
     | '/workroom/inventory'
     | '/workroom/settings'
     | '/b2b'
@@ -782,6 +793,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
+    | '/workroom/b2b'
     | '/workroom/inventory'
     | '/workroom/orders'
     | '/workroom/products'
@@ -1167,6 +1179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkroomArtisansRouteImport
       parentRoute: typeof WorkroomRoute
     }
+    '/workroom/b2b': {
+      id: '/workroom/b2b'
+      path: '/b2b'
+      fullPath: '/workroom/b2b'
+      preLoaderRoute: typeof WorkroomB2bRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
     '/workroom/inventory': {
       id: '/workroom/inventory'
       path: '/inventory'
@@ -1475,6 +1494,7 @@ interface WorkroomRouteChildren {
   WorkroomAdminRoute: typeof WorkroomAdminRoute
   WorkroomArtisanRoute: typeof WorkroomArtisanRoute
   WorkroomArtisansRoute: typeof WorkroomArtisansRoute
+  WorkroomB2bRoute: typeof WorkroomB2bRoute
   WorkroomInventoryRoute: typeof WorkroomInventoryRoute
   WorkroomOrdersRoute: typeof WorkroomOrdersRouteWithChildren
   WorkroomProductsRoute: typeof WorkroomProductsRouteWithChildren
@@ -1487,6 +1507,7 @@ const WorkroomRouteChildren: WorkroomRouteChildren = {
   WorkroomAdminRoute: WorkroomAdminRoute,
   WorkroomArtisanRoute: WorkroomArtisanRoute,
   WorkroomArtisansRoute: WorkroomArtisansRoute,
+  WorkroomB2bRoute: WorkroomB2bRoute,
   WorkroomInventoryRoute: WorkroomInventoryRoute,
   WorkroomOrdersRoute: WorkroomOrdersRouteWithChildren,
   WorkroomProductsRoute: WorkroomProductsRouteWithChildren,

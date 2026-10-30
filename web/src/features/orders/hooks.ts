@@ -158,3 +158,60 @@ export function useAppendShipmentEvent() {
     },
   });
 }
+
+
+export interface ArtisanSuggestion {
+  artisan_id: string;
+  artisan_name: string;
+  craft_skills: string[];
+  cluster: string;
+  match_score: number;
+  recommended: boolean;
+  active_orders: number;
+  reasons: string[];
+}
+
+export function useAssignmentSuggestions(orderId?: string, craft?: string) {
+  const queryParams = new URLSearchParams();
+  if (orderId) queryParams.set("order_id", orderId);
+  if (craft) queryParams.set("craft", craft);
+  const qs = queryParams.toString();
+
+  return useQuery({
+    queryKey: ["assignments", "suggestions", orderId, craft],
+    queryFn: () => apiClient.get<ArtisanSuggestion[]>(`/api/v1/assignments/suggestions${qs ? `?${qs}` : ""}`),
+    enabled: Boolean(orderId || craft),
+    staleTime: 30_000,
+  });
+}
+
+export interface QualityCheck {
+  id: string;
+  order_id: string;
+  artisan_id?: string;
+  result: "pass" | "fail" | "conditional";
+  notes?: string;
+  checked_by?: string;
+  checked_at: string;
+}
+
+export function useQualityChecks(orderId?: string) {
+  return useQuery({
+    queryKey: ["quality-checks", orderId],
+    queryFn: () => apiClient.get<QualityCheck[]>(`/api/v1/quality-checks${orderId ? `?order_id=${orderId}` : ""}`),
+    enabled: Boolean(orderId),
+    staleTime: 30_000,
+  });
+}
+
+export function useRecordQualityCheck() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { order_id: string; result: "pass" | "fail" | "conditional"; notes: string; checked_by?: string }) =>
+      apiClient.post<QualityCheck>(`/api/v1/quality-checks`, payload),
+    onSuccess: (_, variables) => {
+      void qc.invalidateQueries({ queryKey: ["quality-checks", variables.order_id] });
+      void qc.invalidateQueries({ queryKey: orderKeys.detail(variables.order_id) });
+    },
+  });
+}

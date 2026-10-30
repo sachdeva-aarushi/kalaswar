@@ -6,6 +6,7 @@ from app.adapters.supabase import SupabaseAdapter, supabase_adapter
 from app.core.errors import ConflictError, NotFoundError
 from app.core.logging import logger
 from app.schemas.proposals import (
+    ProposalDeclineRequest,
     ApprovalRecord,
     ProposalApproveRequest,
     ProposalCreateRequest,
@@ -359,6 +360,37 @@ class ProposalService:
             },
         )
 
+        return self._to_response(proposal)
+
+
+    async def decline_proposal(
+        self,
+        proposal_id: UUID,
+        req: ProposalDeclineRequest,
+        actor_user_id: Optional[UUID] = None,
+    ) -> ProposalResponse:
+        pid_str = str(proposal_id)
+        if pid_str not in _IN_MEMORY_PROPOSALS:
+            raise NotFoundError(f"Proposal with ID '{proposal_id}' was not found.")
+
+        proposal = _IN_MEMORY_PROPOSALS[pid_str]
+        current_v_num = proposal["current_version"]
+        target_version = next((v for v in proposal["versions"] if v["version"] == current_v_num), None)
+        if target_version:
+            target_version["status"] = "declined"
+            target_version["is_immutable"] = True
+
+        proposal["status"] = "declined"
+        now = datetime.now(timezone.utc).isoformat()
+        proposal["updated_at"] = now
+
+        await audit_service.log_action(
+            user_id=actor_user_id,
+            action="proposal_declined",
+            entity_type="proposal",
+            entity_id=pid_str,
+            details={"version": current_v_num, "reason": req.reason, "declined_by": req.declined_by},
+        )
         return self._to_response(proposal)
 
     async def approve_proposal_version(

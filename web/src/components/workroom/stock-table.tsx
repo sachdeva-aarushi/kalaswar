@@ -2,16 +2,22 @@
  * Kalaswar Workroom — Inventory Stock Shelf Table & Visual Stock Gauges
  *
  * Scoped under .kw-app.
- * Renders raw materials inventory with:
- * - Filter tabs: All, Needs restock, On the way, Healthy
- * - Visual stock gauge with MIN threshold tick
- * - Multi-select checkboxes for batch restock requisition
- * - Consequences alerts for active proposals / orders
- * - Freshness audit warnings (>60 days unverified)
+ * Flow 3: Inventory with freshness flags:
+ * - Freshness badges: Fresh (< 14d), Audit Due (15-60d), Stale (> 60d)
+ * - Quick 'Audit / Verify Stock' action calling useVerifyMaterialFreshness
+ * - RLS enforcement: Verification restricted for artisan role
  */
 
 import { useState } from "react";
-import { AlertTriangle, Clock, CheckCircle2, PackageCheck, AlertCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  PackageCheck,
+  AlertCircle,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
 import type { MaterialInventory } from "@/features/inventory/hooks";
 
 interface StockTableProps {
@@ -23,6 +29,9 @@ interface StockTableProps {
   onFilterChange: (filter: "all" | "low_stock" | "stale" | "healthy") => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  onVerifyFreshness?: (id: string) => void;
+  verifyingId?: string | null;
+  isArtisan?: boolean;
 }
 
 export function StockTable({
@@ -33,15 +42,19 @@ export function StockTable({
   onFilterChange,
   searchQuery,
   onSearchChange,
+  onVerifyFreshness,
+  verifyingId,
+  isArtisan = false,
 }: StockTableProps) {
   const lowStockCount = materials.filter((m) => m.is_low_stock).length;
-  const staleCount = materials.filter((m) => m.is_stale).length;
-  const healthyCount = materials.filter((m) => !m.is_low_stock && !m.is_stale).length;
+  const staleCount = materials.filter((m) => m.is_stale || (m.age_in_days ?? 0) > 60).length;
+  const healthyCount = materials.filter((m) => !m.is_low_stock && !m.is_stale && (m.age_in_days ?? 0) <= 60).length;
 
   const filteredMaterials = materials.filter((m) => {
+    const isStaleItem = m.is_stale || (m.age_in_days ?? 0) > 60;
     if (activeFilter === "low_stock" && !m.is_low_stock) return false;
-    if (activeFilter === "stale" && !m.is_stale) return false;
-    if (activeFilter === "healthy" && (m.is_low_stock || m.is_stale)) return false;
+    if (activeFilter === "stale" && !isStaleItem) return false;
+    if (activeFilter === "healthy" && (m.is_low_stock || isStaleItem)) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
@@ -142,6 +155,11 @@ export function StockTable({
           const fillPercent = Math.min(100, Math.round((mat.quantity / maxScale) * 100));
           const minMarkerPercent = Math.min(100, Math.round((threshold / maxScale) * 100));
 
+          const age = mat.age_in_days ?? 0;
+          const isFresh = age <= 14 && !mat.is_stale;
+          const isAuditDue = age > 14 && age <= 60;
+          const isStale = age > 60 || mat.is_stale;
+
           return (
             <article
               key={mat.id}
@@ -173,18 +191,47 @@ export function StockTable({
                   </div>
                 </div>
 
-                {/* Audit Freshness Tag */}
-                <div className="flex items-center gap-1.5">
-                  {mat.is_stale ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-[rgba(152,70,46,0.12)] text-[var(--kw-secondary)]">
-                      <Clock className="size-3" />
-                      <span>Counted {mat.age_in_days}d ago (Stale)</span>
+                {/* Freshness Status Badges & Quick Audit Action */}
+                <div className="flex items-center gap-2">
+                  {isFresh && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      <CheckCircle2 className="size-3 text-emerald-700" />
+                      <span>Fresh (&lt; 14d)</span>
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-[var(--kw-surface-container)] text-[var(--kw-on-surface-variant)]">
-                      <CheckCircle2 className="size-3 text-[var(--kw-primary)]" />
-                      <span>Verified recently</span>
+                  )}
+                  {isAuditDue && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                      <Clock className="size-3 text-amber-700" />
+                      <span>Audit Due (15-60d) · {age}d</span>
                     </span>
+                  )}
+                  {isStale && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-100 text-red-800 border border-red-200">
+                      <AlertTriangle className="size-3 text-red-700" />
+                      <span>Stale (&gt; 60d) · {age}d</span>
+                    </span>
+                  )}
+
+                  {/* Audit / Verify Stock Button */}
+                  {onVerifyFreshness && (
+                    <button
+                      type="button"
+                      disabled={isArtisan || verifyingId === mat.id}
+                      onClick={() => onVerifyFreshness(mat.id)}
+                      className={`h-7 px-2.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors ${
+                        isArtisan
+                          ? "opacity-50 cursor-not-allowed bg-[var(--kw-surface-container)] text-[var(--kw-on-surface-variant)]"
+                          : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                      }`}
+                      title={
+                        isArtisan
+                          ? "Restricted to Coordinators/Admins"
+                          : "Audit physical count and refresh freshness timestamp"
+                      }
+                    >
+                      <RefreshCw className={`size-3 ${verifyingId === mat.id ? "animate-spin" : ""}`} />
+                      <span>{verifyingId === mat.id ? "Auditing…" : "Audit / Verify Stock"}</span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -238,4 +285,3 @@ export function StockTable({
     </div>
   );
 }
-

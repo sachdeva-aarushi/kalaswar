@@ -113,3 +113,15 @@ export function useDeleteMaterial() {
   });
 }
 
+
+
+export function useVerifyMaterialFreshness() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiClient.post<MaterialInventory>(`/api/v1/inventory/materials/${id}/verify`),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: inventoryKeys.all });
+    },
+  });
+}

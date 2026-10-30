@@ -30,7 +30,8 @@ export interface ApiProduct {
   image_url?: string;
   cloudinary_public_id?: string;
   availability?: boolean;
-  status: "draft" | "published" | "archived" | string;
+  status: "draft" | "pending_validation" | "approved" | "rejected" | "published" | "archived" | string;
+  rejection_reason?: string;
   gi_watermarked?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -167,6 +168,7 @@ export function usePublishProduct() {
       apiClient.post(`/api/v1/products/${id}/publish`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: productKeys.all });
+      void qc.invalidateQueries({ queryKey: ["products", "validation-queue"] });
     },
   });
 }
@@ -175,5 +177,25 @@ export function useFairPriceEstimate() {
   return useMutation({
     mutationFn: (payload: FairPriceEstimateRequest) =>
       apiClient.post<FairPriceEstimateResponse>(`/api/v1/pricing/fairprice/estimate`, payload),
+  });
+}
+
+export function useValidationQueue() {
+  return useQuery({
+    queryKey: ["products", "validation-queue"],
+    queryFn: () => apiClient.get<ApiProduct[]>("/api/v1/products/validation-queue"),
+    staleTime: 15_000,
+  });
+}
+
+export function useValidateProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, action, reason }: { id: string; action: "approve" | "reject"; reason?: string }) =>
+      apiClient.post<ApiProduct>(`/api/v1/products/${id}/validate`, { action, reason }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: productKeys.all });
+      void qc.invalidateQueries({ queryKey: ["products", "validation-queue"] });
+    },
   });
 }

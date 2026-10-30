@@ -7,6 +7,7 @@ from app.api.deps import get_current_user, get_supabase, require_roles
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 from app.schemas.order import (
+    ArtisanSuggestionResponse,
     OrderAssignmentCreate,
     OrderAssignmentResponse,
     OrderCreate,
@@ -59,6 +60,38 @@ DEMO_ORDERS: List[dict] = [
         "status": "delayed",
         "expected_dispatch_at": "2026-10-25",
         "created_at": "2026-10-18T11:00:00Z",
+    },
+]
+
+
+DEMO_ARTISAN_PROFILES: List[dict] = [
+    {
+        "id": "cccccccc-0001-0000-0000-000000000001",
+        "name": "Anita Soren",
+        "craft_skills": ["Kantha Embroidery", "Murshidabad Silk Stitching", "Natural Dyeing"],
+        "cluster": "Santiniketan Mahila Hastakala Samiti, Bolpur",
+        "qa_pass_rate": 100,
+    },
+    {
+        "id": "cccccccc-0002-0000-0000-000000000002",
+        "name": "Sunita Murmu",
+        "craft_skills": ["Warli Folk Art", "Canvas Murals", "Rice Paste Application"],
+        "cluster": "Dahanu Tribal Collective",
+        "qa_pass_rate": 95,
+    },
+    {
+        "id": "cccccccc-0003-0000-0000-000000000003",
+        "name": "Radha Devi",
+        "craft_skills": ["Kantha Embroidery", "Sikki Grass Weaving"],
+        "cluster": "Madhubani Handicrafts Guild",
+        "qa_pass_rate": 96,
+    },
+    {
+        "id": "cccccccc-0004-0000-0000-000000000004",
+        "name": "Meera Bai",
+        "craft_skills": ["Terracotta Temple Art", "Ceramic Glaze"],
+        "cluster": "Bankura Pottery Kendra",
+        "qa_pass_rate": 98,
     },
 ]
 
@@ -346,6 +379,78 @@ async def list_assignments(
     ]
 
 
+
+@router.get("/assignments/suggestions", response_model=List[ArtisanSuggestionResponse])
+async def get_assignment_suggestions(
+    order_id: Optional[UUID] = Query(None, description="Order to match artisan skills against"),
+    craft: Optional[str] = Query(None, description="Specific craft technique required"),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+):
+    """
+    Flow (2) Skills-Aware Assignment Suggestions:
+    Ranks cluster artisans by craft technique match, open workload capacity, and QA pass record.
+    Requires coordinator or admin role.
+    """
+    target_craft = craft.lower() if craft else ""
+    if order_id:
+        target_order = next((o for o in DEMO_ORDERS if str(o["id"]) == str(order_id)), None)
+        if target_order and not target_craft:
+            target_craft = (target_order.get("product_title", "") + " " + target_order.get("customer_reference", "")).lower()
+
+    suggestions: List[ArtisanSuggestionResponse] = []
+    for artisan in DEMO_ARTISAN_PROFILES:
+        aid_str = str(artisan["id"])
+        active_cnt = sum(1 for a in DEMO_ASSIGNMENTS if str(a["artisan_id"]) == aid_str)
+        
+        # Skill matching
+        skills = artisan["craft_skills"]
+        skill_match = any(s.lower() in target_craft or any(w in s.lower() for w in target_craft.split()) for s in skills)
+        
+        score = 60
+        reasons = []
+        if skill_match:
+            score += 25
+            matched_skill = next((s for s in skills if any(w in s.lower() for w in target_craft.split())), skills[0])
+            reasons.append(f"Specialized in {matched_skill}")
+        else:
+            reasons.append("Cross-trained in artisan collective crafts")
+
+        if active_cnt == 0:
+            score += 15
+            reasons.append("Full capacity available (0 active orders)")
+        elif active_cnt == 1:
+            score += 10
+            reasons.append("Good capacity available (1 active order)")
+        else:
+            reasons.append(f"Moderate load ({active_cnt} active orders)")
+
+        if artisan["qa_pass_rate"] >= 98:
+            score += 10
+            reasons.append(f"{artisan['qa_pass_rate']}% first-time quality pass rate")
+        elif artisan["qa_pass_rate"] >= 95:
+            score += 5
+            reasons.append(f"{artisan['qa_pass_rate']}% inspection pass rate")
+
+        score = min(100, max(50, score))
+        suggestions.append(
+            ArtisanSuggestionResponse(
+                artisan_id=UUID(aid_str),
+                artisan_name=artisan["name"],
+                craft_skills=skills,
+                cluster=artisan["cluster"],
+                match_score=score,
+                recommended=False,
+                active_orders=active_cnt,
+                reasons=reasons,
+            )
+        )
+
+    suggestions.sort(key=lambda s: s.match_score, reverse=True)
+    if suggestions:
+        suggestions[0].recommended = True
+
+    return suggestions
+
 @router.post("/assignments", response_model=OrderAssignmentResponse, status_code=status.HTTP_201_CREATED)
 async def assign_artisan_to_order(
     payload: OrderAssignmentCreate,
@@ -361,11 +466,12 @@ async def assign_artisan_to_order(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Order '{payload.order_id}' not found")
 
     new_id = uuid4()
+    artisan_name = next((a["name"] for a in DEMO_ARTISAN_PROFILES if str(a["id"]) == str(payload.artisan_id)), "Assigned Artisan")
     assignment_record = {
         "id": str(new_id),
         "order_id": str(payload.order_id),
         "artisan_id": str(payload.artisan_id),
-        "artisan_name": "Assigned Artisan",
+        "artisan_name": artisan_name,
         "assigned_at": "2026-10-29T23:10:00Z",
         "assigned_by": payload.assigned_by or current_user.email,
     }
@@ -405,7 +511,7 @@ async def assign_artisan_to_order(
         id=new_id,
         order_id=payload.order_id,
         artisan_id=payload.artisan_id,
-        artisan_name="Assigned Artisan",
+        artisan_name=artisan_name,
         assigned_at="2026-10-29T23:10:00Z",
         assigned_by=payload.assigned_by or current_user.email,
     )

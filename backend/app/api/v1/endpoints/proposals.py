@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from app.api.deps import get_current_user
 from app.schemas.auth import CurrentUser
 from app.schemas.proposals import (
+    ProposalDeclineRequest,
     ProposalApproveRequest,
     ProposalCreateRequest,
     ProposalResponse,
@@ -96,6 +97,23 @@ async def revise_proposal_endpoint(
     Any prior approvals on the old version do NOT carry over.
     """
     return await proposal_service.revise_proposal(proposal_id, payload, actor_user_id=current_user.id)
+
+
+
+@router.post(
+    "/{proposal_id}/decline",
+    response_model=ProposalResponse,
+    summary="Decline a proposal version with mandatory feedback reason",
+)
+async def decline_proposal_endpoint(
+    proposal_id: UUID,
+    payload: ProposalDeclineRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """
+    Coordinator or Buyer declines proposal version.
+    """
+    return await proposal_service.decline_proposal(proposal_id, payload, actor_user_id=current_user.id)
 
 
 @router.post(

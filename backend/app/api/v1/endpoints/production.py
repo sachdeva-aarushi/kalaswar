@@ -291,6 +291,14 @@ async def create_shipment(
     """
     Create a shipment dispatch record with carrier and tracking reference.
     """
+    # Dispatch Gating Check: Order MUST have an inspection with result == 'pass'
+    passing_qc = next((q for q in DEMO_QUALITY_CHECKS if str(q.get("order_id")) == str(payload.order_id) and q.get("result") == "pass"), None)
+    if not passing_qc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Dispatch Gated: Order requires a passing Quality Check (status: 'pass') before courier dispatch can be created.",
+        )
+
     new_id = uuid4()
     now_iso = datetime.now(timezone.utc).isoformat()
     record = {
