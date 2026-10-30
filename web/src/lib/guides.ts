@@ -10,7 +10,8 @@ export interface GuideLike {
 }
 
 function tokens(text: string): string[] {
-  return (text.toLowerCase().match(/[a-z\u0900-\u097F]{3,}/g) ?? []);
+  // eslint-disable-next-line no-misleading-character-class
+  return text.toLowerCase().match(/[a-z\u0900-\u097F]{3,}/gu) ?? [];
 }
 
 /** Guides whose craft/title share at least one meaningful token with the artisan's craft, best match first. */

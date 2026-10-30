@@ -17,9 +17,12 @@ import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GiftRouteImport } from './routes/gift'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ShgRouteImport } from './routes/shg'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StoriesRouteImport } from './routes/stories'
+import { Route as WorkroomRouteImport } from './routes/workroom'
 import { Route as ArtisanIdRouteImport } from './routes/artisan.$id'
 import { Route as B2bIndexRouteImport } from './routes/b2b.index'
 import { Route as B2bBuyerProfileRouteImport } from './routes/b2b.buyer-profile'
@@ -28,8 +31,10 @@ import { Route as B2bOrdersRouteImport } from './routes/b2b.orders'
 import { Route as B2bQuotesRouteImport } from './routes/b2b.quotes'
 import { Route as B2bRequestRouteImport } from './routes/b2b.request'
 import { Route as B2bSamplesRouteImport } from './routes/b2b.samples'
+import { Route as GiftIndexRouteImport } from './routes/gift.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as PassportTokenRouteImport } from './routes/passport.$token'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ShgIndexRouteImport } from './routes/shg.index'
 import { Route as ShgArtisansRouteImport } from './routes/shg.artisans'
@@ -44,8 +49,17 @@ import { Route as ShgProductionRouteImport } from './routes/shg.production'
 import { Route as ShgProductsRouteImport } from './routes/shg.products'
 import { Route as ShgReportsRouteImport } from './routes/shg.reports'
 import { Route as ShgRequestsRouteImport } from './routes/shg.requests'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as StoriesIndexRouteImport } from './routes/stories.index'
 import { Route as StoriesIdRouteImport } from './routes/stories.$id'
+import { Route as WorkroomIndexRouteImport } from './routes/workroom.index'
+import { Route as WorkroomAdminRouteImport } from './routes/workroom.admin'
+import { Route as WorkroomArtisanRouteImport } from './routes/workroom.artisan'
+import { Route as WorkroomArtisansRouteImport } from './routes/workroom.artisans'
+import { Route as WorkroomOrdersRouteImport } from './routes/workroom.orders'
+import { Route as WorkroomProductsRouteImport } from './routes/workroom.products'
+import { Route as WorkroomRequestsRouteImport } from './routes/workroom.requests'
+import { Route as WorkroomSettingsRouteImport } from './routes/workroom.settings'
 import { Route as ApiPublicAssistantRouteImport } from './routes/api/public/assistant'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicTtsRouteImport } from './routes/api/public/tts'
@@ -95,6 +109,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GiftRoute = GiftRouteImport.update({
+  id: '/gift',
+  path: '/gift',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -105,9 +124,19 @@ const ShgRoute = ShgRouteImport.update({
   path: '/shg',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoriesRoute = StoriesRouteImport.update({
   id: '/stories',
   path: '/stories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkroomRoute = WorkroomRouteImport.update({
+  id: '/workroom',
+  path: '/workroom',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArtisanIdRoute = ArtisanIdRouteImport.update({
@@ -150,6 +179,11 @@ const B2bSamplesRoute = B2bSamplesRouteImport.update({
   path: '/samples',
   getParentRoute: () => B2bRoute,
 } as any)
+const GiftIndexRoute = GiftIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GiftRoute,
+} as any)
 const OrdersIndexRoute = OrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
@@ -158,6 +192,11 @@ const OrdersIndexRoute = OrdersIndexRouteImport.update({
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PassportTokenRoute = PassportTokenRouteImport.update({
+  id: '/passport/$token',
+  path: '/passport/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductIdRoute = ProductIdRouteImport.update({
@@ -230,6 +269,11 @@ const ShgRequestsRoute = ShgRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => ShgRoute,
 } as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopRoute,
+} as any)
 const StoriesIndexRoute = StoriesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -239,6 +283,46 @@ const StoriesIdRoute = StoriesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => StoriesRoute,
+} as any)
+const WorkroomIndexRoute = WorkroomIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomAdminRoute = WorkroomAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomArtisanRoute = WorkroomArtisanRouteImport.update({
+  id: '/artisan',
+  path: '/artisan',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomArtisansRoute = WorkroomArtisansRouteImport.update({
+  id: '/artisans',
+  path: '/artisans',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomOrdersRoute = WorkroomOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomProductsRoute = WorkroomProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomRequestsRoute = WorkroomRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => WorkroomRoute,
+} as any)
+const WorkroomSettingsRoute = WorkroomSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => WorkroomRoute,
 } as any)
 const ApiPublicAssistantRoute = ApiPublicAssistantRouteImport.update({
   id: '/api/public/assistant',
@@ -290,9 +374,12 @@ export interface FileRoutesByFullPath {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/gift': typeof GiftRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shg': typeof ShgRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
+  '/workroom': typeof WorkroomRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
   '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
   '/b2b/discover': typeof B2bDiscoverRoute
@@ -301,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
+  '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/b2b': typeof ShgB2bRoute
@@ -315,10 +403,20 @@ export interface FileRoutesByFullPath {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/workroom/admin': typeof WorkroomAdminRoute
+  '/workroom/artisan': typeof WorkroomArtisanRoute
+  '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/orders': typeof WorkroomOrdersRoute
+  '/workroom/products': typeof WorkroomProductsRoute
+  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b/': typeof B2bIndexRoute
+  '/gift/': typeof GiftIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/shg/': typeof ShgIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/stories/': typeof StoriesIndexRoute
+  '/workroom/': typeof WorkroomIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -343,6 +441,7 @@ export interface FileRoutesByTo {
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
+  '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/b2b': typeof ShgB2bRoute
@@ -357,10 +456,20 @@ export interface FileRoutesByTo {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/workroom/admin': typeof WorkroomAdminRoute
+  '/workroom/artisan': typeof WorkroomArtisanRoute
+  '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/orders': typeof WorkroomOrdersRoute
+  '/workroom/products': typeof WorkroomProductsRoute
+  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b': typeof B2bIndexRoute
+  '/gift': typeof GiftIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/shg': typeof ShgIndexRoute
+  '/shop': typeof ShopIndexRoute
   '/stories': typeof StoriesIndexRoute
+  '/workroom': typeof WorkroomIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -380,9 +489,12 @@ export interface FileRoutesById {
   '/concierge': typeof ConciergeRoute
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/gift': typeof GiftRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shg': typeof ShgRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/stories': typeof StoriesRouteWithChildren
+  '/workroom': typeof WorkroomRouteWithChildren
   '/artisan/$id': typeof ArtisanIdRoute
   '/b2b/buyer-profile': typeof B2bBuyerProfileRoute
   '/b2b/discover': typeof B2bDiscoverRoute
@@ -391,6 +503,7 @@ export interface FileRoutesById {
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
   '/orders/$id': typeof OrdersIdRoute
+  '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
   '/shg/artisans': typeof ShgArtisansRoute
   '/shg/b2b': typeof ShgB2bRoute
@@ -405,10 +518,20 @@ export interface FileRoutesById {
   '/shg/reports': typeof ShgReportsRoute
   '/shg/requests': typeof ShgRequestsRoute
   '/stories/$id': typeof StoriesIdRoute
+  '/workroom/admin': typeof WorkroomAdminRoute
+  '/workroom/artisan': typeof WorkroomArtisanRoute
+  '/workroom/artisans': typeof WorkroomArtisansRoute
+  '/workroom/orders': typeof WorkroomOrdersRoute
+  '/workroom/products': typeof WorkroomProductsRoute
+  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b/': typeof B2bIndexRoute
+  '/gift/': typeof GiftIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/shg/': typeof ShgIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/stories/': typeof StoriesIndexRoute
+  '/workroom/': typeof WorkroomIndexRoute
   '/api/public/assistant': typeof ApiPublicAssistantRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/tts': typeof ApiPublicTtsRoute
@@ -429,9 +552,12 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/forgot-password'
+    | '/gift'
     | '/reset-password'
     | '/shg'
+    | '/shop'
     | '/stories'
+    | '/workroom'
     | '/artisan/$id'
     | '/b2b/buyer-profile'
     | '/b2b/discover'
@@ -440,6 +566,7 @@ export interface FileRouteTypes {
     | '/b2b/request'
     | '/b2b/samples'
     | '/orders/$id'
+    | '/passport/$token'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/b2b'
@@ -454,10 +581,20 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/workroom/admin'
+    | '/workroom/artisan'
+    | '/workroom/artisans'
+    | '/workroom/orders'
+    | '/workroom/products'
+    | '/workroom/requests'
+    | '/workroom/settings'
     | '/b2b/'
+    | '/gift/'
     | '/orders/'
     | '/shg/'
+    | '/shop/'
     | '/stories/'
+    | '/workroom/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -482,6 +619,7 @@ export interface FileRouteTypes {
     | '/b2b/request'
     | '/b2b/samples'
     | '/orders/$id'
+    | '/passport/$token'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/b2b'
@@ -496,10 +634,20 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/workroom/admin'
+    | '/workroom/artisan'
+    | '/workroom/artisans'
+    | '/workroom/orders'
+    | '/workroom/products'
+    | '/workroom/requests'
+    | '/workroom/settings'
     | '/b2b'
+    | '/gift'
     | '/orders'
     | '/shg'
+    | '/shop'
     | '/stories'
+    | '/workroom'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -518,9 +666,12 @@ export interface FileRouteTypes {
     | '/concierge'
     | '/explore'
     | '/forgot-password'
+    | '/gift'
     | '/reset-password'
     | '/shg'
+    | '/shop'
     | '/stories'
+    | '/workroom'
     | '/artisan/$id'
     | '/b2b/buyer-profile'
     | '/b2b/discover'
@@ -529,6 +680,7 @@ export interface FileRouteTypes {
     | '/b2b/request'
     | '/b2b/samples'
     | '/orders/$id'
+    | '/passport/$token'
     | '/product/$id'
     | '/shg/artisans'
     | '/shg/b2b'
@@ -543,10 +695,20 @@ export interface FileRouteTypes {
     | '/shg/reports'
     | '/shg/requests'
     | '/stories/$id'
+    | '/workroom/admin'
+    | '/workroom/artisan'
+    | '/workroom/artisans'
+    | '/workroom/orders'
+    | '/workroom/products'
+    | '/workroom/requests'
+    | '/workroom/settings'
     | '/b2b/'
+    | '/gift/'
     | '/orders/'
     | '/shg/'
+    | '/shop/'
     | '/stories/'
+    | '/workroom/'
     | '/api/public/assistant'
     | '/api/public/stt'
     | '/api/public/tts'
@@ -566,11 +728,15 @@ export interface RootRouteChildren {
   ConciergeRoute: typeof ConciergeRoute
   ExploreRoute: typeof ExploreRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GiftRoute: typeof GiftRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShgRoute: typeof ShgRouteWithChildren
+  ShopRoute: typeof ShopRouteWithChildren
   StoriesRoute: typeof StoriesRouteWithChildren
+  WorkroomRoute: typeof WorkroomRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
   OrdersIdRoute: typeof OrdersIdRoute
+  PassportTokenRoute: typeof PassportTokenRoute
   ProductIdRoute: typeof ProductIdRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   ApiPublicAssistantRoute: typeof ApiPublicAssistantRoute
@@ -636,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gift': {
+      id: '/gift'
+      path: '/gift'
+      fullPath: '/gift'
+      preLoaderRoute: typeof GiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -650,11 +823,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShgRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stories': {
       id: '/stories'
       path: '/stories'
       fullPath: '/stories'
       preLoaderRoute: typeof StoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workroom': {
+      id: '/workroom'
+      path: '/workroom'
+      fullPath: '/workroom'
+      preLoaderRoute: typeof WorkroomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/artisan/$id': {
@@ -713,6 +900,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof B2bSamplesRouteImport
       parentRoute: typeof B2bRoute
     }
+    '/gift/': {
+      id: '/gift/'
+      path: '/'
+      fullPath: '/gift/'
+      preLoaderRoute: typeof GiftIndexRouteImport
+      parentRoute: typeof GiftRoute
+    }
     '/orders/': {
       id: '/orders/'
       path: '/orders'
@@ -725,6 +919,13 @@ declare module '@tanstack/react-router' {
       path: '/orders/$id'
       fullPath: '/orders/$id'
       preLoaderRoute: typeof OrdersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/passport/$token': {
+      id: '/passport/$token'
+      path: '/passport/$token'
+      fullPath: '/passport/$token'
+      preLoaderRoute: typeof PassportTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product/$id': {
@@ -825,6 +1026,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShgRequestsRouteImport
       parentRoute: typeof ShgRoute
     }
+    '/shop/': {
+      id: '/shop/'
+      path: '/'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/stories/': {
       id: '/stories/'
       path: '/'
@@ -838,6 +1046,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/stories/$id'
       preLoaderRoute: typeof StoriesIdRouteImport
       parentRoute: typeof StoriesRoute
+    }
+    '/workroom/': {
+      id: '/workroom/'
+      path: '/'
+      fullPath: '/workroom/'
+      preLoaderRoute: typeof WorkroomIndexRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/admin': {
+      id: '/workroom/admin'
+      path: '/admin'
+      fullPath: '/workroom/admin'
+      preLoaderRoute: typeof WorkroomAdminRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/artisan': {
+      id: '/workroom/artisan'
+      path: '/artisan'
+      fullPath: '/workroom/artisan'
+      preLoaderRoute: typeof WorkroomArtisanRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/artisans': {
+      id: '/workroom/artisans'
+      path: '/artisans'
+      fullPath: '/workroom/artisans'
+      preLoaderRoute: typeof WorkroomArtisansRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/orders': {
+      id: '/workroom/orders'
+      path: '/orders'
+      fullPath: '/workroom/orders'
+      preLoaderRoute: typeof WorkroomOrdersRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/products': {
+      id: '/workroom/products'
+      path: '/products'
+      fullPath: '/workroom/products'
+      preLoaderRoute: typeof WorkroomProductsRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/requests': {
+      id: '/workroom/requests'
+      path: '/requests'
+      fullPath: '/workroom/requests'
+      preLoaderRoute: typeof WorkroomRequestsRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
+    '/workroom/settings': {
+      id: '/workroom/settings'
+      path: '/settings'
+      fullPath: '/workroom/settings'
+      preLoaderRoute: typeof WorkroomSettingsRouteImport
+      parentRoute: typeof WorkroomRoute
     }
     '/api/public/assistant': {
       id: '/api/public/assistant'
@@ -950,6 +1214,16 @@ const B2bRouteChildren: B2bRouteChildren = {
 
 const B2bRouteWithChildren = B2bRoute._addFileChildren(B2bRouteChildren)
 
+interface GiftRouteChildren {
+  GiftIndexRoute: typeof GiftIndexRoute
+}
+
+const GiftRouteChildren: GiftRouteChildren = {
+  GiftIndexRoute: GiftIndexRoute,
+}
+
+const GiftRouteWithChildren = GiftRoute._addFileChildren(GiftRouteChildren)
+
 interface ShgRouteChildren {
   ShgArtisansRoute: typeof ShgArtisansRoute
   ShgB2bRoute: typeof ShgB2bRoute
@@ -984,6 +1258,16 @@ const ShgRouteChildren: ShgRouteChildren = {
 
 const ShgRouteWithChildren = ShgRoute._addFileChildren(ShgRouteChildren)
 
+interface ShopRouteChildren {
+  ShopIndexRoute: typeof ShopIndexRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopIndexRoute: ShopIndexRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 interface StoriesRouteChildren {
   StoriesIdRoute: typeof StoriesIdRoute
   StoriesIndexRoute: typeof StoriesIndexRoute
@@ -997,6 +1281,32 @@ const StoriesRouteChildren: StoriesRouteChildren = {
 const StoriesRouteWithChildren =
   StoriesRoute._addFileChildren(StoriesRouteChildren)
 
+interface WorkroomRouteChildren {
+  WorkroomAdminRoute: typeof WorkroomAdminRoute
+  WorkroomArtisanRoute: typeof WorkroomArtisanRoute
+  WorkroomArtisansRoute: typeof WorkroomArtisansRoute
+  WorkroomOrdersRoute: typeof WorkroomOrdersRoute
+  WorkroomProductsRoute: typeof WorkroomProductsRoute
+  WorkroomRequestsRoute: typeof WorkroomRequestsRoute
+  WorkroomSettingsRoute: typeof WorkroomSettingsRoute
+  WorkroomIndexRoute: typeof WorkroomIndexRoute
+}
+
+const WorkroomRouteChildren: WorkroomRouteChildren = {
+  WorkroomAdminRoute: WorkroomAdminRoute,
+  WorkroomArtisanRoute: WorkroomArtisanRoute,
+  WorkroomArtisansRoute: WorkroomArtisansRoute,
+  WorkroomOrdersRoute: WorkroomOrdersRoute,
+  WorkroomProductsRoute: WorkroomProductsRoute,
+  WorkroomRequestsRoute: WorkroomRequestsRoute,
+  WorkroomSettingsRoute: WorkroomSettingsRoute,
+  WorkroomIndexRoute: WorkroomIndexRoute,
+}
+
+const WorkroomRouteWithChildren = WorkroomRoute._addFileChildren(
+  WorkroomRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtisanSpaceRoute: ArtisanSpaceRoute,
@@ -1006,11 +1316,15 @@ const rootRouteChildren: RootRouteChildren = {
   ConciergeRoute: ConciergeRoute,
   ExploreRoute: ExploreRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GiftRoute: GiftRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ShgRoute: ShgRouteWithChildren,
+  ShopRoute: ShopRouteWithChildren,
   StoriesRoute: StoriesRouteWithChildren,
+  WorkroomRoute: WorkroomRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,
   OrdersIdRoute: OrdersIdRoute,
+  PassportTokenRoute: PassportTokenRoute,
   ProductIdRoute: ProductIdRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   ApiPublicAssistantRoute: ApiPublicAssistantRoute,

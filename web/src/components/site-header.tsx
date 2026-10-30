@@ -19,7 +19,7 @@ import logoWhite from "@/assets/kalaswar-logo-white.png.asset.json";
 import logoBurgundy from "@/assets/kalaswar-logo-burgundy.png.asset.json";
 
 const NAV = [
-  { to: "/explore", key: "nav_explore" },
+  { to: "/shop", key: "nav_explore" },
   { to: "/artisans", key: "nav_artisans" },
   { to: "/stories", key: "nav_stories" },
   { to: "/orders", key: "nav_orders" },

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { getSessionUser } from "@/lib/auth-client";
+import { useAuth, getRedirectForRole, resolveUserRole } from "@/features/auth";
 import { Wordmark } from "@/components/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,10 @@ export const Route = createFileRoute("/auth")({
     // Signed-in users should not see the sign-in form. Client-only check.
     if (typeof window !== "undefined") {
       const { data } = await supabase.auth.getSession();
-      if (data.session) throw redirect({ to: "/" });
+      if (data.session) {
+        const role = await resolveUserRole(data.session.user.id);
+        throw redirect({ to: getRedirectForRole(role) });
+      }
     }
   },
   component: AuthPage,
@@ -47,6 +50,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const redirectTo = search['redirect'] as string | undefined;
+  const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,49 +66,59 @@ function AuthPage() {
     document.title = mode === "signin" ? "Sign in — Kalaswar" : "Create account — Kalaswar";
   }, [mode]);
 
-  const afterAuth = async () => {
-    const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
-    await navigate({ to: target });
-  };
-
   const submit = async () => {
     setError(null);
     setBusy(true);
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          setError("creds");
+        const res = await signIn({ email, password });
+        if (res.error) {
+          const msg = res.error.message?.toLowerCase() ?? "";
+          if (msg.includes("invalid login credentials") || msg.includes("invalid email or password")) {
+            setError("creds");
+          } else {
+            setError("creds");
+          }
           return;
         }
-        await afterAuth();
+        // Redirect by role from the profiles table:
+        // artisan -> /workroom/artisan
+        // coordinator -> /workroom
+        // admin -> /workroom/admin
+        // buyer -> /shop
+        // customer -> /shop
+        const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : getRedirectForRole(res.role);
+        await navigate({ to: target });
       } else {
         if (password.length < 8) {
           setError("weak");
           return;
         }
-        const { data, error } = await supabase.auth.signUp({
+        const res = await signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              full_name: fullName,
-              preferred_language: language,
-              account_type: accountType,
-            },
-          },
+          fullName,
+          language,
+          accountType,
+          orgName,
         });
-        if (error) {
-          setError(error.message.includes("already registered") || error.message.includes("already exists") ? "exists" : "generic");
+        if (res.error) {
+          const msg = res.error.message?.toLowerCase() ?? "";
+          if (msg.includes("already registered") || msg.includes("already exists")) {
+            setError("exists");
+          } else if (msg.includes("at least 8")) {
+            setError("weak");
+          } else {
+            setError("generic");
+          }
           return;
         }
-        if (!data.session) {
-          // Email confirmation is enabled: the account activates from the link.
+        if (res.awaitingConfirm) {
           setAwaitingConfirm(true);
           return;
         }
-        await afterAuth();
+        const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : getRedirectForRole(accountType);
+        await navigate({ to: target });
       }
     } catch {
       setError("generic");

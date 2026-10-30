@@ -1,0 +1,307 @@
+/*
+ * Kalaswar Workroom Scoped Theme — .kw-app
+ *
+ * All tokens in this file are scoped under the `.kw-app` class which is
+ * applied ONLY to the shells of the new route groups:
+ *   /workroom/*  /shop/*  /gift/*  /passport/:token
+ *
+ * This file MUST NOT modify :root, .dark, or any global Tailwind token.
+ * It maps the Stitch design system "Kalaswar Operational Workroom" into
+ * CSS custom properties so components can reference them consistently.
+ *
+ * Source: Stitch project "Kalaswar Workroom Coordinator Dashboard"
+ *   projectId: 11153964424737758981
+ *   Fetched: 2026-10-30
+ */
+
+/* ── Google Fonts for the workroom shell ─────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+/* ── .kw-app root ─────────────────────────────────────────────────────────── */
+.kw-app {
+  /* Surface palette (light mode defaults from Stitch) */
+  --kw-surface:                   #f4fbf5;
+  --kw-surface-dim:               #d5dcd6;
+  --kw-surface-bright:            #f4fbf5;
+  --kw-surface-container-lowest:  #ffffff;
+  --kw-surface-container-low:     #eef5ef;
+  --kw-surface-container:         #e8f0e9;
+  --kw-surface-container-high:    #e3eae4;
+  --kw-surface-container-highest: #dde4de;
+  --kw-surface-variant:           #dde4de;
+
+  /* On-surface text */
+  --kw-on-surface:          #161d19;
+  --kw-on-surface-variant:  #414844;
+  --kw-inverse-surface:     #2b322e;
+  --kw-inverse-on-surface:  #ebf3ec;
+
+  /* Outline */
+  --kw-outline:         #717974;
+  --kw-outline-variant: #c0c8c3;
+  --kw-surface-tint:    #3d6656;
+
+  /* Primary — Forest Green */
+  --kw-primary:           #083527;
+  --kw-on-primary:        #ffffff;
+  --kw-primary-container: #234c3d;
+  --kw-on-primary-container: #90bba8;
+  --kw-inverse-primary:   #a4d0bc;
+  --kw-primary-fixed:     #c0ecd8;
+  --kw-primary-fixed-dim: #a4d0bc;
+  --kw-on-primary-fixed:  #002116;
+  --kw-on-primary-fixed-variant: #254e3f;
+
+  /* Secondary — Terracotta */
+  --kw-secondary:           #98462e;
+  --kw-on-secondary:        #ffffff;
+  --kw-secondary-container: #ff987a;
+  --kw-on-secondary-container: #782e18;
+  --kw-secondary-fixed:     #ffdbd1;
+  --kw-secondary-fixed-dim: #ffb5a0;
+  --kw-on-secondary-fixed:  #3b0900;
+  --kw-on-secondary-fixed-variant: #793019;
+
+  /* Tertiary — Muted Gold */
+  --kw-tertiary:           #3f2a00;
+  --kw-on-tertiary:        #ffffff;
+  --kw-tertiary-container: #5c3f00;
+  --kw-on-tertiary-container: #d7ab5e;
+  --kw-tertiary-fixed:     #ffdeab;
+  --kw-tertiary-fixed-dim: #eebf70;
+  --kw-on-tertiary-fixed:  #271900;
+  --kw-on-tertiary-fixed-variant: #5f4100;
+
+  /* Error */
+  --kw-error:           #ba1a1a;
+  --kw-on-error:        #ffffff;
+  --kw-error-container: #ffdad6;
+  --kw-on-error-container: #93000a;
+
+  /* Background */
+  --kw-background:    #f4fbf5;
+  --kw-on-background: #161d19;
+
+  /* Alias shorthand for common uses */
+  --kw-canvas:  var(--kw-surface-container-lowest);
+  --kw-divider: var(--kw-outline-variant);
+
+  /* ── Typography ──────────────────────────────────────────────────────────── */
+  --kw-font-headline: "Manrope", system-ui, sans-serif;
+  --kw-font-body:     "Inter", system-ui, sans-serif;
+  --kw-font-label:    "Inter", system-ui, sans-serif;
+
+  /* ── Spacing (8-px grid) ─────────────────────────────────────────────────── */
+  --kw-space-xs: 0.5rem;    /* 8px */
+  --kw-space-sm: 0.75rem;   /* 12px */
+  --kw-space-md: 1rem;      /* 16px */
+  --kw-space-lg: 1.5rem;    /* 24px */
+  --kw-space-xl: 2rem;      /* 32px */
+  --kw-space-2xl: 3rem;     /* 48px */
+  --kw-gutter: 1.5rem;
+  --kw-gutter-mobile: 1rem;
+  --kw-margin: 2rem;
+  --kw-margin-mobile: 1rem;
+
+  /* ── Shape / Radius ──────────────────────────────────────────────────────── */
+  --kw-radius-sm: 0.25rem;  /* 4px — badges, tight tokens */
+  --kw-radius:    0.5rem;   /* 8px — default */
+  --kw-radius-md: 0.75rem;  /* 12px */
+  --kw-radius-lg: 1rem;     /* 16px — cards, modals */
+  --kw-radius-xl: 1.5rem;   /* 24px */
+  --kw-radius-full: 9999px; /* pills */
+
+  /* ── Elevation shadows ───────────────────────────────────────────────────── */
+  --kw-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --kw-shadow-md: 0 4px 12px rgba(24, 55, 45, 0.06);
+  --kw-shadow-lg: 0 12px 32px rgba(24, 55, 45, 0.12);
+
+  /* Reset font to workroom system */
+  font-family: var(--kw-font-body);
+  background-color: var(--kw-background);
+  color: var(--kw-on-background);
+}
+
+/* ── Base elements inside .kw-app ─────────────────────────────────────────── */
+.kw-app * {
+  box-sizing: border-box;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+.kw-card {
+  background: var(--kw-surface-container-lowest);
+  border: 1px solid var(--kw-outline-variant);
+  border-radius: var(--kw-radius-lg);
+  box-shadow: var(--kw-shadow-sm);
+  padding: var(--kw-space-lg);
+}
+
+.kw-card:hover {
+  box-shadow: var(--kw-shadow-md);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.kw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 var(--kw-space-lg);
+  border-radius: 10px;
+  font-family: var(--kw-font-label);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border: none;
+  transition: background-color 120ms ease;
+}
+
+.kw-btn-primary {
+  background-color: var(--kw-primary-container);
+  color: var(--kw-on-primary);
+}
+.kw-btn-primary:hover {
+  background-color: var(--kw-primary);
+}
+.kw-btn-primary:active {
+  background-color: #122921;
+}
+
+.kw-btn-secondary {
+  background-color: var(--kw-surface-container-lowest);
+  color: var(--kw-on-surface);
+  border: 1px solid var(--kw-outline-variant);
+}
+.kw-btn-secondary:hover {
+  background-color: var(--kw-surface-container-low);
+  border-color: var(--kw-primary-container);
+}
+
+.kw-btn-accent {
+  background-color: var(--kw-secondary);
+  color: var(--kw-on-secondary);
+}
+.kw-btn-accent:hover {
+  background-color: #7a3620;
+}
+
+/* ── Badge / Status pill ──────────────────────────────────────────────────── */
+.kw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--kw-radius-full);
+  font-family: var(--kw-font-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.kw-badge-success {
+  background: #dde8da;
+  color: #18372d;
+}
+.kw-badge-warning {
+  background: rgba(198, 155, 80, 0.15);
+  color: #876527;
+}
+.kw-badge-danger {
+  background: rgba(184, 95, 69, 0.12);
+  color: var(--kw-secondary);
+}
+.kw-badge-neutral {
+  background: var(--kw-surface-container);
+  color: var(--kw-on-surface-variant);
+}
+
+/* ── Input fields ─────────────────────────────────────────────────────────── */
+.kw-input {
+  height: 44px;
+  width: 100%;
+  padding: 0 var(--kw-space-md);
+  background: var(--kw-surface-container-lowest);
+  border: 1px solid var(--kw-outline-variant);
+  border-radius: 10px;
+  font-family: var(--kw-font-body);
+  font-size: 0.875rem;
+  color: var(--kw-on-surface);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.kw-input::placeholder {
+  color: var(--kw-on-surface-variant);
+}
+.kw-input:focus {
+  border-color: var(--kw-primary-container);
+  box-shadow: 0 0 0 3px rgba(35, 76, 61, 0.12);
+}
+
+/* ── Layout shell helpers ─────────────────────────────────────────────────── */
+.kw-sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: var(--kw-primary);
+  color: var(--kw-on-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.kw-topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--kw-space-lg);
+  background: var(--kw-surface-container-lowest);
+  border-bottom: 1px solid var(--kw-outline-variant);
+  box-shadow: var(--kw-shadow-sm);
+}
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.kw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-feature-settings: "tnum" 1, "cv05" 1;
+}
+.kw-table th {
+  background: var(--kw-surface-dim);
+  color: var(--kw-on-surface-variant);
+  font-family: var(--kw-font-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  height: 40px;
+  padding: 0 var(--kw-space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--kw-outline-variant);
+}
+.kw-table td {
+  height: 52px;
+  padding: 0 var(--kw-space-md);
+  border-bottom: 1px solid var(--kw-outline-variant);
+  font-size: 0.875rem;
+  color: var(--kw-on-surface);
+  vertical-align: middle;
+}
+.kw-table tr:hover td {
+  background: var(--kw-surface-container-low);
+}
+
+/* ── Typography utilities (Stitch scale) ──────────────────────────────────── */
+.kw-headline-xl  { font-family: var(--kw-font-headline); font-size: 2rem;    font-weight: 700; line-height: 2.5rem;   letter-spacing: -0.02em; }
+.kw-headline-lg  { font-family: var(--kw-font-headline); font-size: 1.5rem;  font-weight: 700; line-height: 2rem;     letter-spacing: -0.015em; }
+.kw-headline-md  { font-family: var(--kw-font-headline); font-size: 1.25rem; font-weight: 600; line-height: 1.75rem;  letter-spacing: -0.01em; }
+.kw-headline-sm  { font-family: var(--kw-font-headline); font-size: 1.125rem; font-weight: 600; line-height: 1.5rem; }
+.kw-body-lg      { font-family: var(--kw-font-body); font-size: 1rem;    font-weight: 400; line-height: 1.5rem; }
+.kw-body-md      { font-family: var(--kw-font-body); font-size: 0.875rem; font-weight: 400; line-height: 1.375rem; }
+.kw-body-md-med  { font-family: var(--kw-font-body); font-size: 0.875rem; font-weight: 500; line-height: 1.375rem; }
+.kw-body-sm      { font-family: var(--kw-font-body); font-size: 0.75rem;  font-weight: 400; line-height: 1.125rem; }
+.kw-label-md     { font-family: var(--kw-font-label); font-size: 0.875rem; font-weight: 600; line-height: 1.25rem; letter-spacing: 0.01em; }
+.kw-label-sm     { font-family: var(--kw-font-label); font-size: 0.75rem;  font-weight: 600; line-height: 1rem; letter-spacing: 0.02em; }
+.kw-caption      { font-family: var(--kw-font-label); font-size: 0.6875rem; font-weight: 500; line-height: 0.875rem; letter-spacing: 0.02em; }
