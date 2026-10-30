@@ -15,6 +15,7 @@ export const Palette = {
   primary: '#083527',
   primaryContainer: '#234c3d',
   primaryFixed: '#c0ecd8',
+  primaryFixedDim: '#a4d0bc',
   onPrimary: '#ffffff',
   onPrimaryContainer: '#90bba8',
   headlineDark: '#18372d',
@@ -23,13 +24,19 @@ export const Palette = {
   secondary: '#7b5812',
   secondaryAccent: '#c69b50',
   secondaryContainer: '#fdcd7d',
+  secondaryFixed: '#ffdeab',
+  secondaryFixedDim: '#eebf70',
   onSecondary: '#ffffff',
   onSecondaryContainer: '#78550f',
+  onSecondaryFixed: '#271900',
 
   // Tertiary Guidance & Sage Celadon (AI / Copilot)
   tertiary: '#273127',
   tertiaryContainer: '#3d473d',
   tertiaryGuidance: '#dde8da',
+  tertiaryFixed: '#dbe6d8',
+  tertiaryFixedDim: '#bfcabc',
+  onTertiary: '#ffffff',
   onTertiaryContainer: '#aab5a8',
 
   // Surfaces & Untreated Ivory
@@ -37,10 +44,14 @@ export const Palette = {
   surface: '#fef9ee',
   surfaceCard: '#f1ece1',
   surfaceWhite: '#ffffff',
+  surfaceVariant: '#e7e2d7',
+  surfaceContainerLowest: '#ffffff',
   surfaceContainerLow: '#f8f3e8',
   surfaceContainer: '#f2ede2',
   surfaceContainerHigh: '#ede8dd',
+  surfaceContainerHighest: '#e7e2d7',
   surfaceDim: '#dedacf',
+  surfaceBright: '#fef9ee',
 
   // High-legibility Text & Neutrals
   onSurface: '#1d1c15',
@@ -130,7 +141,6 @@ export const Typography = {
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '400' as const,
-    color: Palette.onSurface,
   },
   bodySm: {
     fontSize: 14,
@@ -175,11 +185,26 @@ export const Radii = {
   sm: 4,
   md: 12,
   lg: 16,
+  xl: 20,
   card: 20,
   full: 9999,
 };
 
 export const Shadows = {
+  sm: Platform.select({
+    ios: {
+      shadowColor: '#18372d',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    android: {
+      elevation: 1,
+    },
+    default: {
+      boxShadow: '0 1px 3px rgba(24, 55, 45, 0.05)',
+    },
+  })!,
   ambient: Platform.select({
     ios: {
       shadowColor: '#18372d',
@@ -193,7 +218,49 @@ export const Shadows = {
     default: {
       boxShadow: '0 2px 6px rgba(24, 55, 45, 0.08)',
     },
-  }),
+  })!,
+  md: Platform.select({
+    ios: {
+      shadowColor: '#18372d',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.1,
+      shadowRadius: 6,
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {
+      boxShadow: '0 3px 8px rgba(24, 55, 45, 0.1)',
+    },
+  })!,
+  card: Platform.select({
+    ios: {
+      shadowColor: '#18372d',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {
+      boxShadow: '0 3px 8px rgba(24, 55, 45, 0.08)',
+    },
+  })!,
+  lg: Platform.select({
+    ios: {
+      shadowColor: '#18372d',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 10,
+    },
+    android: {
+      elevation: 4,
+    },
+    default: {
+      boxShadow: '0 4px 12px rgba(24, 55, 45, 0.12)',
+    },
+  })!,
   elevated: Platform.select({
     ios: {
       shadowColor: '#18372d',
@@ -207,5 +274,5 @@ export const Shadows = {
     default: {
       boxShadow: '0 4px 16px rgba(24, 55, 45, 0.14)',
     },
-  }),
+  })!,
 };

@@ -18,19 +18,24 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Palette.primaryContainer,
+        tabBarActiveTintColor: Palette.primary,
         tabBarInactiveTintColor: Palette.outline,
         tabBarStyle: {
           backgroundColor: Palette.surface,
-          borderTopColor: Palette.borderNeutral,
+          borderTopColor: Palette.surfaceContainerHighest,
           borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 8,
+          height: 72,
+          paddingBottom: 10,
           paddingTop: 8,
         },
+        tabBarItemStyle: {
+          minHeight: 56,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontSize: 11,
+          fontWeight: '700',
         },
       }}
     >
@@ -40,7 +45,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="coordinator/index"
         options={{
-          title: t('tabs.coordinator.overview'),
+          title: t('tabs.coordinator.overview') || 'Overview',
           href: role === 'coordinator' ? '/coordinator' : null,
           tabBarIcon: ({ color, size }) => renderIcon('grid', color, size),
         }}
@@ -48,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="coordinator/orders"
         options={{
-          title: t('tabs.coordinator.orders'),
+          title: t('tabs.coordinator.orders') || 'Orders',
           href: role === 'coordinator' ? '/coordinator/orders' : null,
           tabBarIcon: ({ color, size }) => renderIcon('documents', color, size),
         }}
@@ -56,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="coordinator/inventory"
         options={{
-          title: t('tabs.coordinator.inventory'),
+          title: t('tabs.coordinator.inventory') || 'Inventory',
           href: role === 'coordinator' ? '/coordinator/inventory' : null,
           tabBarIcon: ({ color, size }) => renderIcon('cube', color, size),
         }}
@@ -64,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="coordinator/profile"
         options={{
-          title: t('tabs.coordinator.profile'),
+          title: t('tabs.coordinator.profile') || 'Profile',
           href: role === 'coordinator' ? '/coordinator/profile' : null,
           tabBarIcon: ({ color, size }) => renderIcon('person', color, size),
         }}
@@ -74,23 +79,31 @@ export default function TabLayout() {
       <Tabs.Screen
         name="artisan/index"
         options={{
-          title: t('tabs.artisan.home'),
+          title: 'Home',
           href: role === 'artisan' ? '/artisan' : null,
-          tabBarIcon: ({ color, size }) => renderIcon('hammer', color, size),
+          tabBarIcon: ({ color, size }) => renderIcon('home', color, size),
         }}
       />
       <Tabs.Screen
-        name="artisan/camera"
+        name="artisan/work"
         options={{
-          title: t('tabs.artisan.camera'),
-          href: role === 'artisan' ? '/artisan/camera' : null,
-          tabBarIcon: ({ color, size }) => renderIcon('mic', color, size),
+          title: 'Work',
+          href: role === 'artisan' ? '/artisan/work' : null,
+          tabBarIcon: ({ color, size }) => renderIcon('construct', color, size),
+        }}
+      />
+      <Tabs.Screen
+        name="artisan/products"
+        options={{
+          title: 'Products',
+          href: role === 'artisan' ? '/artisan/products' : null,
+          tabBarIcon: ({ color, size }) => renderIcon('cube', color, size),
         }}
       />
       <Tabs.Screen
         name="artisan/earnings"
         options={{
-          title: t('tabs.artisan.earnings'),
+          title: 'Earnings',
           href: role === 'artisan' ? '/artisan/earnings' : null,
           tabBarIcon: ({ color, size }) => renderIcon('wallet', color, size),
         }}
@@ -98,9 +111,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="artisan/profile"
         options={{
-          title: t('tabs.artisan.profile'),
+          title: 'Profile',
           href: role === 'artisan' ? '/artisan/profile' : null,
           tabBarIcon: ({ color, size }) => renderIcon('person', color, size),
+        }}
+      />
+      <Tabs.Screen
+        name="artisan/camera"
+        options={{
+          href: null,
         }}
       />
 
@@ -108,7 +127,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shopper/index"
         options={{
-          title: t('tabs.shopper.explore'),
+          title: t('tabs.shopper.explore') || 'Explore',
           href: role === 'shopper' ? '/shopper' : null,
           tabBarIcon: ({ color, size }) => renderIcon('compass', color, size),
         }}
@@ -116,15 +135,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shopper/concierge"
         options={{
-          title: t('tabs.shopper.concierge'),
+          title: t('tabs.shopper.concierge') || 'Concierge',
           href: role === 'shopper' ? '/shopper/concierge' : null,
-          tabBarIcon: ({ color, size }) => renderIcon('gift', color, size),
+          tabBarIcon: ({ color, size }) => renderIcon('sparkles', color, size),
         }}
       />
       <Tabs.Screen
         name="shopper/orders"
         options={{
-          title: t('tabs.shopper.orders'),
+          title: t('tabs.shopper.orders') || 'Orders',
           href: role === 'shopper' ? '/shopper/orders' : null,
           tabBarIcon: ({ color, size }) => renderIcon('receipt', color, size),
         }}
@@ -132,7 +151,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shopper/profile"
         options={{
-          title: t('tabs.shopper.profile'),
+          title: t('tabs.shopper.profile') || 'Profile',
           href: role === 'shopper' ? '/shopper/profile' : null,
           tabBarIcon: ({ color, size }) => renderIcon('person', color, size),
         }}

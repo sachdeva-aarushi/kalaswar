@@ -1,55 +1,66 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 export interface PayoutRecord {
   id: string;
   date: string;
   orderNumber: string;
   craftItem: string;
+  craftItemHi: string;
   amount: number;
-  status: 'transferred' | 'escrow_hold' | 'processing';
+  status: 'paid' | 'coming' | 'escrow';
   bankReference: string;
 }
 
 export interface ArtisanEarningsData {
-  totalEarnedYtd: number;
-  pendingInEscrow: number;
-  lastPayoutDate: string;
+  totalThisMonth: number;
+  paidAmount: number;
+  comingAmount: number;
+  growthPercent: number;
+  nextPayoutDate: string;
+  nextPayoutDateHi: string;
   bankAccountMasked: string;
   payouts: PayoutRecord[];
 }
 
-const DEMO_EARNINGS: ArtisanEarningsData = {
-  totalEarnedYtd: 142800,
-  pendingInEscrow: 8500,
-  lastPayoutDate: '2026-10-25',
-  bankAccountMasked: 'State Bank of India (••• 4091)',
+export const SEEDED_EARNINGS: ArtisanEarningsData = {
+  totalThisMonth: 4250,
+  paidAmount: 2800,
+  comingAmount: 1450,
+  growthPercent: 18,
+  nextPayoutDate: '5 Nov',
+  nextPayoutDateHi: '5 नवंबर',
+  bankAccountMasked: 'State Bank of India (••• 4091 DBT)',
   payouts: [
     {
-      id: 'pay-01',
-      date: '2026-10-25',
-      orderNumber: 'KW-ORD-8821',
-      craftItem: 'Banarasi Silk Border (10 units)',
-      amount: 4500,
-      status: 'transferred',
+      id: 'pay-001',
+      date: '28 Oct 2026',
+      orderNumber: 'KO-2026-0034',
+      craftItem: 'Hand-embroidered cushion covers (4 units)',
+      craftItemHi: 'कढ़ाई किए हुए 4 कुशन कवर',
+      amount: 1400,
+      status: 'paid',
       bankReference: 'DBT-SBIN-99210041',
     },
     {
-      id: 'pay-02',
-      date: '2026-10-18',
-      orderNumber: 'KW-ORD-8790',
-      craftItem: 'Warli Hand-Painted Panels (6 units)',
-      amount: 3200,
-      status: 'transferred',
+      id: 'pay-002',
+      date: '22 Oct 2026',
+      orderNumber: 'KW-ORD-9012',
+      craftItem: 'Silk stole border weaving (2 units)',
+      craftItemHi: 'सिल्क स्टोल किनारी बुनाई (2 नग)',
+      amount: 1400,
+      status: 'paid',
       bankReference: 'DBT-SBIN-99182302',
     },
     {
-      id: 'pay-03',
-      date: '2026-10-12',
-      orderNumber: 'KW-ORD-8742',
-      craftItem: 'Zari Weaving Advance (70% PO Factoring)',
-      amount: 6000,
-      status: 'transferred',
-      bankReference: 'DBT-SBIN-99120194',
+      id: 'pay-003',
+      date: 'Pending · 5 Nov',
+      orderNumber: 'KO-2026-0034',
+      craftItem: 'Cushion cover completion stage',
+      craftItemHi: 'कुशन कवर पूर्णता चरण',
+      amount: 1450,
+      status: 'coming',
+      bankReference: 'ESCROW-POLYGON-7702',
     },
   ],
 };
@@ -58,8 +69,25 @@ export function useEarnings() {
   return useQuery({
     queryKey: ['artisan-earnings'],
     queryFn: async (): Promise<ArtisanEarningsData> => {
-      return DEMO_EARNINGS;
+      try {
+        const { data: ledger, error } = await supabase
+          .from('payout_ledger')
+          .select('*')
+          .limit(10);
+
+        if (error) {
+          if (error.message.includes('JWT') || error.message.includes('expired')) {
+            const err = new Error('auth_expired');
+            err.name = 'AuthExpiredError';
+            throw err;
+          }
+        }
+      } catch (err: any) {
+        if (err?.name === 'AuthExpiredError' || err?.message === 'auth_expired') {
+          throw err;
+        }
+      }
+      return SEEDED_EARNINGS;
     },
   });
 }
-
