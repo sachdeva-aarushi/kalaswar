@@ -31,6 +31,7 @@ import { Route as B2bOrdersRouteImport } from './routes/b2b.orders'
 import { Route as B2bQuotesRouteImport } from './routes/b2b.quotes'
 import { Route as B2bRequestRouteImport } from './routes/b2b.request'
 import { Route as B2bSamplesRouteImport } from './routes/b2b.samples'
+import { Route as DevWhatsappRouteImport } from './routes/dev.whatsapp'
 import { Route as GiftIndexRouteImport } from './routes/gift.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -187,6 +188,11 @@ const B2bSamplesRoute = B2bSamplesRouteImport.update({
   id: '/samples',
   path: '/samples',
   getParentRoute: () => B2bRoute,
+} as any)
+const DevWhatsappRoute = DevWhatsappRouteImport.update({
+  id: '/dev/whatsapp',
+  path: '/dev/whatsapp',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GiftIndexRoute = GiftIndexRouteImport.update({
   id: '/',
@@ -443,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/b2b/quotes': typeof B2bQuotesRouteWithChildren
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
+  '/dev/whatsapp': typeof DevWhatsappRoute
   '/orders/$id': typeof OrdersIdRoute
   '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
@@ -505,6 +512,7 @@ export interface FileRoutesByTo {
   '/b2b/discover': typeof B2bDiscoverRoute
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
+  '/dev/whatsapp': typeof DevWhatsappRoute
   '/orders/$id': typeof OrdersIdRoute
   '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
@@ -573,6 +581,7 @@ export interface FileRoutesById {
   '/b2b/quotes': typeof B2bQuotesRouteWithChildren
   '/b2b/request': typeof B2bRequestRoute
   '/b2b/samples': typeof B2bSamplesRoute
+  '/dev/whatsapp': typeof DevWhatsappRoute
   '/orders/$id': typeof OrdersIdRoute
   '/passport/$token': typeof PassportTokenRoute
   '/product/$id': typeof ProductIdRoute
@@ -645,6 +654,7 @@ export interface FileRouteTypes {
     | '/b2b/quotes'
     | '/b2b/request'
     | '/b2b/samples'
+    | '/dev/whatsapp'
     | '/orders/$id'
     | '/passport/$token'
     | '/product/$id'
@@ -707,6 +717,7 @@ export interface FileRouteTypes {
     | '/b2b/discover'
     | '/b2b/request'
     | '/b2b/samples'
+    | '/dev/whatsapp'
     | '/orders/$id'
     | '/passport/$token'
     | '/product/$id'
@@ -774,6 +785,7 @@ export interface FileRouteTypes {
     | '/b2b/quotes'
     | '/b2b/request'
     | '/b2b/samples'
+    | '/dev/whatsapp'
     | '/orders/$id'
     | '/passport/$token'
     | '/product/$id'
@@ -839,6 +851,7 @@ export interface RootRouteChildren {
   StoriesRoute: typeof StoriesRouteWithChildren
   WorkroomRoute: typeof WorkroomRouteWithChildren
   ArtisanIdRoute: typeof ArtisanIdRoute
+  DevWhatsappRoute: typeof DevWhatsappRoute
   OrdersIdRoute: typeof OrdersIdRoute
   PassportTokenRoute: typeof PassportTokenRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -1003,6 +1016,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/b2b/samples'
       preLoaderRoute: typeof B2bSamplesRouteImport
       parentRoute: typeof B2bRoute
+    }
+    '/dev/whatsapp': {
+      id: '/dev/whatsapp'
+      path: '/dev/whatsapp'
+      fullPath: '/dev/whatsapp'
+      preLoaderRoute: typeof DevWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/gift/': {
       id: '/gift/'
@@ -1536,6 +1556,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoriesRoute: StoriesRouteWithChildren,
   WorkroomRoute: WorkroomRouteWithChildren,
   ArtisanIdRoute: ArtisanIdRoute,
+  DevWhatsappRoute: DevWhatsappRoute,
   OrdersIdRoute: OrdersIdRoute,
   PassportTokenRoute: PassportTokenRoute,
   ProductIdRoute: ProductIdRoute,

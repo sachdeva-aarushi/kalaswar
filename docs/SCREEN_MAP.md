@@ -72,4 +72,13 @@ This registry maps every screen from the Stitch project **"Kalaswar Workroom Coo
 
 | Screen Name (Exact Stitch Name) | Interface | Route | Roles Allowed | Backend Endpoints Needed (openapi.json) | Shared Components Reused | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Kalaswar Digital Product Passport (DPP)**<br>*(Stitch origin: embedded in G-03, B-07, B-08)* | `PASSPORT` | `/passport/$token` | Public | `GET /api/v1/dpp/public/passports/{token}`<br>`GET /api/v1/dpp/public/passports/{token}/verify` | `ProvenanceCertificate`, `MerkleProofCard`, `ArtisanAudioPlayer`, `FairWageDonut` | `todo` |
+| **Kalaswar Digital Product Passport (DPP)**<br>*(Stitch origin: embedded in G-03, B-07, B-08)* | `PASSPORT` | `/passport/$token` | Public | `GET /api/v1/dpp/public/passports/{token}`<br>`GET /api/v1/dpp/public/passports/{token}/verify` | `ProvenanceCertificate`, `MerkleProofCard`, `ArtisanAudioPlayer`, `FairWageDonut` | `built` |
+
+---
+
+## 6. DEVELOPER TOOLS & SIMULATORS
+
+| Screen Name | Interface | Route | Roles Allowed | Backend Endpoints Needed | Shared Components Reused | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **WhatsApp Artisan Listing Simulator** | `DEV` | `/dev/whatsapp` | Developer / Public | `POST /api/v1/internal/whatsapp/media`<br>`POST /api/v1/internal/whatsapp/voice`<br>`POST /api/v1/internal/whatsapp/approve`<br>`GET /api/v1/internal/whatsapp/session/{phone}` | `WhatsAppChat`, `FairPriceCard`, `MediaUpload`, `AudioPlayer` | `built` |
+
