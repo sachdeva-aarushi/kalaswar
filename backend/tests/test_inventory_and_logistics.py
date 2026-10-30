@@ -110,8 +110,20 @@ def test_shipment_dispatch_and_event_tracking(
     client: TestClient,
     coordinator_headers: dict,
 ):
-    """Create courier shipment and append in-transit milestones."""
+    """Create courier shipment and append in-transit milestones after establishing passing QC."""
     order_id = str(uuid.uuid4())
+
+    # Establish required passing Quality Check before dispatch (business rule)
+    qc_payload = {
+        "order_id": order_id,
+        "result": "pass",
+        "notes": "Verified authentic craft quality, zero flaws; approved for packaging.",
+        "checked_by": "Coordinator Sunita",
+    }
+    res_qc = client.post("/api/v1/quality-checks", json=qc_payload, headers=coordinator_headers)
+    assert res_qc.status_code == 201
+    assert res_qc.json()["result"] == "pass"
+
     shipment_payload = {
         "order_id": order_id,
         "carrier": "BlueDart Express",
@@ -139,3 +151,46 @@ def test_shipment_dispatch_and_event_tracking(
     assert res_list.status_code == 200
     assert len(res_list.json()) >= 1
     assert res_list.json()[0]["status"] == "in_transit"
+
+
+def test_shipment_dispatch_gated_without_passing_qc(
+    client: TestClient,
+    coordinator_headers: dict,
+):
+    """Verify that courier dispatch is strictly rejected (HTTP 400) if order has no passing QC."""
+    uninspected_order_id = str(uuid.uuid4())
+    shipment_payload = {
+        "order_id": uninspected_order_id,
+        "carrier": "Delhivery Surface",
+        "tracking_ref": "DL-UNINSPECTED-001",
+        "provider": "Delhivery",
+        "status": "preparing",
+    }
+
+    # Case 1: No QC record exists for the order
+    res_uninspected = client.post("/api/v1/shipments", json=shipment_payload, headers=coordinator_headers)
+    assert res_uninspected.status_code == 400
+    assert "Dispatch Gated" in res_uninspected.json()["error"]["message"]
+
+    # Case 2: Order has a failing QC record
+    failed_qc_order_id = str(uuid.uuid4())
+    qc_fail_payload = {
+        "order_id": failed_qc_order_id,
+        "result": "fail",
+        "notes": "Thread tension mismatch; failed QC inspection.",
+        "checked_by": "Coordinator Sunita",
+    }
+    res_qc_fail = client.post("/api/v1/quality-checks", json=qc_fail_payload, headers=coordinator_headers)
+    assert res_qc_fail.status_code == 201
+    assert res_qc_fail.json()["result"] == "fail"
+
+    fail_shipment_payload = {
+        "order_id": failed_qc_order_id,
+        "carrier": "Delhivery Surface",
+        "tracking_ref": "DL-FAILEDQC-002",
+        "provider": "Delhivery",
+        "status": "preparing",
+    }
+    res_fail_ship = client.post("/api/v1/shipments", json=fail_shipment_payload, headers=coordinator_headers)
+    assert res_fail_ship.status_code == 400
+    assert "Dispatch Gated" in res_fail_ship.json()["error"]["message"]
