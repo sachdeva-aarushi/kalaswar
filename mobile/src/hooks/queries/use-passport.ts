@@ -70,3 +70,4 @@ export function usePassport(token: string) {
     staleTime: 1000 * 60 * 10, // 10 minutes cache
   });
 }
+
