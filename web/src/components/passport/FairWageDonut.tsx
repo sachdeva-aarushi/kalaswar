@@ -99,3 +99,4 @@ export function FairWageDonut({ wageSplitPct, productPrice }: FairWageDonutProps
     </div>
   );
 }
+

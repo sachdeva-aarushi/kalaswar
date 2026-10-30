@@ -197,3 +197,4 @@ describe("Dev-only /dev/whatsapp Artisan Simulation State Rules", () => {
     expect(fairPrice.artisan_earnings).toBeGreaterThan(fairPrice.labour_cost);
   });
 });
+

@@ -166,3 +166,4 @@ export function MerkleProofCard({ passport, verification, isLoadingVerification 
     </div>
   );
 }
+

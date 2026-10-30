@@ -308,3 +308,4 @@ export function ProvenanceCertificate({
     </div>
   );
 }
+

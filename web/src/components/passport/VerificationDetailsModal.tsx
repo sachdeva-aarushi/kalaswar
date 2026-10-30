@@ -302,3 +302,4 @@ export function VerificationDetailsModal({ isOpen, onClose, passport }: Verifica
     </div>
   );
 }
+
