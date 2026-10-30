@@ -46,6 +46,41 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  const is403 =
+    (error as any)?.status === 403 ||
+    (error as any)?.statusCode === 403 ||
+    (error as any)?.message?.includes("403") ||
+    (error as any)?.message?.toLowerCase().includes("forbidden");
+
+  if (is403) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md text-center">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+            No Access
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You do not have permission to view this page or resource (403 Forbidden).
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <a
+              href="/auth"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Sign in with another account
+            </a>
+            <a
+              href="/"
+              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              Go home
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -63,7 +98,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Retry
           </button>
           <a
             href="/"

@@ -57,3 +57,11 @@ route links, data fetching) to wire them to the real backend, but:
 - `web/src/routes/auth.tsx` — wired submit handlers to `useAuth().signIn` and `signUp`, mapped backend errors to existing `DemoNote` container, and added role-based post-login redirection. Zero markup or style changes.
 - `web/src/routes/index.tsx` — wired navigation links, craft categories, and closing CTAs to `/shop`, `/workroom`, `/stories`, `/gift`, and `/b2b`. Zero markup or visual styling changes.
 - `web/src/routes/__root.tsx` — wrapped router outlet with `AuthProvider` inside existing QueryClientProvider. Zero markup or layout changes.
+
+### Task: Web API Layer Resilience & Coordinator Dashboard Wiring — 2026-10-30
+**Branch:** `frontend/web`
+**Files changed (logic only):**
+- `web/src/routes/__root.tsx` — enhanced root `ErrorComponent` with 403 Forbidden handling ("No Access" card with sign-in/home links) and updated error action text to "Retry". Zero markup or visual styling changes to the frozen shell.
+- `web/src/routes/index.tsx` — Untouched.
+- `web/src/routes/auth.tsx` — Untouched.
+- `web/src/styles.css` — Untouched.

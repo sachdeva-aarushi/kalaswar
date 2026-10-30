@@ -9,6 +9,8 @@
 
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireRole } from "@/lib/guards";
+import { useAuth } from "@/features/auth";
+import { KwNoAccessState } from "@/components/kw-primitives";
 import { ShieldCheck, Database, Users, History } from "lucide-react";
 
 export const Route = createFileRoute("/workroom/admin")({
@@ -18,6 +20,12 @@ export const Route = createFileRoute("/workroom/admin")({
   beforeLoad: async () => {
     await requireRole("admin");
   },
+  errorComponent: () => (
+    <KwNoAccessState
+      title="Admin Access Restricted"
+      detail="This workspace is restricted to Platform Administrators. You do not have permission with your current role (403 Forbidden)."
+    />
+  ),
   component: WorkroomAdminPage,
 });
 
@@ -29,6 +37,17 @@ const ADMIN_LINKS = [
 ] as const;
 
 function WorkroomAdminPage() {
+  const { user, isLoading } = useAuth();
+
+  if (!isLoading && user && user.role !== "admin") {
+    return (
+      <KwNoAccessState
+        title="Admin Access Restricted"
+        detail="This workspace is restricted to Platform Administrators. You do not have permission with your current role (403 Forbidden)."
+      />
+    );
+  }
+
   return (
     <div className="space-y-[var(--kw-space-xl)]">
       <div>

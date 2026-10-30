@@ -5,8 +5,12 @@
  *   import { requireRole } from "@/lib/guards";
  *   beforeLoad: async () => requireRole("coordinator")
  *
- * When the user is unauthenticated or lacks the required role they are
- * redirected to /auth (with a ?redirect= param so they return after sign-in).
+ * SSR & Client-Side Resilience:
+ * - On SSR (server): No-op return to allow client to receive shell and hydrate
+ *   session from localStorage.
+ * - On Client (browser):
+ *   - If unauthenticated: redirects to /auth (with ?redirect= param)
+ *   - If unauthorized (wrong role): throws 403 Forbidden to render clear "No Access" UI
  */
 
 import { redirect } from "@tanstack/react-router";
@@ -35,6 +39,9 @@ export const ROUTE_ROLES: Record<string, KwRole[]> = {
 export async function requireAuth(
   redirectTo?: string,
 ): Promise<void> {
+  // On SSR, let the page hydrate so client can read localStorage
+  if (typeof window === "undefined") return;
+
   const user = await getSessionUser();
   if (!user) {
     throw redirect({
@@ -49,6 +56,9 @@ export async function requireAuth(
 export async function requireRole(
   ...roles: KwRole[]
 ): Promise<void> {
+  // On SSR, let the page hydrate so client can read localStorage
+  if (typeof window === "undefined") return;
+
   const user = await getSessionUser();
   if (!user) {
     throw redirect({
@@ -63,8 +73,10 @@ export async function requireRole(
   }
   if (roles.length > 0 && !roles.includes(user.role as KwRole)) {
     if (user.role === "admin") return;
-    // Signed in but wrong role — redirect to root
-    throw redirect({ to: "/" });
+    // Signed in but wrong role — show clear "no access" state (403 Forbidden)
+    const err = new Error("403 Forbidden: You do not have permission to access this area.");
+    (err as any).status = 403;
+    throw err;
   }
 }
 

@@ -35,6 +35,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Visual Freeze temporary comparisons
+docs/frozen-current/
+
 # TypeScript build info
 *.tsbuildinfo
 
