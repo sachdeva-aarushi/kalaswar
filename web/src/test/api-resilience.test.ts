@@ -45,11 +45,12 @@ describe("Web API Resilience & Error Handling", () => {
 
     try {
       await apiClient.get("/api/v1/dashboard/coordinator", { timeoutMs: 100 });
-    } catch (err: any) {
+    } catch (err: unknown) {
       expect(err).toBeInstanceOf(ApiError);
-      expect(err.status).toBe(408);
-      expect(err.isTimeout).toBe(true);
-      expect(err.detail).toContain("Request timed out");
+      const apiErr = err as ApiError;
+      expect(apiErr.status).toBe(408);
+      expect(apiErr.isTimeout).toBe(true);
+      expect(apiErr.detail).toContain("Request timed out");
     }
   });
 
@@ -67,9 +68,10 @@ describe("Web API Resilience & Error Handling", () => {
 
     try {
       await apiClient.get("/api/v1/dashboard/coordinator");
-    } catch (err: any) {
-      expect(err.status).toBe(401);
-      expect(err.isUnauthorized).toBe(true);
+    } catch (err: unknown) {
+      const apiErr = err as ApiError;
+      expect(apiErr.status).toBe(401);
+      expect(apiErr.isUnauthorized).toBe(true);
       expect(signOutSpy).toHaveBeenCalled();
     }
   });
@@ -84,10 +86,11 @@ describe("Web API Resilience & Error Handling", () => {
 
     try {
       await apiClient.get("/api/v1/dashboard/coordinator");
-    } catch (err: any) {
-      expect(err.status).toBe(403);
-      expect(err.isForbidden).toBe(true);
-      expect(err.detail).toBe("Coordinator role required");
+    } catch (err: unknown) {
+      const apiErr = err as ApiError;
+      expect(apiErr.status).toBe(403);
+      expect(apiErr.isForbidden).toBe(true);
+      expect(apiErr.detail).toBe("Coordinator role required");
     }
   });
 
@@ -96,11 +99,12 @@ describe("Web API Resilience & Error Handling", () => {
 
     try {
       await apiClient.get("/api/v1/health");
-    } catch (err: any) {
+    } catch (err: unknown) {
       expect(err).toBeInstanceOf(ApiError);
-      expect(err.status).toBe(0);
-      expect(err.isNetworkError).toBe(true);
-      expect(err.detail).toContain("connection refused");
+      const apiErr = err as ApiError;
+      expect(apiErr.status).toBe(0);
+      expect(apiErr.isNetworkError).toBe(true);
+      expect(apiErr.detail).toContain("connection refused");
     }
   });
 });

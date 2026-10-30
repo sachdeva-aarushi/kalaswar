@@ -56,7 +56,7 @@ function WorkroomIndex() {
   }
 
   if (isDashError) {
-    const status = (dashError as any)?.status;
+    const status = (dashError as { status?: number } | null)?.status;
     if (status === 403) {
       return (
         <KwNoAccessState

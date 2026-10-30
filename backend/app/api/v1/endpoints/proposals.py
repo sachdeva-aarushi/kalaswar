@@ -1,3 +1,4 @@
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from app.api.deps import get_current_user
@@ -14,6 +15,22 @@ from app.schemas.proposals import (
 from app.services.proposals import proposal_service
 
 router = APIRouter(prefix="/proposals", tags=["Proposal & Quote Versioning State Machine"])
+
+
+@router.get(
+    "",
+    response_model=List[ProposalResponse],
+    summary="List proposals, optionally filtered by request_id",
+)
+async def list_proposals_endpoint(
+    request_id: Optional[UUID] = None,
+    current_user: Optional[CurrentUser] = Depends(get_current_user),
+):
+    """
+    List all proposals in the workroom, optionally filtered by custom request ID.
+    """
+    return await proposal_service.list_proposals(request_id=request_id)
+
 
 
 @router.post(

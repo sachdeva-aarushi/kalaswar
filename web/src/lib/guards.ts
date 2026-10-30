@@ -75,7 +75,7 @@ export async function requireRole(
     if (user.role === "admin") return;
     // Signed in but wrong role — show clear "no access" state (403 Forbidden)
     const err = new Error("403 Forbidden: You do not have permission to access this area.");
-    (err as any).status = 403;
+    Object.assign(err, { status: 403 });
     throw err;
   }
 }

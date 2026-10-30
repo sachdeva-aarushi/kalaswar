@@ -56,6 +56,7 @@ import { Route as WorkroomIndexRouteImport } from './routes/workroom.index'
 import { Route as WorkroomAdminRouteImport } from './routes/workroom.admin'
 import { Route as WorkroomArtisanRouteImport } from './routes/workroom.artisan'
 import { Route as WorkroomArtisansRouteImport } from './routes/workroom.artisans'
+import { Route as WorkroomInventoryRouteImport } from './routes/workroom.inventory'
 import { Route as WorkroomOrdersRouteImport } from './routes/workroom.orders'
 import { Route as WorkroomProductsRouteImport } from './routes/workroom.products'
 import { Route as WorkroomRequestsRouteImport } from './routes/workroom.requests'
@@ -68,6 +69,13 @@ import { Route as B2bOrdersIdRouteImport } from './routes/b2b.orders.$id'
 import { Route as B2bQuotesIndexRouteImport } from './routes/b2b.quotes.index'
 import { Route as B2bQuotesIdRouteImport } from './routes/b2b.quotes.$id'
 import { Route as B2bRequestsIdRouteImport } from './routes/b2b.requests.$id'
+import { Route as WorkroomOrdersIndexRouteImport } from './routes/workroom.orders.index'
+import { Route as WorkroomOrdersIdRouteImport } from './routes/workroom.orders.$id'
+import { Route as WorkroomProductsIndexRouteImport } from './routes/workroom.products.index'
+import { Route as WorkroomProductsNewRouteImport } from './routes/workroom.products.new'
+import { Route as WorkroomRequestsIndexRouteImport } from './routes/workroom.requests.index'
+import { Route as WorkroomRequestsIdMakepossibleRouteImport } from './routes/workroom.requests.$id.makepossible'
+import { Route as WorkroomRequestsIdProposalRouteImport } from './routes/workroom.requests.$id.proposal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -304,6 +312,11 @@ const WorkroomArtisansRoute = WorkroomArtisansRouteImport.update({
   path: '/artisans',
   getParentRoute: () => WorkroomRoute,
 } as any)
+const WorkroomInventoryRoute = WorkroomInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => WorkroomRoute,
+} as any)
 const WorkroomOrdersRoute = WorkroomOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -364,6 +377,43 @@ const B2bRequestsIdRoute = B2bRequestsIdRouteImport.update({
   path: '/requests/$id',
   getParentRoute: () => B2bRoute,
 } as any)
+const WorkroomOrdersIndexRoute = WorkroomOrdersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkroomOrdersRoute,
+} as any)
+const WorkroomOrdersIdRoute = WorkroomOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => WorkroomOrdersRoute,
+} as any)
+const WorkroomProductsIndexRoute = WorkroomProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkroomProductsRoute,
+} as any)
+const WorkroomProductsNewRoute = WorkroomProductsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => WorkroomProductsRoute,
+} as any)
+const WorkroomRequestsIndexRoute = WorkroomRequestsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkroomRequestsRoute,
+} as any)
+const WorkroomRequestsIdMakepossibleRoute =
+  WorkroomRequestsIdMakepossibleRouteImport.update({
+    id: '/$id/makepossible',
+    path: '/$id/makepossible',
+    getParentRoute: () => WorkroomRequestsRoute,
+  } as any)
+const WorkroomRequestsIdProposalRoute =
+  WorkroomRequestsIdProposalRouteImport.update({
+    id: '/$id/proposal',
+    path: '/$id/proposal',
+    getParentRoute: () => WorkroomRequestsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -406,9 +456,10 @@ export interface FileRoutesByFullPath {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
-  '/workroom/orders': typeof WorkroomOrdersRoute
-  '/workroom/products': typeof WorkroomProductsRoute
-  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/inventory': typeof WorkroomInventoryRoute
+  '/workroom/orders': typeof WorkroomOrdersRouteWithChildren
+  '/workroom/products': typeof WorkroomProductsRouteWithChildren
+  '/workroom/requests': typeof WorkroomRequestsRouteWithChildren
   '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b/': typeof B2bIndexRoute
   '/gift/': typeof GiftIndexRoute
@@ -423,8 +474,15 @@ export interface FileRoutesByFullPath {
   '/b2b/orders/$id': typeof B2bOrdersIdRoute
   '/b2b/quotes/$id': typeof B2bQuotesIdRoute
   '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/workroom/orders/$id': typeof WorkroomOrdersIdRoute
+  '/workroom/products/new': typeof WorkroomProductsNewRoute
   '/b2b/orders/': typeof B2bOrdersIndexRoute
   '/b2b/quotes/': typeof B2bQuotesIndexRoute
+  '/workroom/orders/': typeof WorkroomOrdersIndexRoute
+  '/workroom/products/': typeof WorkroomProductsIndexRoute
+  '/workroom/requests/': typeof WorkroomRequestsIndexRoute
+  '/workroom/requests/$id/makepossible': typeof WorkroomRequestsIdMakepossibleRoute
+  '/workroom/requests/$id/proposal': typeof WorkroomRequestsIdProposalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -459,9 +517,7 @@ export interface FileRoutesByTo {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
-  '/workroom/orders': typeof WorkroomOrdersRoute
-  '/workroom/products': typeof WorkroomProductsRoute
-  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/inventory': typeof WorkroomInventoryRoute
   '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b': typeof B2bIndexRoute
   '/gift': typeof GiftIndexRoute
@@ -476,8 +532,15 @@ export interface FileRoutesByTo {
   '/b2b/orders/$id': typeof B2bOrdersIdRoute
   '/b2b/quotes/$id': typeof B2bQuotesIdRoute
   '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/workroom/orders/$id': typeof WorkroomOrdersIdRoute
+  '/workroom/products/new': typeof WorkroomProductsNewRoute
   '/b2b/orders': typeof B2bOrdersIndexRoute
   '/b2b/quotes': typeof B2bQuotesIndexRoute
+  '/workroom/orders': typeof WorkroomOrdersIndexRoute
+  '/workroom/products': typeof WorkroomProductsIndexRoute
+  '/workroom/requests': typeof WorkroomRequestsIndexRoute
+  '/workroom/requests/$id/makepossible': typeof WorkroomRequestsIdMakepossibleRoute
+  '/workroom/requests/$id/proposal': typeof WorkroomRequestsIdProposalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -521,9 +584,10 @@ export interface FileRoutesById {
   '/workroom/admin': typeof WorkroomAdminRoute
   '/workroom/artisan': typeof WorkroomArtisanRoute
   '/workroom/artisans': typeof WorkroomArtisansRoute
-  '/workroom/orders': typeof WorkroomOrdersRoute
-  '/workroom/products': typeof WorkroomProductsRoute
-  '/workroom/requests': typeof WorkroomRequestsRoute
+  '/workroom/inventory': typeof WorkroomInventoryRoute
+  '/workroom/orders': typeof WorkroomOrdersRouteWithChildren
+  '/workroom/products': typeof WorkroomProductsRouteWithChildren
+  '/workroom/requests': typeof WorkroomRequestsRouteWithChildren
   '/workroom/settings': typeof WorkroomSettingsRoute
   '/b2b/': typeof B2bIndexRoute
   '/gift/': typeof GiftIndexRoute
@@ -538,8 +602,15 @@ export interface FileRoutesById {
   '/b2b/orders/$id': typeof B2bOrdersIdRoute
   '/b2b/quotes/$id': typeof B2bQuotesIdRoute
   '/b2b/requests/$id': typeof B2bRequestsIdRoute
+  '/workroom/orders/$id': typeof WorkroomOrdersIdRoute
+  '/workroom/products/new': typeof WorkroomProductsNewRoute
   '/b2b/orders/': typeof B2bOrdersIndexRoute
   '/b2b/quotes/': typeof B2bQuotesIndexRoute
+  '/workroom/orders/': typeof WorkroomOrdersIndexRoute
+  '/workroom/products/': typeof WorkroomProductsIndexRoute
+  '/workroom/requests/': typeof WorkroomRequestsIndexRoute
+  '/workroom/requests/$id/makepossible': typeof WorkroomRequestsIdMakepossibleRoute
+  '/workroom/requests/$id/proposal': typeof WorkroomRequestsIdProposalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -584,6 +655,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
+    | '/workroom/inventory'
     | '/workroom/orders'
     | '/workroom/products'
     | '/workroom/requests'
@@ -601,8 +673,15 @@ export interface FileRouteTypes {
     | '/b2b/orders/$id'
     | '/b2b/quotes/$id'
     | '/b2b/requests/$id'
+    | '/workroom/orders/$id'
+    | '/workroom/products/new'
     | '/b2b/orders/'
     | '/b2b/quotes/'
+    | '/workroom/orders/'
+    | '/workroom/products/'
+    | '/workroom/requests/'
+    | '/workroom/requests/$id/makepossible'
+    | '/workroom/requests/$id/proposal'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -637,9 +716,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
-    | '/workroom/orders'
-    | '/workroom/products'
-    | '/workroom/requests'
+    | '/workroom/inventory'
     | '/workroom/settings'
     | '/b2b'
     | '/gift'
@@ -654,8 +731,15 @@ export interface FileRouteTypes {
     | '/b2b/orders/$id'
     | '/b2b/quotes/$id'
     | '/b2b/requests/$id'
+    | '/workroom/orders/$id'
+    | '/workroom/products/new'
     | '/b2b/orders'
     | '/b2b/quotes'
+    | '/workroom/orders'
+    | '/workroom/products'
+    | '/workroom/requests'
+    | '/workroom/requests/$id/makepossible'
+    | '/workroom/requests/$id/proposal'
   id:
     | '__root__'
     | '/'
@@ -698,6 +782,7 @@ export interface FileRouteTypes {
     | '/workroom/admin'
     | '/workroom/artisan'
     | '/workroom/artisans'
+    | '/workroom/inventory'
     | '/workroom/orders'
     | '/workroom/products'
     | '/workroom/requests'
@@ -715,8 +800,15 @@ export interface FileRouteTypes {
     | '/b2b/orders/$id'
     | '/b2b/quotes/$id'
     | '/b2b/requests/$id'
+    | '/workroom/orders/$id'
+    | '/workroom/products/new'
     | '/b2b/orders/'
     | '/b2b/quotes/'
+    | '/workroom/orders/'
+    | '/workroom/products/'
+    | '/workroom/requests/'
+    | '/workroom/requests/$id/makepossible'
+    | '/workroom/requests/$id/proposal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1075,6 +1167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkroomArtisansRouteImport
       parentRoute: typeof WorkroomRoute
     }
+    '/workroom/inventory': {
+      id: '/workroom/inventory'
+      path: '/inventory'
+      fullPath: '/workroom/inventory'
+      preLoaderRoute: typeof WorkroomInventoryRouteImport
+      parentRoute: typeof WorkroomRoute
+    }
     '/workroom/orders': {
       id: '/workroom/orders'
       path: '/orders'
@@ -1158,6 +1257,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/b2b/requests/$id'
       preLoaderRoute: typeof B2bRequestsIdRouteImport
       parentRoute: typeof B2bRoute
+    }
+    '/workroom/orders/': {
+      id: '/workroom/orders/'
+      path: '/'
+      fullPath: '/workroom/orders/'
+      preLoaderRoute: typeof WorkroomOrdersIndexRouteImport
+      parentRoute: typeof WorkroomOrdersRoute
+    }
+    '/workroom/orders/$id': {
+      id: '/workroom/orders/$id'
+      path: '/$id'
+      fullPath: '/workroom/orders/$id'
+      preLoaderRoute: typeof WorkroomOrdersIdRouteImport
+      parentRoute: typeof WorkroomOrdersRoute
+    }
+    '/workroom/products/': {
+      id: '/workroom/products/'
+      path: '/'
+      fullPath: '/workroom/products/'
+      preLoaderRoute: typeof WorkroomProductsIndexRouteImport
+      parentRoute: typeof WorkroomProductsRoute
+    }
+    '/workroom/products/new': {
+      id: '/workroom/products/new'
+      path: '/new'
+      fullPath: '/workroom/products/new'
+      preLoaderRoute: typeof WorkroomProductsNewRouteImport
+      parentRoute: typeof WorkroomProductsRoute
+    }
+    '/workroom/requests/': {
+      id: '/workroom/requests/'
+      path: '/'
+      fullPath: '/workroom/requests/'
+      preLoaderRoute: typeof WorkroomRequestsIndexRouteImport
+      parentRoute: typeof WorkroomRequestsRoute
+    }
+    '/workroom/requests/$id/makepossible': {
+      id: '/workroom/requests/$id/makepossible'
+      path: '/$id/makepossible'
+      fullPath: '/workroom/requests/$id/makepossible'
+      preLoaderRoute: typeof WorkroomRequestsIdMakepossibleRouteImport
+      parentRoute: typeof WorkroomRequestsRoute
+    }
+    '/workroom/requests/$id/proposal': {
+      id: '/workroom/requests/$id/proposal'
+      path: '/$id/proposal'
+      fullPath: '/workroom/requests/$id/proposal'
+      preLoaderRoute: typeof WorkroomRequestsIdProposalRouteImport
+      parentRoute: typeof WorkroomRequestsRoute
     }
   }
 }
@@ -1281,13 +1429,56 @@ const StoriesRouteChildren: StoriesRouteChildren = {
 const StoriesRouteWithChildren =
   StoriesRoute._addFileChildren(StoriesRouteChildren)
 
+interface WorkroomOrdersRouteChildren {
+  WorkroomOrdersIdRoute: typeof WorkroomOrdersIdRoute
+  WorkroomOrdersIndexRoute: typeof WorkroomOrdersIndexRoute
+}
+
+const WorkroomOrdersRouteChildren: WorkroomOrdersRouteChildren = {
+  WorkroomOrdersIdRoute: WorkroomOrdersIdRoute,
+  WorkroomOrdersIndexRoute: WorkroomOrdersIndexRoute,
+}
+
+const WorkroomOrdersRouteWithChildren = WorkroomOrdersRoute._addFileChildren(
+  WorkroomOrdersRouteChildren,
+)
+
+interface WorkroomProductsRouteChildren {
+  WorkroomProductsNewRoute: typeof WorkroomProductsNewRoute
+  WorkroomProductsIndexRoute: typeof WorkroomProductsIndexRoute
+}
+
+const WorkroomProductsRouteChildren: WorkroomProductsRouteChildren = {
+  WorkroomProductsNewRoute: WorkroomProductsNewRoute,
+  WorkroomProductsIndexRoute: WorkroomProductsIndexRoute,
+}
+
+const WorkroomProductsRouteWithChildren =
+  WorkroomProductsRoute._addFileChildren(WorkroomProductsRouteChildren)
+
+interface WorkroomRequestsRouteChildren {
+  WorkroomRequestsIndexRoute: typeof WorkroomRequestsIndexRoute
+  WorkroomRequestsIdMakepossibleRoute: typeof WorkroomRequestsIdMakepossibleRoute
+  WorkroomRequestsIdProposalRoute: typeof WorkroomRequestsIdProposalRoute
+}
+
+const WorkroomRequestsRouteChildren: WorkroomRequestsRouteChildren = {
+  WorkroomRequestsIndexRoute: WorkroomRequestsIndexRoute,
+  WorkroomRequestsIdMakepossibleRoute: WorkroomRequestsIdMakepossibleRoute,
+  WorkroomRequestsIdProposalRoute: WorkroomRequestsIdProposalRoute,
+}
+
+const WorkroomRequestsRouteWithChildren =
+  WorkroomRequestsRoute._addFileChildren(WorkroomRequestsRouteChildren)
+
 interface WorkroomRouteChildren {
   WorkroomAdminRoute: typeof WorkroomAdminRoute
   WorkroomArtisanRoute: typeof WorkroomArtisanRoute
   WorkroomArtisansRoute: typeof WorkroomArtisansRoute
-  WorkroomOrdersRoute: typeof WorkroomOrdersRoute
-  WorkroomProductsRoute: typeof WorkroomProductsRoute
-  WorkroomRequestsRoute: typeof WorkroomRequestsRoute
+  WorkroomInventoryRoute: typeof WorkroomInventoryRoute
+  WorkroomOrdersRoute: typeof WorkroomOrdersRouteWithChildren
+  WorkroomProductsRoute: typeof WorkroomProductsRouteWithChildren
+  WorkroomRequestsRoute: typeof WorkroomRequestsRouteWithChildren
   WorkroomSettingsRoute: typeof WorkroomSettingsRoute
   WorkroomIndexRoute: typeof WorkroomIndexRoute
 }
@@ -1296,9 +1487,10 @@ const WorkroomRouteChildren: WorkroomRouteChildren = {
   WorkroomAdminRoute: WorkroomAdminRoute,
   WorkroomArtisanRoute: WorkroomArtisanRoute,
   WorkroomArtisansRoute: WorkroomArtisansRoute,
-  WorkroomOrdersRoute: WorkroomOrdersRoute,
-  WorkroomProductsRoute: WorkroomProductsRoute,
-  WorkroomRequestsRoute: WorkroomRequestsRoute,
+  WorkroomInventoryRoute: WorkroomInventoryRoute,
+  WorkroomOrdersRoute: WorkroomOrdersRouteWithChildren,
+  WorkroomProductsRoute: WorkroomProductsRouteWithChildren,
+  WorkroomRequestsRoute: WorkroomRequestsRouteWithChildren,
   WorkroomSettingsRoute: WorkroomSettingsRoute,
   WorkroomIndexRoute: WorkroomIndexRoute,
 }

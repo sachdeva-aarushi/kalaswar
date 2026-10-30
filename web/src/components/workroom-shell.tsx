@@ -8,7 +8,7 @@
 
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, ShoppingBag, Users, Package, ClipboardList, Settings, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Package, ClipboardList, Warehouse, Settings, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 import { performSignOut } from "@/lib/auth-client";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { to: "/workroom", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/workroom/orders", label: "Orders", icon: ShoppingBag },
   { to: "/workroom/products", label: "Products", icon: Package },
+  { to: "/workroom/inventory", label: "Inventory", icon: Warehouse },
   { to: "/workroom/artisans", label: "Artisans", icon: Users },
   { to: "/workroom/requests", label: "Requests", icon: ClipboardList },
   { to: "/workroom/settings", label: "Settings", icon: Settings },

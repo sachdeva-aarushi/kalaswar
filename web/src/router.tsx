@@ -7,13 +7,14 @@ export const getRouter = () => {
     defaultOptions: {
       queries: {
         // Limit TanStack Query retries to 1, but never retry auth errors or timeouts
-        retry: (failureCount, error: any) => {
+        retry: (failureCount, error: unknown) => {
           if (failureCount >= 1) return false;
+          const err = error as { status?: number; name?: string } | null;
           if (
-            error?.status === 401 ||
-            error?.status === 403 ||
-            error?.status === 408 ||
-            error?.name === "TimeoutError"
+            err?.status === 401 ||
+            err?.status === 403 ||
+            err?.status === 408 ||
+            err?.name === "TimeoutError"
           ) {
             return false;
           }

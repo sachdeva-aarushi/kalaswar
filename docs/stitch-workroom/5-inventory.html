@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-container":"#90bba8","tertiary-container":"#5c3f00","surface-bright":"#f4fbf5","surface-tint":"#3d6656","primary-container":"#234c3d","on-surface":"#161d19","primary":"#083527","on-primary-fixed-variant":"#254e3f","on-error":"#ffffff","primary-fixed-dim":"#a4d0bc","on-secondary-fixed-variant":"#793019","secondary":"#98462e","secondary-container":"#ff987a","error-container":"#ffdad6","outline-variant":"#c0c8c3","on-secondary-fixed":"#3b0900","inverse-on-surface":"#ebf3ec","surface-container-low":"#eef5ef","on-tertiary-fixed-variant":"#5f4100","on-error-container":"#93000a","on-background":"#161d19","on-primary":"#ffffff","on-secondary-container":"#782e18","surface-dim":"#d5dcd6","tertiary-fixed":"#ffdeab","background":"#f4fbf5","inverse-primary":"#a4d0bc","tertiary-fixed-dim":"#eebf70","on-primary-fixed":"#002116","on-tertiary-container":"#d7ab5e","inverse-surface":"#2b322e","primary-fixed":"#c0ecd8","surface":"#f4fbf5","on-surface-variant":"#414844","surface-container-high":"#e3eae4","surface-container":"#e8f0e9","secondary-fixed-dim":"#ffb5a0","surface-variant":"#dde4de","surface-container-lowest":"#ffffff","secondary-fixed":"#ffdbd1","error":"#ba1a1a","outline":"#717974","tertiary":"#3f2a00","on-tertiary-fixed":"#271900","surface-container-highest":"#dde4de","on-secondary":"#ffffff","on-tertiary":"#ffffff"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"gutter-mobile":"1rem","space-lg":"1.5rem",margin:"2rem","space-xs":"0.5rem","space-md":"1rem","space-2xl":"3rem","space-sm":"0.75rem","margin-mobile":"1rem",gutter:"1.5rem","space-xl":"2rem"},fontFamily:{"label-md":["Inter"],"headline-md":["Manrope"],caption:["Inter"],"headline-lg":["Manrope"],"body-md-medium":["Inter"],"headline-xl":["Manrope"],"headline-sm":["Manrope"],"body-sm":["Inter"],"body-lg":["Inter"],"label-sm":["Inter"],"headline-xl-mobile":["Manrope"],"body-md":["Inter"]},fontSize:{"label-md":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0.01em",fontWeight:"600"}],"headline-md":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"-0.01em",fontWeight:"600"}],caption:["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.02em",fontWeight:"500"}],"headline-lg":["1.5rem",{lineHeight:"2rem",letterSpacing:"-0.015em",fontWeight:"700"}],"body-md-medium":["0.875rem",{lineHeight:"1.375rem",fontWeight:"500"}],"headline-xl":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-sm":["1.125rem",{lineHeight:"1.5rem",fontWeight:"600"}],"body-sm":["0.75rem",{lineHeight:"1.125rem",fontWeight:"400"}],"body-lg":["1rem",{lineHeight:"1.5rem",fontWeight:"400"}],"label-sm":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.02em",fontWeight:"600"}],"headline-xl-mobile":["1.75rem",{lineHeight:"2.25rem",letterSpacing:"-0.015em",fontWeight:"700"}],"body-md":["0.875rem",{lineHeight:"1.375rem",fontWeight:"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-16 bg-surface-bright border-r border-outline-variant/40 z-50 flex flex-col items-center justify-between py-space-sm select-none"><div class="flex flex-col items-center w-full"><a class="w-11 h-11 rounded-lg bg-surface-container flex items-center justify-center relative mb-space-sm group transition-transform active:scale-95" data-path="today" href="#" title="Kalaswar Workroom"><span class="font-headline-md text-primary font-bold text-lg tracking-tight select-none">K</span><span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim ring-1 ring-surface-bright"></span></a><nav class="flex flex-col items-center gap-1 w-full px-1.5" data-active-classes="bg-surface-container text-primary rounded-lg"><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="today" href="#" title="Today"><span class="material-symbols-outlined text-[20px]">calendar_today</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="products" href="#" title="Products"><span class="material-symbols-outlined text-[20px]">inventory_2</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="requests" href="#" title="Requests"><span class="material-symbols-outlined text-[20px]">inbox</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="proposals" href="#" title="Proposals"><span class="material-symbols-outlined text-[20px]">description</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="orders" href="#" title="Orders"><span class="material-symbols-outlined text-[20px]">shopping_bag</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="production" href="#" title="Production"><span class="material-symbols-outlined text-[20px]">precision_manufacturing</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high relative transition-colors" data-path="inventory" href="#" title="Inventory"><span class="material-symbols-outlined text-[20px]">warehouse</span><span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-secondary ring-1 ring-surface-bright"></span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="team" href="#" title="Team"><span class="material-symbols-outlined text-[20px]">groups</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="passports" href="#" title="Passports"><span class="material-symbols-outlined text-[20px]">verified</span></a><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="earnings" href="#" title="Earnings"><span class="material-symbols-outlined text-[20px]">payments</span></a></nav></div><div class="flex flex-col items-center gap-1.5 w-full px-1.5"><a class="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[20px]">settings</span></a><button class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" title="SD Account Profile" type="button"><span class="font-label-sm font-semibold tracking-wide text-xs text-on-primary">SD</span></button></div></aside><div class="pl-16 min-h-screen"><main class="w-full min-h-screen bg-surface p-space-md lg:p-space-lg"><div class="flex flex-col w-full text-on-surface h-[calc(100vh-2rem)] select-none overflow-hidden">
+<!-- TOP BAR / HEADER -->
+<header class="flex items-center justify-between px-space-xl py-space-sm bg-surface shrink-0">
+<div class="flex items-baseline gap-space-md">
+<h1 class="font-headline-xl text-primary tracking-tight" style="font-family: 'Manrope', serif; font-size: 2.25rem; font-weight: 700;">Inventory</h1>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-medium text-secondary">3 need restock</span>
+<span class="text-outline-variant">·</span>
+<span>1 on the way</span>
+<span class="text-outline-variant">·</span>
+<span>8 healthy</span>
+</span>
+</div>
+<!-- Actions & Status Info -->
+<div class="flex items-center gap-space-md">
+<!-- Last Count Warning -->
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-container/20 text-secondary font-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+<span>Counts updated 22 Oct</span>
+</div>
+<!-- Quick Action: Update Counts -->
+<button class="h-11 px-4 rounded-lg bg-surface-container-lowest text-primary font-label-md shadow-sm hover:bg-surface-container transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Update counts</span>
+</button>
+<!-- Language Switcher -->
+<button class="w-11 h-11 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container flex items-center justify-center font-headline-sm font-semibold transition-colors" title="Switch language" type="button">
+        हि
+      </button>
+<!-- Notification Bell -->
+<button class="relative w-11 h-11 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary"></span>
+</button>
+</div>
+</header>
+<!-- FILTER & SEARCH ROW -->
+<div class="flex items-center justify-between px-space-xl py-space-xs bg-surface shrink-0">
+<!-- Filter Tabs -->
+<div class="flex items-center gap-6" id="filterTabs">
+<button class="relative pb-2.5 text-primary font-label-md flex items-center gap-1.5 transition-colors group">
+<span>All</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-xs font-semibold text-primary">12</span>
+<span class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></span>
+</button>
+<button class="relative pb-2.5 text-secondary font-label-md flex items-center gap-1.5 opacity-90 hover:opacity-100 transition-opacity">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Needs restock</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary/10 text-xs font-bold text-secondary">3</span>
+</button>
+<button class="relative pb-2.5 text-on-surface-variant hover:text-on-surface font-label-md flex items-center gap-1.5 transition-colors">
+<span>On the way</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-xs">1</span>
+</button>
+<button class="relative pb-2.5 text-on-surface-variant hover:text-on-surface font-label-md flex items-center gap-1.5 transition-colors">
+<span>Healthy</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-xs">8</span>
+</button>
+</div>
+<!-- Search & Controls -->
+<div class="flex items-center gap-3">
+<!-- Search Input -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-11 pl-9 pr-3 rounded-lg bg-surface-container-lowest text-body-md placeholder:text-on-surface-variant/70 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Search materials..." type="text"/>
+</div>
+<!-- Type Filter -->
+<div class="relative">
+<select class="h-11 pl-3 pr-8 rounded-lg bg-surface-container-lowest text-on-surface font-body-md shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary">
+<option>Type: All Materials</option>
+<option>Thread &amp; Floss</option>
+<option>Natural Dye</option>
+<option>Fabrics &amp; Weaves</option>
+<option>Fibre &amp; Twine</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">arrow_drop_down</span>
+</div>
+<!-- Sort Selection -->
+<div class="relative">
+<select class="h-11 pl-3 pr-8 rounded-lg bg-surface-container-lowest text-on-surface font-body-md shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary">
+<option>Sort: Most urgent</option>
+<option>Stock: Lowest to highest</option>
+<option>Recent batch count</option>
+<option>Alphabetical (A-Z)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">sort</span>
+</div>
+</div>
+</div>
+<!-- WORKSPACE MAIN CANVAS (Dual Scroll Architecture) -->
+<div class="grid grid-cols-12 gap-space-xl px-space-xl pt-space-sm pb-space-xs flex-1 min-h-0">
+<!-- LEFT 7 COLS: THE SHELF LIST (Internal Scroll) -->
+<div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-low/40 rounded-xl p-space-md overflow-hidden">
+<!-- Scrollable Container -->
+<div class="overflow-y-auto pr-2 space-y-6 flex-1 h-full custom-scroll" style="scrollbar-width: thin; scrollbar-color: #c0c8c3 transparent;">
+<!-- SECTION 1: NEEDS RESTOCK (Alert) -->
+<section class="space-y-3">
+<div class="flex items-center justify-between sticky top-0 bg-surface/90 backdrop-blur-md py-1.5 z-10">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-headline-sm tracking-wider uppercase text-secondary font-bold text-xs" style="letter-spacing: 0.08em;">Needs Restock</span>
+<span class="px-2 py-0.2 rounded-full bg-secondary/10 text-xs font-bold text-secondary">3</span>
+</div>
+<span class="text-caption text-on-surface-variant">Below critical threshold or blocks pending client orders</span>
+</div>
+<!-- Shelf Card 1: Cotton Thread -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md flex flex-col gap-3 group relative">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<input aria-label="Select cotton thread for restock" checked="" class="mt-1 w-5 h-5 rounded cursor-pointer accent-primary focus:ring-primary" type="checkbox"/>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Close up photography of pure white organic cotton handloom thread spools neatly lined up on textured jute surface, warm soft Indian afternoon sunlight, tactile macro craft details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW1Zov1aNnwgdButevOkqCsAxjA68HjFimf4d9iS9lbmxqrPMWoUH3I1ia4rBlh3rH7zpTS3tYig5FK26bIoPSKxXh01Ub-B-47qymxjS7WVe8RVgw23cYfHzUjmjXDjy4pG1ycXRwW8BZKAaOyt9tDlvTHtZBuEmmyWZE3PN0uwhSbh64UxYXPUN8EjFnVLypnY571LAa889S_4ICTynJqexle56NH7SpOzK8WcvH"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Cotton thread, white</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Thread</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">Kantha, embroidery &amp; finishing seams · 40/2 count</p>
+</div>
+</div>
+<!-- Last verified badge -->
+<span class="flex items-center gap-1 text-caption text-secondary font-medium shrink-0 bg-secondary/10 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[13px]">alarm</span>
+                Counted 22 Oct
+              </span>
+</div>
+<!-- Stock Visual Progress Gauge -->
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-secondary text-sm">12 spools</span>
+<span class="text-on-surface-variant">available</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum threshold:</span>
+<span class="font-bold text-on-surface">20 spools</span>
+</div>
+</div>
+<!-- Bar with vertical tick mark for MIN -->
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-high overflow-visible">
+<!-- Bar fill -->
+<div class="h-full rounded-full bg-secondary transition-all" style="width: 40%;"></div>
+<!-- Minimum indicator marker -->
+<div class="absolute top-[-3px] bottom-[-3px] w-0.5 bg-primary-container z-10" style="left: 66.6%;">
+<span class="absolute -top-4 -translate-x-1/2 text-[9px] uppercase tracking-wider font-bold text-primary">min</span>
+</div>
+</div>
+</div>
+<!-- Consequence Alerts & Forecast -->
+<div class="pl-8 flex flex-wrap items-center gap-2 pt-1">
+<div class="flex items-center gap-1.5 text-xs text-secondary font-medium bg-secondary/10 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Short for 500 laptop sleeves (draft proposal)</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-primary-container font-medium bg-primary-fixed/40 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>Estimated after use: 9 spools</span>
+</div>
+</div>
+</article>
+<!-- Shelf Card 2: Natural Indigo Dye -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md flex flex-col gap-3 group relative">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<input aria-label="Select natural indigo dye for restock" checked="" class="mt-1 w-5 h-5 rounded cursor-pointer accent-primary focus:ring-primary" type="checkbox"/>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Deep vibrant natural indigo dye pigment powder in a rustic handcrafted ceramic jar, traditional Indian artisanal workshop setting with soft shadows and earthen tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDerLPsKHq2pfQiS73dldqZL_Dbh5p32C8Q3ymm1RLMiLYwT3cYFp53H4yMtCCYBfhzm5rmjRq9ywYFMY15eaOkXw0A0WMC49QvCjRv_ODpno3Ja1g4wE7bABcRyf18wKQzYDGJkSWK_9IDtK-SgA6P32b4dNNM69Gr1lGYDJXKliyIZi-jS0IHq9b0fePfEtCYXe1Ga6MrIqFU2mBZIjmzj6XEOv8utGo8VjChnYQH"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Natural indigo dye</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Dye</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">Pure cake extract · Tinctoria variety for cold vat dyeing</p>
+</div>
+</div>
+<!-- Last verified badge -->
+<span class="flex items-center gap-1 text-caption text-secondary font-medium shrink-0 bg-secondary/10 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[13px]">alarm</span>
+                Counted 22 Oct
+              </span>
+</div>
+<!-- Stock Visual Progress Gauge -->
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-secondary text-sm">2.0 kg</span>
+<span class="text-on-surface-variant">available</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum threshold:</span>
+<span class="font-bold text-on-surface">5.0 kg</span>
+</div>
+</div>
+<!-- Bar with vertical tick mark for MIN -->
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-high overflow-visible">
+<div class="h-full rounded-full bg-secondary transition-all" style="width: 25%;"></div>
+<div class="absolute top-[-3px] bottom-[-3px] w-0.5 bg-primary-container z-10" style="left: 62.5%;">
+<span class="absolute -top-4 -translate-x-1/2 text-[9px] uppercase tracking-wider font-bold text-primary">min</span>
+</div>
+</div>
+</div>
+<!-- Consequence Alerts & Forecast -->
+<div class="pl-8 flex flex-wrap items-center gap-2 pt-1">
+<div class="flex items-center gap-1.5 text-xs text-secondary font-medium bg-secondary/10 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Blocks Indigo napkin sets and Block-print dupattas</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-primary-container font-medium bg-primary-fixed/40 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>Suggested reorder: 5.0 kg</span>
+</div>
+</div>
+</article>
+<!-- Shelf Card 3: Cotton Canvas -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md flex flex-col gap-3 group relative">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<input aria-label="Select cotton canvas for restock" checked="" class="mt-1 w-5 h-5 rounded cursor-pointer accent-primary focus:ring-primary" type="checkbox"/>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="High density unbleached organic cotton canvas textile roll with tactile selvedge, soft raw flax texture in natural light studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-8gyF6umruy15z-q9DBH5RAISLzUGjcH-VwYhPFXrCiMEojlrtm1cldVkgFogMrh0LBSREuhME2d3Ztky0IbIJaUl6tPzrTzLJuj-aYcW4rF4xBL_HrYUfR-bqtHgyzn8wI3tFOKC6zV0DPSJSdJ1jD-d_zIeDrKJ1cbFKzmOq_02oJp0GvPeWPNMbwZh6feIOIq3kaRhmwv3EiIw-MeZK4DEiRJDV9_4e-mbPrMz"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Cotton canvas</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Fabric</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">380 GSM unbleached greige · Bags, laptop sleeves</p>
+</div>
+</div>
+<!-- Last verified badge -->
+<span class="flex items-center gap-1 text-caption text-secondary font-medium shrink-0 bg-secondary/10 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[13px]">alarm</span>
+                Counted 22 Oct
+              </span>
+</div>
+<!-- Stock Visual Progress Gauge -->
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-primary text-sm">120 m</span>
+<span class="text-on-surface-variant">in workshop</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum threshold:</span>
+<span class="font-bold text-on-surface">100 m</span>
+</div>
+</div>
+<!-- Bar with vertical tick mark for MIN (Green because above min, but alert triggers via upcoming production) -->
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-high overflow-visible">
+<div class="h-full rounded-full bg-primary-container transition-all" style="width: 70%;"></div>
+<div class="absolute top-[-3px] bottom-[-3px] w-0.5 bg-primary-container z-10" style="left: 58%;">
+<span class="absolute -top-4 -translate-x-1/2 text-[9px] uppercase tracking-wider font-bold text-primary">min</span>
+</div>
+</div>
+</div>
+<!-- Consequence Alerts & Forecast -->
+<div class="pl-8 flex flex-wrap items-center gap-2 pt-1">
+<div class="flex items-center gap-1.5 text-xs text-secondary font-medium bg-secondary/10 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+<span>Short by 55 m for 500 laptop sleeves (draft proposal)</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs text-primary-container font-medium bg-primary-fixed/40 px-2.5 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>Net balance after draft run: -35 m</span>
+</div>
+</div>
+</article>
+</section>
+<!-- SECTION 2: ON THE WAY (Transit) -->
+<section class="space-y-3 pt-2">
+<div class="flex items-center justify-between sticky top-0 bg-surface/90 backdrop-blur-md py-1.5 z-10">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="font-headline-sm tracking-wider uppercase text-on-surface-variant font-bold text-xs" style="letter-spacing: 0.08em;">On the way</span>
+<span class="px-2 py-0.2 rounded-full bg-surface-container-high text-xs font-bold text-on-surface-variant">1</span>
+</div>
+<span class="text-caption text-on-surface-variant">Dispatched or awaiting delivery handoff</span>
+</div>
+<!-- Shelf Card 4: Jute -->
+<article class="bg-surface-container-lowest/80 rounded-xl p-space-md shadow-sm flex flex-col gap-3 group relative opacity-90 hover:opacity-100 transition-opacity">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<div class="mt-1 w-5 h-5 flex items-center justify-center text-outline cursor-not-allowed" title="Already requested">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</div>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Raw golden natural jute fibre bundle, coarse golden textile yarn coiled neatly on clean wooden table with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ67_4mW0z_qUU1Ya_anFxOInJ_S9GDYEcNr833-OnJtbAoRySHU5GVo_ivSiIa22fsCDn2GGn0EW52_YDAQolWZaDfMnSC4imcvgEsmqkGlPduoxTNpwgJCaQZ3QU2D9gbWuW2qdSUl9Nz8G4tsPB9kFcgJu6TPtLk0mkygwfArmdQaEPnTJWILGYLydl31euT4MU20G2ymvk_JCiljVgVSFl23UVMwgf5JdVmF3J"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Natural Golden Jute</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Fibre</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">Twisted 3-ply yarn · Baskets &amp; coarse craft base</p>
+</div>
+</div>
+<!-- Transit Status Chip -->
+<span class="flex items-center gap-1.5 text-caption text-primary font-medium shrink-0 bg-primary-fixed/40 px-2.5 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+                Expected 3 Nov
+              </span>
+</div>
+<!-- Stock Progress Gauge -->
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-secondary text-sm">0 kg</span>
+<span class="text-on-surface-variant">current floor stock</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum:</span>
+<span class="font-bold text-on-surface">30 kg</span>
+</div>
+</div>
+<div class="relative w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full rounded-full bg-secondary" style="width: 2%;"></div>
+</div>
+</div>
+<div class="pl-8 flex items-center gap-2">
+<span class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">info</span>
+                Storage baskets cluster is paused · PO #SEN-2024-89 placed 24 Oct
+              </span>
+</div>
+</article>
+</section>
+<!-- SECTION 3: HEALTHY STOCK -->
+<section class="space-y-3 pt-2">
+<div class="flex items-center justify-between sticky top-0 bg-surface/90 backdrop-blur-md py-1.5 z-10">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="font-headline-sm tracking-wider uppercase text-on-surface-variant font-bold text-xs" style="letter-spacing: 0.08em;">Healthy Materials</span>
+<span class="px-2 py-0.2 rounded-full bg-surface-container-high text-xs font-bold text-on-surface-variant">8</span>
+</div>
+<span class="text-caption text-on-surface-variant">Comfortably above safety buffers</span>
+</div>
+<!-- Shelf Card 5: Silk Yarn -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md flex flex-col gap-3 group">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<input aria-label="Select silk yarn" class="mt-1 w-5 h-5 rounded cursor-pointer accent-primary focus:ring-primary" type="checkbox"/>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Lustrous mulberry silk yarn skeins in delicate raw ivory and soft natural gold sheen, neatly arranged on artisanal textile shelf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx9BNBCEb1xCQjiHY5Nl2gDxNEFCFAbHNINQrueuXo_0UlcwiEPxjaXRFdKA_ZkxpFoZWFL-90miZ3uhTWQtZd0GEef0tz0yKV9OpKlRsIhfpyHIPjId2r5DX6ZX8NONrYihrp-6cNgj-EnMNjAhp2-_bNoBAYWjsUoOkROguuS0A0GRezH2Co4s4WjYaNYqNA2pdI97-0U4fZxDsZotdFVOYFMdlPLtIGQkMy7a9X"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Mulberry silk yarn</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Yarn</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">Handloom warp &amp; weft · Scarves &amp; jamdani motifs</p>
+</div>
+</div>
+<span class="flex items-center gap-1 text-caption text-on-surface-variant font-medium shrink-0 bg-surface-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+                Counted 28 Oct
+              </span>
+</div>
+<!-- Stock Visual Progress Gauge -->
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-primary text-sm">18 skeins</span>
+<span class="text-on-surface-variant">in reserve</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum threshold:</span>
+<span class="font-bold text-on-surface">10 skeins</span>
+</div>
+</div>
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-high overflow-visible">
+<div class="h-full rounded-full bg-primary-container transition-all" style="width: 85%;"></div>
+<div class="absolute top-[-3px] bottom-[-3px] w-0.5 bg-primary-container z-10" style="left: 45%;">
+<span class="absolute -top-4 -translate-x-1/2 text-[9px] uppercase tracking-wider font-bold text-primary">min</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Shelf Card 6: Handloom Cotton -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md flex flex-col gap-3 group">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start gap-3">
+<input aria-label="Select handloom cotton" class="mt-1 w-5 h-5 rounded cursor-pointer accent-primary focus:ring-primary" type="checkbox"/>
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Natural woven handloom desi cotton fabric stack showing warm tactile slubs and traditional selvedge edge in morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnY15KnbdYSzG7yrRnQy-Q2XHudptOReZNUd9rE_mr6J46dhcsrhTys4eMfnuKuBtCLt7iyOckr0V1eubl_7X2IOAJj7D3xA0l3kzxwg4CA9z-PiDIn5HpiXsihfUT4Fb39nVdiP9oSLPiYsCDAr4Nooe1tWBlFgPnXCzuLWoa5WWkFtZ7GxR62QjjzYoWS6Y2gEmdfloWUmDOa0GRRl0qFIRymkwTAlTFj6_-h81v"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-primary font-bold">Desi handloom cotton</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-caption uppercase font-semibold">Fabric</span>
+</div>
+<p class="font-body-sm text-on-surface-variant">60s count organic weave · Stoles, table runners</p>
+</div>
+</div>
+<span class="flex items-center gap-1 text-caption text-on-surface-variant font-medium shrink-0 bg-surface-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+                Counted 28 Oct
+              </span>
+</div>
+<div class="space-y-1.5 pl-8">
+<div class="flex items-center justify-between text-caption font-medium">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-primary text-sm">64 m</span>
+<span class="text-on-surface-variant">in reserve</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Minimum threshold:</span>
+<span class="font-bold text-on-surface">40 m</span>
+</div>
+</div>
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-high overflow-visible">
+<div class="h-full rounded-full bg-primary-container transition-all" style="width: 78%;"></div>
+<div class="absolute top-[-3px] bottom-[-3px] w-0.5 bg-primary-container z-10" style="left: 50%;">
+<span class="absolute -top-4 -translate-x-1/2 text-[9px] uppercase tracking-wider font-bold text-primary">min</span>
+</div>
+</div>
+</div>
+</article>
+</section>
+</div>
+</div>
+<!-- RIGHT 5 COLS: RESTOCK REQUEST BUILDER (Internal Scroll) -->
+<div class="col-span-5 flex flex-col h-full min-h-0 bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden">
+<!-- Panel Header -->
+<div class="flex items-center justify-between pb-3 shrink-0">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<h2 class="font-headline-sm uppercase tracking-wider text-primary text-xs font-bold" style="letter-spacing: 0.08em;">Restock Request</h2>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary text-xs font-bold">3 items</span>
+</div>
+<button class="text-xs font-label-md text-on-surface-variant hover:text-secondary transition-colors" type="button">Clear all</button>
+</div>
+<!-- Scrollable Form Area -->
+<div class="overflow-y-auto pr-1 space-y-4 flex-1 h-full custom-scroll" style="scrollbar-width: thin; scrollbar-color: #c0c8c3 transparent;">
+<!-- SELECTED ITEM 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low/60 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-surface-container overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Cotton thread white spools small macro thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3AE72u0mJX5X4SFABD1dZPkCKVZy1ozTbDJmg-D9hrDDKs4IZn28p2pEOlD0ynzDPHJv0Tomp3DwR2gzL2ooOpWgyXnLVZM6Non3q95m4C3KUi7v5mJ9dUn7jdfaxdY2vmt6gNUkfrNdexcUKvszGO5GoKeMkeBAjTZY38QQPbmY7Wr5TTY6blyicONbJjFiU_FD5NGG_mKrmZZYZHWsFMZ4YPBIpZ0kxx79wBKh5"/>
+</div>
+<div>
+<h4 class="font-label-md text-primary text-xs font-bold">Cotton thread, white</h4>
+<span class="text-[11px] text-on-surface-variant">Est. ₹95 / spool</span>
+</div>
+</div>
+<!-- Stepper control 44px height -->
+<div class="flex items-center rounded-lg bg-surface-container-lowest shadow-sm h-11 px-1">
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t1', -1)">−</button>
+<input class="w-20 text-center font-label-md text-primary text-xs bg-transparent focus:outline-none" id="t1" readonly="" type="text" value="36 spools"/>
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t1', 1)">+</button>
+</div>
+</div>
+<!-- Suggested Reason -->
+<div class="flex items-start gap-1.5 pt-1 text-xs">
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed/50 text-primary font-bold text-[10px] shrink-0">Suggested</span>
+<p class="text-on-surface-variant text-[11px] leading-tight">28 for 500 laptop sleeves + 8 to reach standard cluster safety reserve.</p>
+</div>
+</div>
+<!-- SELECTED ITEM 2 -->
+<div class="p-3 rounded-lg bg-surface-container-low/60 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-surface-container overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Natural indigo pigment powder small thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyiwEEzmAngFNMMub1GRLXTB-hWfnLZoN61XkOWDs_rxMhQNrCwgPZMsb1EipghHS--ityTaCDb3C9FB7nOq6K4tRzC35ai9poljLl0tUBkHUb3TTTUjeGx6FL-sGmWPqMoXKTQt1Q0TS523fF1srytDIwKuulfC_cEsIKcI9tnVFaWKGUA6sIJU-TSHDlNeSuAPyUOT696DORhma2B_-4lcBzjZ_YByLXsDyk5BYx"/>
+</div>
+<div>
+<h4 class="font-label-md text-primary text-xs font-bold">Natural indigo dye</h4>
+<span class="text-[11px] text-on-surface-variant">Est. ₹1,800 / kg</span>
+</div>
+</div>
+<div class="flex items-center rounded-lg bg-surface-container-lowest shadow-sm h-11 px-1">
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t2', -1)">−</button>
+<input class="w-20 text-center font-label-md text-primary text-xs bg-transparent focus:outline-none" id="t2" readonly="" type="text" value="5.0 kg"/>
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t2', 1)">+</button>
+</div>
+</div>
+<div class="flex items-start gap-1.5 pt-1 text-xs">
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed/50 text-primary font-bold text-[10px] shrink-0">Suggested</span>
+<p class="text-on-surface-variant text-[11px] leading-tight">Covers napkin sets and dupatta batches, bringing stock back to safety minimum.</p>
+</div>
+</div>
+<!-- SELECTED ITEM 3 -->
+<div class="p-3 rounded-lg bg-surface-container-low/60 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-surface-container overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Cotton canvas greige fabric roll small thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr9qslDtvTflo7WPyQc2J2uBUE6A4P_I3cw6XjtR-u-1st8SFUg88bWmUChpv0H74JK3rO74bBxmguiVcrAyBSMH-FEjXSVvggSXfealNnptrT_MAwQnfpsJr34hIHO389guADfZdqD8aW-Kpw__NDhMMlUi3UMGuC1ngGq2T48wWbpe6VFtJwcBClQHymflHxz4WppIRGJAiooELQEnXSmMeMrbDa6pMpgxn9QB4S"/>
+</div>
+<div>
+<h4 class="font-label-md text-primary text-xs font-bold">Cotton canvas</h4>
+<span class="text-[11px] text-on-surface-variant">Est. ₹260 / m</span>
+</div>
+</div>
+<div class="flex items-center rounded-lg bg-surface-container-lowest shadow-sm h-11 px-1">
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t3', -5)">−</button>
+<input class="w-20 text-center font-label-md text-primary text-xs bg-transparent focus:outline-none" id="t3" readonly="" type="text" value="55 m"/>
+<button class="w-8 h-full flex items-center justify-center text-on-surface hover:text-primary active:scale-95 text-lg font-bold" onclick="adjustCount('t3', 5)">+</button>
+</div>
+</div>
+<div class="flex items-start gap-1.5 pt-1 text-xs">
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed/50 text-primary font-bold text-[10px] shrink-0">Suggested</span>
+<p class="text-on-surface-variant text-[11px] leading-tight">Direct shortage requirement for 500 laptop sleeve batch order.</p>
+</div>
+</div>
+<!-- CONFIGURATION & LOGISTICS METADATA -->
+<div class="space-y-3 pt-2">
+<!-- Supplier Selection -->
+<div class="space-y-1">
+<label class="font-headline-sm uppercase tracking-wider text-[11px] font-bold text-on-surface-variant">Supplier Partner</label>
+<div class="relative">
+<select class="w-full h-11 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+<option selected="">Sen Textiles, Kolkata (Lead time 5-7 days)</option>
+<option>Murshidabad Silk Federation</option>
+<option>Gramin Vikas Handloom Cooperative</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Needed By Timeline -->
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<label class="font-headline-sm uppercase tracking-wider text-[11px] font-bold text-on-surface-variant">Needed in Workshop By</label>
+<span class="text-caption text-secondary font-medium">Critical deadline</span>
+</div>
+<div class="flex items-center justify-between h-11 px-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
+<span class="font-label-md text-primary text-xs">5 Nov 2026</span>
+</div>
+<span class="text-[11px] text-on-surface-variant">~6 days transit</span>
+</div>
+<p class="text-[11px] text-on-surface-variant flex items-center gap-1 pt-0.5">
+<span class="material-symbols-outlined text-[13px] text-tertiary-fixed-dim">schedule</span>
+              Restocking takes ~6 days. Dispatching today ensures delivery before 5 Nov.
+            </p>
+</div>
+<!-- Note Area -->
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<label class="font-headline-sm uppercase tracking-wider text-[11px] font-bold text-on-surface-variant">Dispatch instructions</label>
+<span class="text-[10px] text-on-surface-variant">Max 200 chars</span>
+</div>
+<textarea class="w-full p-2.5 rounded-lg bg-surface-container-low text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary resize-none" maxlength="200" placeholder="e.g. Please label bags with 'Lot B-Purulia Cluster' and include batch test slips..." rows="2"></textarea>
+</div>
+<!-- FINANCIAL ESTIMATE ACCORDION -->
+<div class="p-3 rounded-lg bg-surface-container-low space-y-2">
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span>Cotton thread (36 spools)</span>
+<span class="font-medium text-on-surface">₹3,420</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span>Natural indigo dye (5 kg)</span>
+<span class="font-medium text-on-surface">₹9,000</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span>Cotton canvas (55 m)</span>
+<span class="font-medium text-on-surface">₹14,300</span>
+</div>
+<div class="pt-2 flex items-baseline justify-between">
+<span class="font-label-md text-primary text-xs uppercase tracking-wider">Estimated Total</span>
+<span class="font-headline-md text-primary font-bold text-lg">₹26,720</span>
+</div>
+<p class="text-[10px] text-on-surface-variant italic pt-0.5">
+              Estimate based on cluster master rate. Nothing is billed until invoice verification.
+            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- FIXED BOTTOM DECISION BAR (80px Tall) -->
+<div class="h-20 bg-surface px-space-xl flex items-center justify-between shrink-0 shadow-lg relative z-30">
+<!-- Summary Left Context -->
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm font-bold text-primary text-base">3 materials</span>
+<span class="text-outline-variant">·</span>
+<span class="font-headline-sm font-bold text-primary text-base">₹26,720 est.</span>
+<span class="text-outline-variant">·</span>
+<span class="font-label-md text-secondary text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">event</span>
+          Needed by 5 Nov
+        </span>
+</div>
+<p class="text-caption text-on-surface-variant">
+        A request summary will be transmitted to Sen Textiles. No binding payment is initiated now.
+      </p>
+</div>
+<!-- Actions Right -->
+<div class="flex items-center gap-3">
+<!-- Clear Selection Text Button -->
+<button class="h-11 px-4 text-xs font-label-md text-on-surface-variant hover:text-secondary transition-colors" type="button">
+        Clear selection
+      </button>
+<!-- Secondary Button -->
+<button class="h-11 px-5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-xs shadow-sm hover:bg-surface-container transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+<span>Update counts</span>
+</button>
+<!-- Primary Forest Green Button -->
+<button class="h-11 px-6 rounded-lg bg-primary text-on-primary font-label-md text-xs shadow hover:bg-primary-container active:scale-[0.99] transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Send restock request</span>
+</button>
+</div>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    function adjustCount(id, delta) {
+      const input = document.getElementById(id);
+      if (!input) return;
+      const text = input.value;
+      const parts = text.split(' ');
+      let num = parseFloat(parts[0]);
+      const unit = parts.slice(1).join(' ');
+      num = Math.max(1, num + delta);
+      if (unit === 'kg') {
+        input.value = num.toFixed(1) + ' ' + unit;
+      } else {
+        input.value = Math.round(num) + ' ' + unit;
+      }
+    }
+  </script>
+</div></main></div></body></html>

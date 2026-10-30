@@ -20,8 +20,134 @@ from app.schemas.proposals import (
 from app.services.audit import AuditService, audit_service
 
 # In-memory storage backing deterministic tests and development
-_IN_MEMORY_PROPOSALS: Dict[str, Dict[str, Any]] = {}
-_IN_MEMORY_SAMPLES: Dict[str, List[Dict[str, Any]]] = {}
+_IN_MEMORY_PROPOSALS: Dict[str, Dict[str, Any]] = {
+    "66666666-0001-0000-0000-000000000001": {
+        "id": "66666666-0001-0000-0000-000000000001",
+        "title": "500 Kantha-inspired laptop sleeves",
+        "current_version": 2,
+        "status": "draft",
+        "buyer_id": "aaaaaaaa-0001-0000-0000-000000000001",
+        "shg_id": "bbbbbbbb-0001-0000-0000-000000000001",
+        "request_id": "77777777-0001-0000-0000-000000000001",
+        "confirmed_order_id": None,
+        "versions": [
+            {
+                "version": 1,
+                "spec": {
+                    "title": "500 Kantha-inspired laptop sleeves",
+                    "craft": "Kantha hand embroidery",
+                    "quantity": 500,
+                    "unit_price_inr": 792.0,
+                    "total_price_inr": 396000.0,
+                    "timeline_days": 21,
+                    "materials_summary": "Raw Sal-cotton canvas, cotton lining, Sal-forest dyed threads",
+                    "delivery_terms": "Delivery to Bengaluru facility. First-mile logistics included.",
+                    "cancellation_terms": "Full refund prior to cutting; 50 percent during making",
+                    "customisation_details": "Pastel sage, blush, sky (equal split)",
+                    "costing_breakdown": {
+                        "materials": 138000.0,
+                        "artisan_labor": 210000.0,
+                        "packaging_first_mile": 22000.0,
+                        "federation_fee": 26000.0,
+                    },
+                },
+                "status": "superseded",
+                "created_by": "Sunita Devi",
+                "created_at": "2026-10-28T10:00:00Z",
+                "coordinator_approval": None,
+                "buyer_approval": None,
+                "is_immutable": True,
+            },
+            {
+                "version": 2,
+                "spec": {
+                    "title": "500 Kantha-inspired laptop sleeves",
+                    "craft": "Kantha hand embroidery",
+                    "quantity": 500,
+                    "unit_price_inr": 828.0,
+                    "total_price_inr": 414000.0,
+                    "timeline_days": 20,
+                    "materials_summary": "Raw Sal-cotton canvas, cotton lining, Sal-forest dyed threads, buyer logo patch",
+                    "delivery_terms": "Batch 1: 350 sleeves by 12 Nov. Batch 2: 150 sleeves by 19 Nov to Bengaluru.",
+                    "cancellation_terms": "Full refund prior to cutting; 50 percent during making",
+                    "customisation_details": "Added corner logo patch (supplied by buyer). Fits 14-inch laptops.",
+                    "costing_breakdown": {
+                        "materials": 138000.0,
+                        "artisan_labor": 210000.0,
+                        "logo_patch_application": 18000.0,
+                        "packaging_first_mile": 22000.0,
+                        "second_dispatch_surcharge": 1600.0,
+                        "federation_fee": 24400.0,
+                    },
+                },
+                "status": "draft",
+                "created_by": "Sunita Devi",
+                "created_at": "2026-10-30T10:00:00Z",
+                "coordinator_approval": None,
+                "buyer_approval": None,
+                "is_immutable": False,
+            },
+        ],
+        "created_at": "2026-10-28T10:00:00Z",
+        "updated_at": "2026-10-30T10:00:00Z",
+    },
+    "66666666-0002-0000-0000-000000000002": {
+        "id": "66666666-0002-0000-0000-000000000002",
+        "title": "Warli Ceremonial Wall Hanging",
+        "current_version": 1,
+        "status": "draft",
+        "buyer_id": "aaaaaaaa-0002-0000-0000-000000000002",
+        "shg_id": "bbbbbbbb-0002-0000-0000-000000000002",
+        "request_id": "77777777-0002-0000-0000-000000000002",
+        "confirmed_order_id": None,
+        "versions": [
+            {
+                "version": 1,
+                "spec": {
+                    "title": "Warli Ceremonial Wall Hanging",
+                    "craft": "Warli Tribal Art",
+                    "quantity": 5,
+                    "unit_price_inr": 3200.0,
+                    "total_price_inr": 16000.0,
+                    "timeline_days": 15,
+                    "materials_summary": "Natural geru base, rice flour pigment, handmade bamboo frame",
+                    "delivery_terms": "Doorstep delivery via insured postal parcel",
+                    "cancellation_terms": "Standard cancellation terms",
+                    "customisation_details": "Depicting Tarpa harvest celebration",
+                    "costing_breakdown": {
+                        "materials": 4000.0,
+                        "artisan_labor": 9000.0,
+                        "packaging": 1500.0,
+                        "platform_fee": 1500.0,
+                    },
+                },
+                "status": "draft",
+                "created_by": "Coordinator Priya",
+                "created_at": "2026-10-27T10:00:00Z",
+                "coordinator_approval": None,
+                "buyer_approval": None,
+                "is_immutable": False,
+            }
+        ],
+        "created_at": "2026-10-27T10:00:00Z",
+        "updated_at": "2026-10-27T10:00:00Z",
+    },
+}
+_IN_MEMORY_SAMPLES: Dict[str, List[Dict[str, Any]]] = {
+    "66666666-0001-0000-0000-000000000001": [
+        {
+            "id": "99999999-0001-0000-0000-000000000001",
+            "proposal_id": "66666666-0001-0000-0000-000000000001",
+            "spec_version": 2,
+            "fee_inr": 1200.0,
+            "status": "in_production",
+            "tracking_number": None,
+            "feedback": "Pre-production sample: checking sage dye lot and corner logo placement",
+            "created_at": "2026-10-30T10:30:00Z",
+            "updated_at": "2026-10-30T10:30:00Z",
+        }
+    ]
+}
 
 
 class ProposalService:
@@ -115,6 +241,16 @@ class ProposalService:
         )
 
         return self._to_response(record)
+
+    async def list_proposals(
+        self,
+        request_id: Optional[UUID] = None,
+    ) -> List[ProposalResponse]:
+        proposals = list(_IN_MEMORY_PROPOSALS.values())
+        if request_id:
+            req_str = str(request_id)
+            proposals = [p for p in proposals if str(p.get("request_id")) == req_str]
+        return [self._to_response(p) for p in proposals]
 
     async def get_proposal(self, proposal_id: UUID) -> ProposalResponse:
         pid_str = str(proposal_id)

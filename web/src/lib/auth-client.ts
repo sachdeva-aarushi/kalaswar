@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { QueryClient } from "@tanstack/react-query";
+import type { User } from "@supabase/supabase-js";
 
 export interface SessionUser {
   id: string;
@@ -37,10 +38,10 @@ function getStoredUser(): SessionUser | null {
  * Reads local session storage immediately, with fallback to getUser().
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
-  let user: any = null;
+  let user: User | null = null;
   try {
     const { data: sessionData } = await supabase.auth.getSession();
-    user = sessionData?.session?.user;
+    user = sessionData?.session?.user ?? null;
   } catch {
     user = null;
   }
@@ -48,7 +49,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   if (!user) {
     try {
       const { data: userData } = await supabase.auth.getUser();
-      user = userData?.user;
+      user = userData?.user ?? null;
     } catch {
       user = null;
     }
@@ -72,14 +73,14 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       else if (roleNames.includes("coordinator")) role = "coordinator";
       else if (roleNames.includes("artisan")) role = "artisan";
       else if (roleNames.includes("buyer")) role = "buyer";
-      else role = roleNames[0];
+      else role = roleNames[0] ?? null;
     } else {
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
-      role = (profile as any)?.role ?? (user.user_metadata?.['role'] as string | undefined) ?? null;
+      role = (profile as { role?: string } | null)?.role ?? (user.user_metadata?.['role'] as string | undefined) ?? null;
     }
   } catch {
     role = (user.user_metadata?.['role'] as string | undefined) ?? null;

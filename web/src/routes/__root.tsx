@@ -46,11 +46,12 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  const errObj = error as { status?: number; statusCode?: number; message?: string } | null;
   const is403 =
-    (error as any)?.status === 403 ||
-    (error as any)?.statusCode === 403 ||
-    (error as any)?.message?.includes("403") ||
-    (error as any)?.message?.toLowerCase().includes("forbidden");
+    errObj?.status === 403 ||
+    errObj?.statusCode === 403 ||
+    errObj?.message?.includes("403") ||
+    errObj?.message?.toLowerCase().includes("forbidden");
 
   if (is403) {
     return (

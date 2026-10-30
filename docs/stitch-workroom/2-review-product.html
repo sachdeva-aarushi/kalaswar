@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-tertiary-fixed-variant": "#5f4100",
+          "on-secondary-container": "#782e18",
+          "on-tertiary-fixed": "#271900",
+          "on-surface-variant": "#414844",
+          "outline-variant": "#c0c8c3",
+          "surface-container": "#e8f0e9",
+          "primary-container": "#234c3d",
+          "surface-bright": "#f4fbf5",
+          "on-primary-fixed": "#002116",
+          "inverse-surface": "#2b322e",
+          "error-container": "#ffdad6",
+          "on-secondary-fixed": "#3b0900",
+          "secondary-fixed-dim": "#ffb5a0",
+          "primary-fixed-dim": "#a4d0bc",
+          "on-secondary-fixed-variant": "#793019",
+          "secondary": "#98462e",
+          "error": "#ba1a1a",
+          "background": "#f4fbf5",
+          "inverse-on-surface": "#ebf3ec",
+          "surface-container-high": "#e3eae4",
+          "surface-container-low": "#eef5ef",
+          "on-background": "#161d19",
+          "on-primary": "#ffffff",
+          "inverse-primary": "#a4d0bc",
+          "on-tertiary-container": "#d7ab5e",
+          "on-primary-fixed-variant": "#254e3f",
+          "tertiary-fixed-dim": "#eebf70",
+          "primary-fixed": "#c0ecd8",
+          "on-error": "#ffffff",
+          "surface-container-lowest": "#ffffff",
+          "tertiary-container": "#5c3f00",
+          "primary": "#083527",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#ff987a",
+          "surface-variant": "#dde4de",
+          "surface": "#f4fbf5",
+          "tertiary-fixed": "#ffdeab",
+          "on-primary-container": "#90bba8",
+          "surface-container-highest": "#dde4de",
+          "surface-tint": "#3d6656",
+          "surface-dim": "#d5dcd6",
+          "on-tertiary": "#ffffff",
+          "on-error-container": "#93000a",
+          "tertiary": "#3f2a00",
+          "on-surface": "#161d19",
+          "secondary-fixed": "#ffdbd1",
+          "outline": "#717974"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "gutter": "1.5rem",
+          "margin-mobile": "1rem",
+          "space-xs": "0.5rem",
+          "margin": "2rem",
+          "space-lg": "1.5rem",
+          "space-2xl": "3rem",
+          "gutter-mobile": "1rem",
+          "space-xl": "2rem",
+          "space-sm": "0.75rem",
+          "space-md": "1rem"
+        },
+        "fontFamily": {
+          "body-md-medium": [
+            "Inter"
+          ],
+          "label-md": [
+            "Inter"
+          ],
+          "body-sm": [
+            "Inter"
+          ],
+          "headline-sm": [
+            "Manrope"
+          ],
+          "label-sm": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Manrope"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "caption": [
+            "Inter"
+          ],
+          "headline-xl-mobile": [
+            "Manrope"
+          ],
+          "headline-md": [
+            "Manrope"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "headline-xl": [
+            "Manrope"
+          ]
+        },
+        "fontSize": {
+          "body-md-medium": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "500"
+            }
+          ],
+          "label-md": [
+            "0.875rem",
+            {
+              "lineHeight": "1.25rem",
+              "letterSpacing": "0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "0.75rem",
+            {
+              "lineHeight": "1.125rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-sm": [
+            "1.125rem",
+            {
+              "lineHeight": "1.5rem",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg": [
+            "1.5rem",
+            {
+              "lineHeight": "2rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-lg": [
+            "1rem",
+            {
+              "lineHeight": "1.5rem",
+              "fontWeight": "400"
+            }
+          ],
+          "caption": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-xl-mobile": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-md": [
+            "1.25rem",
+            {
+              "lineHeight": "1.75rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-md": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-xl": [
+            "2rem",
+            {
+              "lineHeight": "2.5rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-16 bg-surface-bright border-r border-outline-variant/40 z-50 flex flex-col items-center justify-between py-4 select-none"><div class="flex flex-col items-center w-full gap-4"><div class="relative w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center shadow-sm ring-1 ring-tertiary-fixed-dim/40"><span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold tracking-tight">K</span><span class="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-tertiary-fixed"></span></div><nav class="flex flex-col items-center gap-1.5 w-full px-2.5" data-active-classes="bg-surface-variant text-primary rounded-xl font-bold shadow-sm"><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="today" href="#" title="Today"><span class="material-symbols-outlined text-[22px]">calendar_today</span></a><a aria-current="page" class="w-11 h-11 flex items-center justify-center transition-all bg-surface-variant text-primary rounded-xl font-bold shadow-sm" data-path="products" href="#" title="Products"><span class="material-symbols-outlined text-[22px]">inventory_2</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="requests" href="#" title="Requests"><span class="material-symbols-outlined text-[22px]">inbox</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="proposals" href="#" title="Proposals"><span class="material-symbols-outlined text-[22px]">description</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="orders" href="#" title="Orders"><span class="material-symbols-outlined text-[22px]">local_shipping</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="production" href="#" title="Production"><span class="material-symbols-outlined text-[22px]">precision_manufacturing</span></a><a class="relative w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="inventory" href="#" title="Inventory"><span class="material-symbols-outlined text-[22px]">shelves</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-bright"></span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="team" href="#" title="Team"><span class="material-symbols-outlined text-[22px]">groups</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="passports" href="#" title="Passports"><span class="material-symbols-outlined text-[22px]">verified</span></a><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="earnings" href="#" title="Earnings"><span class="material-symbols-outlined text-[22px]">payments</span></a></nav></div><div class="flex flex-col items-center gap-2.5 w-full px-2.5 pb-2"><a class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="settings" href="#" title="Settings"><span class="material-symbols-outlined text-[22px]">settings</span></a><div class="w-9 h-9 rounded-full bg-primary-container text-surface-container-lowest flex items-center justify-center font-label-sm text-label-sm cursor-pointer shadow-sm ring-1 ring-outline-variant/60 hover:ring-primary transition-all" title="Suraj Das (Coordinator)">SD</div></div></aside><div class="pl-16 min-h-screen bg-surface"><main class="w-full min-h-screen bg-surface"><div class="flex flex-col w-full text-on-surface select-none antialiased">
+<!-- Top Navigation & Header Row -->
+<header class="w-full px-12 pt-8 pb-5 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<!-- Back crumb -->
+<a class="inline-flex items-center gap-1.5 text-primary hover:text-on-primary-fixed-variant font-label-md text-label-md transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-0.5">arrow_back</span>
+<span>Products</span>
+</a>
+<!-- Right cluster: Queue switcher, Lang toggle, Alerts -->
+<div class="flex items-center gap-3">
+<div class="flex items-center bg-surface-container-high rounded-lg px-2.5 py-1 text-on-surface-variant font-label-sm text-label-sm">
+<button class="p-1 hover:text-on-surface transition-colors flex items-center" title="Previous product">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="px-2 font-body-md-medium text-body-sm text-on-surface">2 of 6 in queue</span>
+<button class="p-1 hover:text-on-surface transition-colors flex items-center" title="Next product">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<button class="w-9 h-9 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors" title="Switch language">
+          हि
+        </button>
+<button class="relative w-9 h-9 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface flex items-center justify-center transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary"></span>
+</button>
+</div>
+</div>
+<!-- Title and state line -->
+<div class="flex flex-wrap items-baseline justify-between gap-4 mt-1">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-primary tracking-tight font-semibold">
+          Hand-embroidered cotton cushion cover
+        </h1>
+<div class="flex items-center gap-2 mt-1.5 text-on-surface-variant font-body-md text-body-md">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">schedule</span>
+<span>Waiting for review</span>
+<span class="text-outline-variant">•</span>
+<span>Version 1</span>
+<span class="text-outline-variant">•</span>
+<span>Submitted 20 min ago</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Viewport Workroom Grid (1440 lock, 40px gap) -->
+<div class="w-full px-12 pt-2 pb-6 grid grid-cols-12 gap-10 items-start">
+<!-- LEFT PANEL: Maker & Visuals (4 Cols / 320-360px) -->
+<aside class="col-span-4 bg-surface-container-high rounded-[20px] p-6 flex flex-col gap-6">
+<!-- Primary Photo Showcase -->
+<div class="relative w-full aspect-[4/5] rounded-[14px] overflow-hidden bg-surface-variant shadow-sm group">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" data-alt="Editorial close-up of a meticulously hand-embroidered artisanal cotton cushion cover in raw unbleached natural off-white fabric with dense floral motifs in madder red and muted golden tussar silk threads resting flat upon an aged teakwood craft table in soft warm natural morning window light, high textile fidelity, tactile weave texture, unglazed terracotta undertones, studio still life." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo9JLfGIhpmWwXo61Ogmqwvj7P7oI4JMAD_AZy1-ePFKcvQcyDCXUvHt_AWn3r-hB08YpiAiYoBAptGtxKKeX3Icg0SJIPyj8NRi4Jg4K06n17Ad356AOps5NK5-KTvXWtq-44Se509vx6Qrsn4N2ooUs0tuivi_xa0kc5STSxH82XN9StyVi1tGbxxTEoBfYSiLJmrrqy4ZYdNM7RSFrrYLooA9NjmITxqGie1yQr"/>
+<!-- Photo Counter Badge -->
+<div class="absolute bottom-3 left-3 bg-inverse-surface/85 backdrop-blur-sm text-inverse-on-surface px-2.5 py-1 rounded-full font-label-sm text-caption flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">photo_camera</span>
+<span>1 of 3</span>
+</div>
+<!-- Enlarge CTA -->
+<button class="absolute top-3 right-3 bg-surface-container-lowest/90 hover:bg-surface-container-lowest text-primary p-2 rounded-lg shadow-sm flex items-center justify-center transition-all opacity-90 hover:opacity-100" onclick="document.getElementById('lightbox-modal').classList.remove('hidden')" title="Enlarge image">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+<!-- Thumbnail Selector Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<button class="w-12 h-16 rounded-[10px] overflow-hidden ring-2 ring-primary-container ring-offset-2 ring-offset-surface-container-high transition-all">
+<img class="w-full h-full object-cover" data-alt="Close up detail of artisanal needlework silk thread on raw handloom cotton cushion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6RCcQn1DGvB_kh0BC4IW3w7OLcIgcb2caGX118tr-YKQHXmb8Rh81qyJsWTcWo_yfyI2OxU0RDXOSFDJoaLbi4i3CLQR5OTEQjDywKRCt8vu4vmeOd9uEtFjAHP_-nEZcBQklc-ZEHJKvNeVcrmeQCJYfJlzinpVCfY3mgLzr3ZqPCeGCOc1iXxT2MPOr2nOgLH_i0pS5IpjHFA-k4KLIzpOjtQrn1kjczEu2yC5q"/>
+</button>
+<button class="w-12 h-16 rounded-[10px] overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="Reverse side of hand-embroidered cushion cover showing hidden zipper and clean fabric selvage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcrql0UgYTTTlJMBTMoBT8R3oJIT_Uf8CodBYssmsSgoQB2uL8JnrEFZ-g-ymp0kH9Ltaex9jtGJ_7dfDsAOWlQYYEYwi9eL6InsQpQPSE-Pp-2OEmtgFQLwMwNfEWRhvsfbjj7Jm7GGsZLKNILT54TQQfxe8fvDh2twIfMV627lrT_BtMg7XQ5toY-RChxBvTI50ocmP44KR-3ZfiGkZjqzISWKAY1aEzMvMZOdYq"/>
+</button>
+<button class="w-12 h-16 rounded-[10px] overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="Corner fringe and natural organic cotton edge hem seam with handcrafted stitches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFw_cj3Wrx6czWCSHeOB8uq2YaEUgU5lpv5CAX35nyspdBY00fG3HfaBVIJfilQE3KT_n5gRhZ5ni6wEjAR6iIcj7-SEK32uZoP-CPNjKZ0y5pzIM0JXouv-q_AoYo4kqSIKuXXJc8eky9j5y1qDkerxNA78vVfHGcqAeiua4GSwizdhpFawEf9a1fiU09c7WxhkRaE5KsqwVLfawr0D4G51KSd9lQLzasH5d9z7U2"/>
+</button>
+</div>
+<button class="text-primary hover:text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1" onclick="document.getElementById('lightbox-modal').classList.remove('hidden')">
+<span>View larger</span>
+<span class="material-symbols-outlined text-[16px]">open_in_full</span>
+</button>
+</div>
+<!-- Artisan Profile Block -->
+<div class="pt-3 flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-11 h-11 rounded-full bg-primary-container text-surface-container-lowest flex items-center justify-center font-headline-sm text-headline-sm font-semibold tracking-wide">
+            LM
+          </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-lg text-primary font-semibold leading-tight">Lakshmi Mondal</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Embroidery · Bhagirathi cluster</span>
+</div>
+</div>
+<a class="text-primary hover:text-on-primary-fixed-variant font-label-md text-label-md inline-flex items-center gap-0.5 group" href="#">
+<span>Artisan</span>
+<span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+</a>
+</div>
+<!-- Cluster Context Note -->
+<div class="bg-surface-container-lowest/80 rounded-xl p-3.5 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">verified_user</span>
+<div class="text-on-surface-variant font-body-sm text-body-sm leading-relaxed">
+          Self-Help Group: <strong class="text-on-surface font-body-md-medium">Tara Handcrafts SHG</strong><br/>
+          Master trainer verified ledger entry #SHG-8821.
+        </div>
+</div>
+</aside>
+<!-- RIGHT PANEL: Operational Ledger & Verifications (8 Cols) -->
+<section class="col-span-8 flex flex-col justify-between min-h-[580px]">
+<div class="flex flex-col">
+<!-- Ledger Header -->
+<div class="flex items-center justify-between pb-3">
+<span class="font-label-sm text-caption tracking-widest text-on-surface-variant font-bold uppercase">
+            What was submitted
+          </span>
+<span class="font-caption text-caption text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+            Green sparkles denote assistant-generated values accepted by artisan
+          </span>
+</div>
+<!-- Field Rows (Semantic Hairlines, No Box Borders) -->
+<div class="flex flex-col">
+<!-- Row 1: Title -->
+<div class="py-3.5 flex items-baseline justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+              Title
+            </div>
+<div class="flex-1 pr-6 flex items-center gap-2">
+<span class="font-body-md-medium text-body-lg text-primary">Hand-embroidered cotton cushion cover</span>
+<span class="inline-flex items-center text-primary-container" title="AI suggestion, accepted">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+</span>
+</div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span>Accepted as suggested</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 2: Craft -->
+<div class="py-3.5 flex items-baseline justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+              Craft
+            </div>
+<div class="flex-1 pr-6 font-body-md-medium text-body-lg text-primary">
+              Embroidery
+            </div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">done</span>
+<span>Added by artisan</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 3: Material -->
+<div class="py-3.5 flex items-baseline justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+              Material
+            </div>
+<div class="flex-1 pr-6 font-body-md-medium text-body-lg text-primary">
+              Cotton, silk thread
+            </div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">done</span>
+<span>Added by artisan</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 4: Description (with expandable original AI copy) -->
+<div class="py-3.5 flex flex-col gap-2 hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="flex items-baseline justify-between">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+                Description
+              </div>
+<div class="flex-1 pr-6 font-body-md text-body-lg text-primary leading-snug">
+                Handstitched floral cushion cover in red silk thread, 40 x 40 cm, with a concealed zip.
+              </div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">edit</span>
+<span>Edited by artisan</span>
+</div>
+</div>
+<!-- Accordion trigger & details -->
+<div class="pl-36">
+<button class="inline-flex items-center gap-1 text-primary-container hover:text-primary font-label-sm text-body-sm transition-colors" onclick="document.getElementById('ai-diff-box').classList.toggle('hidden'); document.getElementById('ai-diff-icon').classList.toggle('rotate-180')">
+<span>See what the AI wrote</span>
+<span class="material-symbols-outlined text-[16px] transition-transform" id="ai-diff-icon">expand_more</span>
+</button>
+<div class="hidden mt-2 bg-surface-container rounded-xl p-3 flex items-start gap-2.5 text-on-surface-variant font-body-sm text-body-sm" id="ai-diff-box">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">auto_awesome</span>
+<div>
+<span class="font-body-md-medium text-primary">Original draft:</span> “Hand embroidered cushion cover in red thread, 40 cm square.”
+                </div>
+</div>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 5: Quantity -->
+<div class="py-3.5 flex items-baseline justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+              Quantity
+            </div>
+<div class="flex-1 pr-6 font-body-md-medium text-body-lg text-primary">
+              12 pieces in current batch
+            </div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">done</span>
+<span>Added by artisan</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 6: Size -->
+<div class="py-3.5 flex items-baseline justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold">
+              Size
+            </div>
+<div class="flex-1 pr-6 flex items-center gap-2">
+<span class="font-body-md-medium text-body-lg text-primary">40 × 40 cm</span>
+<span class="inline-flex items-center text-primary-container" title="AI suggestion, accepted">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+</span>
+</div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span>Accepted as suggested</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-surface-variant"></div>
+<!-- Row 7: Price Breakdown (Taller Row ~96px) -->
+<div class="py-4 flex items-start justify-between hover:bg-surface-container-high/40 px-2 rounded-lg transition-colors">
+<div class="w-36 shrink-0 font-label-sm text-caption uppercase tracking-wider text-on-surface-variant font-semibold pt-1">
+              Unit Price
+            </div>
+<div class="flex-1 pr-6 flex flex-col gap-1.5">
+<div class="flex items-baseline gap-3">
+<span class="font-headline-lg text-headline-lg font-bold text-primary">₹1,450</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-caption">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+                  Accepted estimate
+                </span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm leading-tight flex flex-wrap items-center gap-x-2">
+<span>Materials ₹310</span>
+<span class="text-outline-variant">•</span>
+<span>Making time, ~14 hrs ₹1,040</span>
+<span class="text-outline-variant">•</span>
+<span>Platform fee ₹100</span>
+<span class="text-outline-variant">•</span>
+<span class="font-body-md-medium text-on-surface">Base benchmark ₹1,450</span>
+</div>
+<div class="flex items-center gap-4 text-body-sm font-caption text-on-surface-variant pt-1">
+<span class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+                  Matches the federation formula
+                </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">info</span>
+                  Internal benchmark, not a retail quote
+                </span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm pt-1">
+<span class="material-symbols-outlined text-[16px] text-primary">check</span>
+<span>Accepted as suggested</span>
+</div>
+</div>
+</div>
+<!-- SECTION: Coordinator Checks -->
+<div class="mt-6 pt-4 bg-surface-container-high/50 rounded-2xl p-5 flex flex-col gap-3">
+<div class="font-label-sm text-caption tracking-widest text-on-surface-variant font-bold uppercase">
+            Your coordinator checks
+          </div>
+<div class="grid grid-cols-3 gap-3">
+<label class="h-11 px-3.5 bg-surface-container-lowest rounded-xl flex items-center gap-3 cursor-pointer select-none hover:bg-surface-bright transition-colors">
+<input checked="" class="w-5 h-5 rounded accent-primary cursor-pointer" id="check-photo" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface">Photo is clear &amp; authentic</span>
+</label>
+<label class="h-11 px-3.5 bg-surface-container-lowest rounded-xl flex items-center gap-3 cursor-pointer select-none hover:bg-surface-bright transition-colors">
+<input checked="" class="w-5 h-5 rounded accent-primary cursor-pointer" id="check-price" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface">Price reflects fair labor</span>
+</label>
+<label class="h-11 px-3.5 bg-surface-container-lowest rounded-xl flex items-center gap-3 cursor-pointer select-none hover:bg-surface-bright transition-colors">
+<input checked="" class="w-5 h-5 rounded accent-primary cursor-pointer" id="check-desc" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface">Description matches piece</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Pinned Decision Row & Legal Clarity -->
+<div class="pt-6 mt-4 flex flex-col gap-2">
+<div class="flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<!-- Primary Action: Approve -->
+<button class="h-11 px-8 rounded-[10px] bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-2 shadow-sm transition-all" onclick="document.getElementById('approve-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Approve product</span>
+</button>
+<!-- Secondary Action: Request Changes -->
+<button class="h-11 px-6 rounded-[10px] bg-surface-container-lowest hover:bg-surface-variant text-primary font-label-md text-label-md flex items-center justify-center gap-1.5 transition-all" onclick="document.getElementById('changes-sheet').classList.remove('translate-x-full')">
+<span class="material-symbols-outlined text-[18px]">rate_review</span>
+<span>Request changes</span>
+</button>
+</div>
+<!-- Tertiary Action: Decline (Quiet Charcoal) -->
+<button class="text-on-surface hover:text-error font-label-md text-label-md px-3 py-2 transition-colors flex items-center gap-1" onclick="document.getElementById('decline-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>Decline listing</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
+<span class="material-symbols-outlined text-[15px] text-outline">info</span>
+<span>Approving adds this to the workroom catalogue as “Approved”. Public publishing and craft passport stamping remain distinct coordinator steps.</span>
+</div>
+</div>
+</section>
+</div>
+<!-- INTERACTIVE MODAL 1: Approve Confirmation -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-[2px] hidden flex items-center justify-center p-4" id="approve-modal">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-6 shadow-xl flex flex-col gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1">
+<span class="material-symbols-outlined text-[28px]">verified</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-primary">Approve this product?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1.5 leading-normal">
+          The listing will transition to <strong>Approved</strong> state in the Kalaswar registry. Lakshmi Mondal will receive an SMS confirmation in Bengali.
+        </p>
+</div>
+<div class="bg-surface-container-high rounded-xl p-3 text-body-sm font-body-sm text-on-surface">
+        Batch allocation: <strong>12 units</strong> added to Bhagirathi Cluster stock.
+      </div>
+<div class="flex items-center justify-end gap-3 pt-2">
+<button class="h-11 px-5 rounded-[10px] bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md" onclick="document.getElementById('approve-modal').classList.add('hidden')">
+          Cancel
+        </button>
+<button class="h-11 px-6 rounded-[10px] bg-primary text-on-primary font-label-md text-label-md" onclick="alert('Product approved and queued for Craft Passport generation!'); document.getElementById('approve-modal').classList.add('hidden')">
+          Confirm approval
+        </button>
+</div>
+</div>
+</div>
+<!-- INTERACTIVE MODAL 2: Request Changes Side Sheet -->
+<aside class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-surface-container-lowest shadow-2xl transition-transform duration-300 translate-x-full flex flex-col justify-between p-8" id="changes-sheet">
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between pb-2">
+<div>
+<span class="font-label-sm text-caption tracking-widest text-on-surface-variant font-bold uppercase">Feedback &amp; revisions</span>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary mt-1">What needs to change?</h2>
+</div>
+<button class="w-9 h-9 rounded-lg hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant" onclick="document.getElementById('changes-sheet').classList.add('translate-x-full')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Field Checkboxes -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-caption text-on-surface-variant font-semibold uppercase">Flag specific fields</span>
+<div class="grid grid-cols-2 gap-2 text-body-sm font-body-sm">
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Title</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Craft categorization</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Materials &amp; fiber</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Description &amp; dimensions</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Quantity / Batch count</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input checked="" class="accent-primary" type="checkbox"/> <span>Photographic clarity</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Size measurements</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-high/60 cursor-pointer">
+<input class="accent-primary" type="checkbox"/> <span>Price calculation</span>
+</label>
+</div>
+</div>
+<!-- Message Area & Chips -->
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<label class="font-label-sm text-caption text-on-surface-variant font-semibold uppercase">Note to Lakshmi</label>
+<span class="text-caption text-on-surface-variant">Will be translated to Bengali voice note</span>
+</div>
+<!-- Quick reply suggestions -->
+<div class="flex flex-wrap gap-1.5">
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-caption text-caption hover:bg-surface-variant transition-colors" onclick="document.getElementById('feedback-note').value += 'Please take a closer photo of the corner stitches in direct daylight. '">
+            + Photo needs daylight
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-caption text-caption hover:bg-surface-variant transition-colors" onclick="document.getElementById('feedback-note').value += 'The estimate time of 14 hours seems slightly low for this dense work. '">
+            + Verify labor hours
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-caption text-caption hover:bg-surface-variant transition-colors" onclick="document.getElementById('feedback-note').value += 'Please specify whether the fabric is hand-spun khadi or mill cotton. '">
+            + Clarify weave origin
+          </button>
+</div>
+<textarea class="w-full bg-surface-container-high/40 rounded-xl p-3.5 text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all" id="feedback-note" placeholder="Write concrete observations for Lakshmi and the cluster assistant..." rows="4"></textarea>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 pt-4">
+<button class="h-11 px-5 rounded-[10px] bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md" onclick="document.getElementById('changes-sheet').classList.add('translate-x-full')">
+        Dismiss
+      </button>
+<button class="h-11 px-6 rounded-[10px] bg-secondary text-on-secondary font-label-md text-label-md flex items-center gap-1.5" onclick="alert('Revision requests sent to cluster coordinator and artisan portal.'); document.getElementById('changes-sheet').classList.add('translate-x-full')">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Send to Lakshmi</span>
+</button>
+</div>
+</aside>
+<!-- INTERACTIVE MODAL 3: Decline Dialog -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-[2px] hidden flex items-center justify-center p-4" id="decline-modal">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-6 shadow-xl flex flex-col gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container text-error flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[28px]">do_not_disturb_on</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Decline this listing?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 leading-normal">
+          This removes the submission from the active review queue. Select an operational reason for the SHG audit archive.
+        </p>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-caption text-on-surface-variant uppercase font-semibold">Decline reason</label>
+<select class="w-full h-11 bg-surface-container-high rounded-xl px-3 text-on-surface font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary">
+<option>Duplicate product submission</option>
+<option>Does not meet federation handcraft standards</option>
+<option>Outside cluster craft mandate</option>
+<option>Material traceability missing</option>
+<option>Other operational reason</option>
+</select>
+</div>
+<div class="flex items-center justify-end gap-3 pt-3">
+<button class="h-11 px-5 rounded-[10px] bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md" onclick="document.getElementById('decline-modal').classList.add('hidden')">
+          Cancel
+        </button>
+<button class="h-11 px-6 rounded-[10px] bg-inverse-surface text-inverse-on-surface font-label-md text-label-md" onclick="alert('Submission archived with coordinator justification.'); document.getElementById('decline-modal').classList.add('hidden')">
+          Confirm decline
+        </button>
+</div>
+</div>
+</div>
+<!-- INTERACTIVE MODAL 4: High-Res Lightbox -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-8" id="lightbox-modal" onclick="if(event.target === this) this.classList.add('hidden')">
+<div class="relative max-w-4xl max-h-[870px] bg-surface-container-lowest rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+<div class="absolute top-4 right-4 z-10">
+<button class="w-10 h-10 rounded-full bg-inverse-surface/80 text-surface-container-lowest hover:bg-inverse-surface flex items-center justify-center" onclick="document.getElementById('lightbox-modal').classList.add('hidden')">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+</div>
+<div class="w-full h-full overflow-auto p-4 flex items-center justify-center bg-surface-container-high">
+<img class="rounded-xl max-h-[768px] object-contain shadow-md" data-alt="Macro optical photograph of the hand-embroidered floral motif, highlighting individual madder red silk threads stitched upon textured natural kora cotton" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhHwmJCIZRcWCQUhganjA8jy-8uXEl2L74ZiYKOtLiQ6oFV02p2FY1SxWrNE9K7BumXG37hgwDcfxmYxx0cIAE5DmY7-uXYPjka9SUToCu687ftv9Q5FPoZeEHFm_28NeHDWMZ_0w2CA-_qO6qiwOYa5reYEvZB3J35QHGsK1jHo5r-o1KN1AsFf2i1rNMMqSXJgQVPJ_ZW_D_sqAm9XunYxjRYAcCvMF6FYjzK7H-"/>
+</div>
+<div class="p-4 bg-surface-container-lowest flex items-center justify-between">
+<div>
+<h4 class="font-headline-sm text-body-lg text-primary font-bold">Embroidery close inspection (3x macro)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bhagirathi Cluster • Artisan: Lakshmi Mondal • Verified authentic needlecraft</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-caption">100% Cotton Base</span>
+</div>
+</div>
+</div>
+</div></main></div></body></html>
