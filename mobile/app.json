@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Kalaswar",
+    "slug": "kalaswar-mobile",
+    "version": "1.0.0",
+    "extra": {
+      "apiUrl": "http://localhost:8000",
+      "supabaseUrl": "https://hptiiyicxqgdtucxswal.supabase.co",
+      "supabaseAnonKey": "sb_publishable_u_51_fQEMUj1UTns_ENCrA_ws-KlyWA",
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "6d445079-d925-4017-bc80-0234b31f4b42"
+      }
+    }
+  }
+}
