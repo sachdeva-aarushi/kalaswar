@@ -39,7 +39,7 @@ export default function TaskDetailScreen() {
   const [showSavedToast, setShowSavedToast] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  const maxUnits = task?.totalUnits ?? 12;
+  const maxUnits = task?.totalUnits ?? task?.targetUnits ?? 12;
 
   const handlePlayAudio = () => {
     setIsPlayingAudio(true);
@@ -184,8 +184,8 @@ export default function TaskDetailScreen() {
 
         {/* Primary Task Title (Bilingual) */}
         <View style={styles.titleSection}>
-          <Text style={styles.taskTitleEn}>{task.title}</Text>
-          <Text style={styles.taskTitleHi}>{task.titleHi || '12 कुशन कवर की कढ़ाई'}</Text>
+          <Text style={styles.taskTitleEn}>{task.title || task.craftName}</Text>
+          <Text style={styles.taskTitleHi}>{task.titleHi || task.craftNameHi || '12 कुशन कवर की कढ़ाई'}</Text>
         </View>
 
         {/* Product Craft Photo (4:5 Aspect Ratio) */}
@@ -206,7 +206,7 @@ export default function TaskDetailScreen() {
           <View style={styles.metaBlock}>
             <Text style={styles.metaLabel}>FOR · किसके लिए</Text>
             <Text style={styles.metaValue}>
-              {task.clusterName} ({task.orderNumber})
+              {task.clusterName || task.cluster} ({task.orderNumber})
             </Text>
           </View>
 
@@ -225,7 +225,9 @@ export default function TaskDetailScreen() {
             <View style={styles.materialsRow}>
               <Ionicons name="checkmark-circle" size={18} color={Palette.primary} />
               <Text style={styles.materialsValue}>
-                {task.materialsAssigned.join(', ')} · सूती कपड़ा, लाल रेशमी धागा
+                {Array.isArray(task.materialsAssigned)
+                  ? task.materialsAssigned.join(', ')
+                  : task.materialsAssigned || task.materialsNote || 'सूती कपड़ा, लाल रेशमी धागा'}
               </Text>
             </View>
           </View>
@@ -396,7 +398,7 @@ export default function TaskDetailScreen() {
               <Ionicons name="checkmark-circle" size={24} color={Palette.primary} />
               <Text style={styles.savedToastText}>प्रगति सहेजी गई · Progress saved</Text>
             </View>
-            <Ionicons name="done-all" size={20} color={Palette.primary} />
+            <Ionicons name="checkmark-done" size={20} color={Palette.primary} />
           </View>
         )}
 

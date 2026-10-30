@@ -10,14 +10,32 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Palette, Typography, Spacing, Radii, Shadows } from '@/constants/theme';
 
 export default function ArtisanCameraScreen() {
   const router = useRouter();
   const [isFlashOn, setIsFlashOn] = useState(false);
   const [isCaptured, setIsCaptured] = useState(false);
+  const [capturedUri, setCapturedUri] = useState<string | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showLowLightWarning, setShowLowLightWarning] = useState(true);
+
+  const handlePickFromGallery = async () => {
+    try {
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+        base64: true,
+      });
+      if (!res.canceled && res.assets && res.assets[0]) {
+        setCapturedUri(res.assets[0].uri);
+        setIsCaptured(true);
+      }
+    } catch (err) {
+      console.warn('Image picker error:', err);
+    }
+  };
 
   const handlePlayAudio = () => {
     setIsPlayingAudio(true);
@@ -32,10 +50,14 @@ export default function ArtisanCameraScreen() {
 
   const handleRetake = () => {
     setIsCaptured(false);
+    setCapturedUri(null);
   };
 
   const handleUsePhoto = () => {
-    router.push('/artisan/voice');
+    router.push({
+      pathname: '/artisan/voice',
+      params: capturedUri ? { photoUri: capturedUri } : undefined,
+    } as any);
   };
 
   return (
@@ -218,6 +240,17 @@ export default function ArtisanCameraScreen() {
               <Text style={styles.shutterLabelHi}>फ़ोटो लें</Text>
             </View>
 
+            {/* Gallery Pick Fallback */}
+            <TouchableOpacity
+              style={styles.deckButton}
+              onPress={handlePickFromGallery}
+              accessibilityLabel="Pick from Gallery"
+            >
+              <Ionicons name="images-outline" size={24} color={Palette.onPrimary} />
+              <Text style={styles.deckBtnEn}>Gallery</Text>
+              <Text style={styles.deckBtnHi}>गैलरी</Text>
+            </TouchableOpacity>
+
             {/* Say It Direct Trigger */}
             <TouchableOpacity
               style={styles.deckButton}
@@ -236,7 +269,7 @@ export default function ArtisanCameraScreen() {
               <View style={styles.postCaptureInfo}>
                 <Image
                   source={{
-                    uri: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
+                    uri: capturedUri || 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
                   }}
                   style={styles.capturedThumb}
                 />
@@ -387,7 +420,11 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   bracketsContainer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     padding: Spacing.md,
     justifyContent: 'space-between',
   },

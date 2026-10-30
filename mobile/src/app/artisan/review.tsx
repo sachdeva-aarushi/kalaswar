@@ -9,21 +9,34 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Palette, Typography, Spacing, Radii, Shadows } from '@/constants/theme';
 
 export default function ArtisanReviewScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    title?: string;
+    fairPrice?: string;
+    artisanShare?: string;
+    materials?: string;
+    idempotencyId?: string;
+    photoUri?: string;
+  }>();
   const { t, i18n } = useTranslation();
   const isHindi = i18n.language === 'hi';
 
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [productName, setProductName] = useState('Hand-embroidered cotton cushion cover');
-  const [description, setDescription] = useState('Hand embroidered cushion cover in red thread, 40 cm square.');
+  const [productName, setProductName] = useState(params.title || 'Hand-embroidered cotton cushion cover');
+  const [description, setDescription] = useState(
+    params.title
+      ? `Handcrafted artisan piece (${params.materials || 'Pure cotton and silk embroidery'})`
+      : 'Hand embroidered cushion cover in red thread, 40 cm square.'
+  );
+  const [materials, setMaterials] = useState(params.materials || 'Cotton, silk thread');
   const [dimensions, setDimensions] = useState('40 x 40 cm');
-  const [price, setPrice] = useState('1450');
+  const [price, setPrice] = useState(params.fairPrice ? String(params.fairPrice) : '1450');
   const [isEditingName, setIsEditingName] = useState(false);
   const [washCareAdded, setWashCareAdded] = useState(false);
 
@@ -39,7 +52,14 @@ export default function ArtisanReviewScreen() {
   };
 
   const handleSubmit = () => {
-    router.push('/artisan/submission-status');
+    router.push({
+      pathname: '/artisan/submission-status',
+      params: {
+        idempotencyId: params.idempotencyId || `wamid.HBgM${Date.now()}`,
+        productName,
+        price,
+      },
+    } as any);
   };
 
   return (
@@ -125,7 +145,9 @@ export default function ArtisanReviewScreen() {
             <View style={styles.photoBoxPrimary}>
               <Image
                 source={{
-                  uri: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
+                  uri:
+                    params.photoUri ||
+                    'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
                 }}
                 style={styles.thumbImage}
               />
@@ -206,7 +228,7 @@ export default function ArtisanReviewScreen() {
                 <Text style={styles.aiBadgeText}>AI suggestion</Text>
               </View>
             </View>
-            <Text style={styles.fieldValue}>Cotton, silk thread</Text>
+            <Text style={styles.fieldValue}>{materials}</Text>
           </View>
 
           {/* Field 3: Description */}

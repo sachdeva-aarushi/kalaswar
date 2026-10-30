@@ -163,6 +163,81 @@ export default function CoordinatorOverviewScreen() {
           </View>
         )}
 
+        {/* Coordinator Operational Action Deck */}
+        <View style={styles.actionDeck}>
+          <TouchableOpacity
+            style={styles.actionDeckCard}
+            onPress={() => router.push('/coordinator/scan')}
+          >
+            <View style={[styles.actionDeckIcon, { backgroundColor: Palette.primaryFixed }]}>
+              <Ionicons name="qr-code-outline" size={20} color={Palette.primary} />
+            </View>
+            <Text style={styles.actionDeckTitle}>Scan QR</Text>
+            <Text style={styles.actionDeckSub}>Passport</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionDeckCard}
+            onPress={() => router.push('/coordinator/approvals')}
+          >
+            <View style={[styles.actionDeckIcon, { backgroundColor: Palette.secondaryContainer }]}>
+              <Ionicons name="checkmark-done" size={20} color={Palette.onSecondaryContainer} />
+            </View>
+            <Text style={styles.actionDeckTitle}>Approvals</Text>
+            <Text style={styles.actionDeckSub}>{waitingCount} queue</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionDeckCard}
+            onPress={() => router.push('/coordinator/assignments')}
+          >
+            <View style={[styles.actionDeckIcon, { backgroundColor: Palette.surfaceContainerHigh }]}>
+              <Ionicons name="construct-outline" size={20} color={Palette.primary} />
+            </View>
+            <Text style={styles.actionDeckTitle}>Assign</Text>
+            <Text style={styles.actionDeckSub}>Artisans</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionDeckCard}
+            onPress={() => router.push('/(tabs)/coordinator/orders')}
+          >
+            <View style={[styles.actionDeckIcon, { backgroundColor: Palette.surfaceContainerHigh }]}>
+              <Ionicons name="airplane-outline" size={20} color={Palette.primary} />
+            </View>
+            <Text style={styles.actionDeckTitle}>Dispatch</Text>
+            <Text style={styles.actionDeckSub}>Shipments</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Live Risk Flags from Backend Analytics */}
+        {overview?.riskFlags && overview.riskFlags.length > 0 && (
+          <View style={styles.riskFlagsSection}>
+            <Text style={styles.riskFlagsHeader}>
+              {isHindi ? 'संचालन जोखिम चेतावनी' : 'OPERATIONAL RISK FLAGS'}
+            </Text>
+            {overview.riskFlags.map((flag) => (
+              <View
+                key={flag.id}
+                style={[
+                  styles.riskFlagCard,
+                  flag.severity === 'critical' ? styles.riskFlagCritical : styles.riskFlagWarning,
+                ]}
+              >
+                <Ionicons
+                  name={flag.severity === 'critical' ? 'alert-circle' : 'warning-outline'}
+                  size={20}
+                  color={flag.severity === 'critical' ? Palette.errorTerracotta : Palette.secondary}
+                />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.riskFlagTitle}>{flag.title}</Text>
+                  <Text style={styles.riskFlagMsg}>{flag.message}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Headline Section */}
         <View style={styles.headlineRow}>
           <View style={styles.headlineLeft}>
@@ -666,5 +741,73 @@ const styles = StyleSheet.create({
   clusterNoteBold: {
     ...Typography.labelLg,
     color: Palette.primary,
+  },
+  actionDeck: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
+  actionDeckCard: {
+    flex: 1,
+    minHeight: 88,
+    backgroundColor: Palette.surfaceContainer,
+    borderRadius: Radii.lg,
+    padding: Spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    ...Shadows.sm,
+  },
+  actionDeckIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  actionDeckTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Palette.onSurface,
+  },
+  actionDeckSub: {
+    fontSize: 10,
+    color: Palette.onSurfaceVariant,
+  },
+  riskFlagsSection: {
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  riskFlagsHeader: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Palette.onSurfaceVariant,
+    letterSpacing: 1,
+  },
+  riskFlagCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radii.md,
+  },
+  riskFlagCritical: {
+    backgroundColor: Palette.errorContainer,
+  },
+  riskFlagWarning: {
+    backgroundColor: Palette.secondaryContainer,
+  },
+  riskFlagTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Palette.onSurface,
+  },
+  riskFlagMsg: {
+    fontSize: 12,
+    color: Palette.onSurfaceVariant,
+    marginTop: 1,
   },
 });

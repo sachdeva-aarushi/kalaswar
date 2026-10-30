@@ -20,11 +20,13 @@ export function LoadingState({ message = 'लोड हो रहा है... L
 }
 
 interface ErrorStateProps {
+  title?: string;
   message?: string;
   onRetry?: () => void;
 }
 
 export function ErrorState({
+  title = 'कनेक्शन त्रुटि · Network Issue',
   message = 'डेटा लोड करने में त्रुटि · Error loading data',
   onRetry,
 }: ErrorStateProps) {
@@ -33,7 +35,7 @@ export function ErrorState({
       <Card variant="alert" style={styles.cardBox}>
         <View style={styles.iconRow}>
           <Ionicons name="alert-circle" size={32} color={Palette.errorTerracotta} />
-          <Text style={styles.errorTitle}>कनेक्शन त्रुटि · Network Issue</Text>
+          <Text style={styles.errorTitle}>{title}</Text>
         </View>
         <Text style={styles.errorBody}>{message}</Text>
         {onRetry && (

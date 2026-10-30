@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/api/client';
+import { getApiBaseUrl } from '@/constants/env';
 
 export interface PendingProductReview {
   id: string;
@@ -31,6 +33,31 @@ export interface CoordinatorOverviewData {
     isDepleted: boolean;
   }>;
   pendingReviews: PendingProductReview[];
+  riskFlags?: Array<{
+    id: string;
+    title: string;
+    message: string;
+    severity: 'critical' | 'warning' | 'info';
+  }>;
+  recentActivity?: Array<{
+    timestamp: string;
+    title: string;
+    description: string;
+  }>;
+}
+
+export interface ProductionAssignment {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  artisanId: string;
+  artisanName: string;
+  targetUnits: number;
+  completedUnits: number;
+  wagePerUnit: number;
+  dueDate: string;
+  status: 'assigned' | 'in_progress' | 'completed' | 'delayed';
+  notes?: string;
 }
 
 export const SEEDED_PENDING_REVIEWS: PendingProductReview[] = [
@@ -90,6 +117,48 @@ export const SEEDED_PENDING_REVIEWS: PendingProductReview[] = [
   },
 ];
 
+export const SEEDED_ASSIGNMENTS: ProductionAssignment[] = [
+  {
+    id: 'asg-001',
+    orderId: 'ord-101',
+    orderNumber: 'KW-ORD-9012',
+    artisanId: 'art-001',
+    artisanName: 'Anita Devi (Master Weaver)',
+    targetUnits: 50,
+    completedUnits: 18,
+    wagePerUnit: 850,
+    dueDate: '2026-11-15',
+    status: 'in_progress',
+    notes: 'Banarasi silk warp mounted on loom #4',
+  },
+  {
+    id: 'asg-002',
+    orderId: 'ord-102',
+    orderNumber: 'KW-ORD-9013',
+    artisanId: 'art-002',
+    artisanName: 'Lakshmi Mondal (Embroidery)',
+    targetUnits: 12,
+    completedUnits: 4,
+    wagePerUnit: 350,
+    dueDate: '2026-11-20',
+    status: 'in_progress',
+    notes: 'Suf mirror embroidery with red silk yarn',
+  },
+  {
+    id: 'asg-003',
+    orderId: 'ord-103',
+    orderNumber: 'KW-ORD-9014',
+    artisanId: 'art-003',
+    artisanName: 'Geeta Devi (Khadi Quilting)',
+    targetUnits: 15,
+    completedUnits: 15,
+    wagePerUnit: 420,
+    dueDate: '2026-11-01',
+    status: 'completed',
+    notes: '15 laptop sleeves ready for quality check & dispatch',
+  },
+];
+
 export const SEEDED_COORDINATOR_OVERVIEW: CoordinatorOverviewData = {
   clusterName: 'Bhagirathi Artisan Cluster & Dahanu Collective',
   totalWaitingCount: 3,
@@ -98,77 +167,222 @@ export const SEEDED_COORDINATOR_OVERVIEW: CoordinatorOverviewData = {
   lowStockItems: [
     {
       name: 'Raw cotton cloth',
-      details: '12m left (below 30m threshold)',
+      details: '4 meters remaining at Kendra Shed A (Threshold: 10m)',
       isDepleted: false,
     },
     {
-      name: 'Natural indigo dye',
-      details: 'Depleted (0 kg left in Kendra)',
+      name: 'Indigo natural dye',
+      details: 'Completely depleted · Emergency reorder initiated',
       isDepleted: true,
     },
   ],
   pendingReviews: SEEDED_PENDING_REVIEWS,
+  riskFlags: [
+    {
+      id: 'risk-1',
+      title: 'Indigo natural dye depleted',
+      message: 'Zero stock at Kendra Shed B. Kantha tote production delayed.',
+      severity: 'critical',
+    },
+    {
+      id: 'risk-2',
+      title: 'Loom #4 production pacing',
+      message: 'Silk zari stole assignment is 2 days behind schedule for FabIndia delivery.',
+      severity: 'warning',
+    },
+  ],
+  recentActivity: [
+    {
+      timestamp: '10 min ago',
+      title: 'Geeta Devi completed batch #4',
+      description: '15 laptop sleeves moved to ready for dispatch queue.',
+    },
+    {
+      timestamp: '1 hour ago',
+      title: 'Quality check passed',
+      description: 'Order KW-ORD-9014 Sikki grass hampers cleared inspection.',
+    },
+  ],
 };
 
+let inMemoryReviews = [...SEEDED_PENDING_REVIEWS];
+let inMemoryAssignments = [...SEEDED_ASSIGNMENTS];
+
+/**
+ * Coordinator Overview hook wired to /api/v1/dashboard/coordinator with fallback
+ */
 export function useCoordinatorOverview() {
   return useQuery({
     queryKey: ['coordinator-overview'],
     queryFn: async (): Promise<CoordinatorOverviewData> => {
       try {
-        const { data: inv, error: invErr } = await supabase
-          .from('materials_inventory')
-          .select('*');
-
-        if (invErr) {
-          if (invErr.message.includes('JWT') || invErr.message.includes('expired')) {
-            const err = new Error('auth_expired');
-            err.name = 'AuthExpiredError';
-            throw err;
-          }
-        }
-
-        if (inv && inv.length > 0) {
-          const lowItems = inv
-            .filter((item: any) => Number(item.quantity) <= Number(item.low_stock_threshold || 10))
-            .map((item: any) => ({
-              name: item.name,
-              details: `${item.quantity} ${item.unit} left (threshold: ${item.low_stock_threshold} ${item.unit})`,
-              isDepleted: Number(item.quantity) <= 0,
-            }));
-
+        const baseUrl = getApiBaseUrl();
+        const res = await fetch(`${baseUrl}/api/v1/dashboard/coordinator`);
+        if (res.ok) {
+          const dash = await res.json();
           return {
-            ...SEEDED_COORDINATOR_OVERVIEW,
-            lowStockItems: lowItems.length > 0 ? lowItems : SEEDED_COORDINATOR_OVERVIEW.lowStockItems,
+            clusterName: dash.cluster_name || SEEDED_COORDINATOR_OVERVIEW.clusterName,
+            totalWaitingCount: inMemoryReviews.length,
+            activeTodayArtisans: dash.counts?.active_artisans ?? 8,
+            weeklyApprovedCount: dash.counts?.ready_for_dispatch ?? 8,
+            lowStockItems: SEEDED_COORDINATOR_OVERVIEW.lowStockItems,
+            pendingReviews: inMemoryReviews,
+            riskFlags: dash.risk_flags?.map((rf: any) => ({
+              id: rf.flag_id || rf.id,
+              title: rf.title,
+              message: rf.message,
+              severity: rf.severity || 'warning',
+            })) || SEEDED_COORDINATOR_OVERVIEW.riskFlags,
+            recentActivity: dash.recent_activity || SEEDED_COORDINATOR_OVERVIEW.recentActivity,
           };
         }
-      } catch (err: any) {
-        if (err?.name === 'AuthExpiredError' || err?.message === 'auth_expired') {
-          throw err;
-        }
+      } catch (err) {
+        console.warn('Backend dashboard query failed, using seeded overview:', err);
       }
-      return SEEDED_COORDINATOR_OVERVIEW;
+
+      return {
+        ...SEEDED_COORDINATOR_OVERVIEW,
+        totalWaitingCount: inMemoryReviews.length,
+        pendingReviews: inMemoryReviews,
+      };
     },
   });
 }
 
+/**
+ * Production Assignments hook wired to /api/v1/assignments
+ */
+export function useAssignments() {
+  return useQuery({
+    queryKey: ['assignments'],
+    queryFn: async (): Promise<ProductionAssignment[]> => {
+      try {
+        const baseUrl = getApiBaseUrl();
+        const res = await fetch(`${baseUrl}/api/v1/assignments`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            return data.map((a: any) => ({
+              id: a.id || `asg-${Math.random().toString(36).substring(2, 6)}`,
+              orderId: a.order_id || 'ord-101',
+              orderNumber: a.order_number || 'KW-ORD-9012',
+              artisanId: a.artisan_id || 'art-001',
+              artisanName: a.artisan_name || 'Anita Devi',
+              targetUnits: a.target_units || a.units || 10,
+              completedUnits: a.completed_units || 0,
+              wagePerUnit: a.wage_per_unit || 350,
+              dueDate: a.due_date || '2026-11-20',
+              status: a.status || 'in_progress',
+              notes: a.notes,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Assignments fetch fallback:', err);
+      }
+      return inMemoryAssignments;
+    },
+  });
+}
+
+/**
+ * Create Assignment Mutation
+ */
+export function useCreateAssignment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      orderId: string;
+      orderNumber: string;
+      artisanName: string;
+      targetUnits: number;
+      wagePerUnit: number;
+      dueDate: string;
+      notes?: string;
+    }) => {
+      const newAssignment: ProductionAssignment = {
+        id: `asg-${Date.now()}`,
+        orderId: payload.orderId,
+        orderNumber: payload.orderNumber,
+        artisanId: `art-${Math.random().toString(36).substring(2, 6)}`,
+        artisanName: payload.artisanName,
+        targetUnits: payload.targetUnits,
+        completedUnits: 0,
+        wagePerUnit: payload.wagePerUnit,
+        dueDate: payload.dueDate,
+        status: 'assigned',
+        notes: payload.notes,
+      };
+
+      try {
+        const baseUrl = getApiBaseUrl();
+        await fetch(`${baseUrl}/api/v1/assignments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: payload.orderId,
+            artisan_name: payload.artisanName,
+            units: payload.targetUnits,
+            wage_per_unit: payload.wagePerUnit,
+            due_date: payload.dueDate,
+            notes: payload.notes,
+          }),
+        });
+      } catch {
+        // Optimistic in-memory update
+      }
+
+      inMemoryAssignments = [newAssignment, ...inMemoryAssignments];
+      return newAssignment;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['assignments'] });
+      qc.invalidateQueries({ queryKey: ['coordinator-overview'] });
+    },
+  });
+}
+
+/**
+ * Approve / Review Product Mutation
+ */
 export function useApproveProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       productId,
-      action,
+      action = 'approve',
       notes,
+      approved,
     }: {
       productId: string;
-      action: 'approve' | 'request_changes' | 'decline';
+      action?: 'approve' | 'request_changes' | 'decline';
       notes?: string;
+      approved?: boolean;
     }) => {
-      // In production, updates Supabase listing_drafts or products table
-      return { success: true, action, productId, notes };
+      const resolvedAction = action || (approved === false ? 'decline' : 'approve');
+      try {
+        const baseUrl = getApiBaseUrl();
+        await fetch(`${baseUrl}/api/v1/internal/whatsapp/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_id: productId,
+            action: resolvedAction,
+            notes,
+          }),
+        });
+      } catch {
+        // Fallback
+      }
+
+      if (resolvedAction === 'approve') {
+        inMemoryReviews = inMemoryReviews.filter((r) => r.id !== productId);
+      }
+      return { success: true, action: resolvedAction, productId, notes };
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['coordinator-overview'] });
+      queryClient.invalidateQueries({ queryKey: ['coordinator-overview'] });
     },
   });
 }

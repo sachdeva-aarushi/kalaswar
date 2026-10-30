@@ -326,7 +326,11 @@ export default function NotificationsScreen() {
                     style={styles.audioListenBtn}
                     onPress={(e) => {
                       e.stopPropagation();
-                      handlePlayAudio(isHindi ? item.bodyHi || item.audioText : item.audioText);
+                      handlePlayAudio(
+                        isHindi
+                          ? item.bodyHi || item.audioText || item.body
+                          : item.audioText || item.body
+                      );
                     }}
                   >
                     <Ionicons name="volume-high-outline" size={16} color={Palette.primary} />

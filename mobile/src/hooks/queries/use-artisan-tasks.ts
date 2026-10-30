@@ -13,19 +13,24 @@ export interface ArtisanTask {
   id: string;
   orderNumber: string;
   craftName: string;
+  title?: string;
   craftNameHi: string;
+  titleHi?: string;
   stageName: string;
   stageNameHi: string;
   progressPercent: number;
   targetUnits: number;
+  totalUnits?: number;
   completedUnits: number;
   dueDate: string;
   dueDateHi: string;
   cluster: string;
+  clusterName?: string;
   imageUrl: string;
   wagePerUnit: number;
   estimatedEarnings: number;
   materialsNote: string;
+  materialsAssigned?: string;
   steps: ArtisanTaskStep[];
 }
 
@@ -187,8 +192,18 @@ export function useLogTaskProgress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ taskId, units }: { taskId: string; units: number }) => {
-      return { taskId, units };
+    mutationFn: async ({
+      taskId,
+      units,
+      completedUnits,
+      notes,
+    }: {
+      taskId: string;
+      units?: number;
+      completedUnits?: number;
+      notes?: string;
+    }) => {
+      return { taskId, units: units ?? completedUnits ?? 0, notes };
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['artisan-tasks'] });
