@@ -62,12 +62,23 @@ class ConflictError(AppException):
         )
 
 
+def _sanitize_details(obj: Any) -> Any:
+    if isinstance(obj, list):
+        return [_sanitize_details(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: _sanitize_details(v) for k, v in obj.items()}
+    if isinstance(obj, Exception):
+        return str(obj)
+    return obj
+
+
 def build_error_response(
     status_code: int,
     code: str,
     message: str,
     request_id: Optional[str] = None,
     details: Optional[Any] = None,
+    headers: Optional[dict] = None,
 ) -> JSONResponse:
     rid = request_id or get_request_id() or "unknown"
     payload = {
@@ -76,11 +87,14 @@ def build_error_response(
             "message": message,
             "status_code": status_code,
             "request_id": rid,
-            "details": details,
+            "details": _sanitize_details(details),
         }
     }
-    headers = {"X-Request-ID": rid}
-    return JSONResponse(status_code=status_code, content=payload, headers=headers)
+    resp_headers = {"X-Request-ID": rid}
+    if headers:
+        for k, v in headers.items():
+            resp_headers[k] = str(v)
+    return JSONResponse(status_code=status_code, content=payload, headers=resp_headers)
 
 
 async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
@@ -120,6 +134,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
         code=code,
         message=str(exc.detail),
         request_id=getattr(request.state, "request_id", None),
+        headers=getattr(exc, "headers", None),
     )
 
 

@@ -34,7 +34,7 @@
           "Authentication & Role Guards"
         ],
         "summary": "Get My Profile",
-        "description": "Returns current authenticated user profile and validated roles.",
+        "description": "Returns the authenticated user's verified role, profile, and onboarding status.\nEach of the 4 user types receives their specific association IDs (shg_id, artisan_id, buyer_id).",
         "operationId": "get_my_profile_api_v1_auth_me_get",
         "parameters": [
           {
@@ -71,14 +71,264 @@
         }
       }
     },
-    "/api/v1/auth/admin-only": {
-      "get": {
+    "/api/v1/auth/signup/customer": {
+      "post": {
         "tags": [
           "Authentication & Role Guards"
         ],
-        "summary": "Admin Portal",
-        "description": "Guarded endpoint: accessible strictly to users with the 'admin' role.",
-        "operationId": "admin_portal_api_v1_auth_admin_only_get",
+        "summary": "Signup Customer",
+        "description": "Self-service signup for Individual Retail Customers.\nRole 'customer' is strictly assigned server-side.",
+        "operationId": "signup_customer_api_v1_auth_signup_customer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup/buyer": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Signup Buyer",
+        "description": "Self-service signup for B2B Wholesale Buyers with GSTIN format validation.\nRole 'buyer' is strictly assigned server-side.",
+        "operationId": "signup_buyer_api_v1_auth_signup_buyer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyerSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup/artisan": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Signup Artisan",
+        "description": "Artisan signup with phone number, craft specialty, and cluster request.\nRole 'artisan' is strictly assigned server-side.\nInitial onboarding status is 'pending_approval' until approved by SHG coordinator.",
+        "operationId": "signup_artisan_api_v1_auth_signup_artisan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtisanSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup/shg": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Signup Shg",
+        "description": "SHG Coordinator signup: registers coordinator and collective group.\nRole 'coordinator' is strictly assigned server-side.",
+        "operationId": "signup_shg_api_v1_auth_signup_shg_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShgSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Unified Signup",
+        "description": "Unified signup endpoint supporting exactly the 4 user types.\nRole is strictly validated; self-registration as admin is forbidden.",
+        "operationId": "unified_signup_api_v1_auth_signup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnifiedSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Forgot Password",
+        "description": "Sends password recovery email via Supabase.",
+        "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Reset Password",
+        "description": "Updates password for authenticated recovery session.",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
         "parameters": [
           {
             "name": "Authorization",
@@ -90,6 +340,56 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-verification": {
+      "post": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Resend Verification",
+        "description": "Resends email verification link via Supabase.",
+        "operationId": "resend_verification_api_v1_auth_resend_verification_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -117,9 +417,9 @@
         "tags": [
           "Authentication & Role Guards"
         ],
-        "summary": "Coordinator Dashboard",
+        "summary": "Coordinator Dashboard Guard",
         "description": "Guarded endpoint: accessible strictly to SHG Coordinators.",
-        "operationId": "coordinator_dashboard_api_v1_auth_coordinator_only_get",
+        "operationId": "coordinator_dashboard_guard_api_v1_auth_coordinator_only_get",
         "parameters": [
           {
             "name": "Authorization",
@@ -158,9 +458,9 @@
         "tags": [
           "Authentication & Role Guards"
         ],
-        "summary": "Artisan Space",
+        "summary": "Artisan Space Guard",
         "description": "Guarded endpoint: accessible strictly to Artisans.",
-        "operationId": "artisan_space_api_v1_auth_artisan_only_get",
+        "operationId": "artisan_space_guard_api_v1_auth_artisan_only_get",
         "parameters": [
           {
             "name": "Authorization",
@@ -194,14 +494,14 @@
         }
       }
     },
-    "/api/v1/auth/financier-only": {
+    "/api/v1/auth/buyer-only": {
       "get": {
         "tags": [
           "Authentication & Role Guards"
         ],
-        "summary": "Financier Console",
-        "description": "Guarded endpoint: accessible strictly to Financiers (Micro-factoring / DBT).",
-        "operationId": "financier_console_api_v1_auth_financier_only_get",
+        "summary": "Buyer Portal Guard",
+        "description": "Guarded endpoint: accessible strictly to B2B Buyers.",
+        "operationId": "buyer_portal_guard_api_v1_auth_buyer_only_get",
         "parameters": [
           {
             "name": "Authorization",
@@ -215,6 +515,511 @@
         ],
         "responses": {
           "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/customer-only": {
+      "get": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Customer Account Guard",
+        "description": "Guarded endpoint: accessible strictly to Individual Customers.",
+        "operationId": "customer_account_guard_api_v1_auth_customer_only_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/shg/clusters": {
+      "get": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "List Shg Clusters",
+        "description": "Lists available SHG collectives for artisan self-registration join picker.\nPublicly accessible so artisans can select their collective during signup.",
+        "operationId": "list_shg_clusters_api_v1_onboarding_shg_clusters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ShgClusterSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Shg Clusters Api V1 Onboarding Shg Clusters Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/shg": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Register Shg Collective",
+        "description": "SHG Coordinator Onboarding:\nRegisters collective details (name, state, district, optional SRLM id, contact).\nCompletes coordinator onboarding.",
+        "operationId": "register_shg_collective_api_v1_onboarding_shg_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShgRegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/artisan/join-request": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Submit Artisan Join Request",
+        "description": "Artisan Onboarding:\nArtisan requests to join an SHG collective with craft specialty and contact phone.\nEnters 'pending_approval' status until approved by the SHG coordinator.",
+        "operationId": "submit_artisan_join_request_api_v1_onboarding_artisan_join_request_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtisanJoinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/artisan-requests": {
+      "get": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "List Pending Artisan Requests",
+        "description": "SHG Coordinator:\nLists pending artisan join requests for the coordinator's collective.",
+        "operationId": "list_pending_artisan_requests_api_v1_onboarding_artisan_requests_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArtisanRequestItem"
+                  },
+                  "title": "Response List Pending Artisan Requests Api V1 Onboarding Artisan Requests Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/artisan-requests/{artisan_id}/approve": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Approve Artisan Request",
+        "description": "SHG Coordinator:\nApproves an artisan join request, activating their collective membership and granting product publishing rights.",
+        "operationId": "approve_artisan_request_api_v1_onboarding_artisan_requests__artisan_id__approve_post",
+        "parameters": [
+          {
+            "name": "artisan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Artisan Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ArtisanApprovalRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/artisan-requests/{artisan_id}/reject": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Reject Artisan Request",
+        "description": "SHG Coordinator:\nRejects an artisan join request.",
+        "operationId": "reject_artisan_request_api_v1_onboarding_artisan_requests__artisan_id__reject_post",
+        "parameters": [
+          {
+            "name": "artisan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Artisan Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ArtisanApprovalRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/artisan-invite": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Invite Artisan By Phone",
+        "description": "SHG Coordinator:\nInvites an artisan to the collective using their phone number.",
+        "operationId": "invite_artisan_by_phone_api_v1_onboarding_artisan_invite_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtisanInviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/customer/address": {
+      "patch": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Update Customer Address",
+        "description": "Customer Onboarding:\nSaves shipping address required at checkout. Completes customer profile.",
+        "operationId": "update_customer_address_api_v1_onboarding_customer_address_patch",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerAddressRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/buyer": {
+      "post": {
+        "tags": [
+          "Onboarding & Verification"
+        ],
+        "summary": "Complete Buyer Onboarding",
+        "description": "B2B Buyer Onboarding:\nRegisters corporate sourcing profile with GSTIN validation and contact details.\nCompletes buyer onboarding.",
+        "operationId": "complete_buyer_onboarding_api_v1_onboarding_buyer_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyerOnboardingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
@@ -400,6 +1205,24 @@
             "description": "Filter by specific artisan"
           },
           {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (published, pending_validation, approved, rejected)",
+              "title": "Status"
+            },
+            "description": "Filter by status (published, pending_validation, approved, rejected)"
+          },
+          {
             "name": "min_price",
             "in": "query",
             "required": false,
@@ -529,7 +1352,7 @@
           "Products Catalog & Management"
         ],
         "summary": "Create Product",
-        "description": "Publish a newly verified product to the catalog. Requires coordinator, artisan, or admin role.",
+        "description": "Create a new product listing.\nArtisans must be approved before publishing; unapproved artisans receive 403 Forbidden.\nCoordinators create direct 'published' or 'approved' listings.",
         "operationId": "create_product_api_v1_products__post",
         "parameters": [
           {
@@ -641,6 +1464,24 @@
             "description": "Filter by specific artisan"
           },
           {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (published, pending_validation, approved, rejected)",
+              "title": "Status"
+            },
+            "description": "Filter by status (published, pending_validation, approved, rejected)"
+          },
+          {
             "name": "min_price",
             "in": "query",
             "required": false,
@@ -770,7 +1611,7 @@
           "Products Catalog & Management"
         ],
         "summary": "Create Product",
-        "description": "Publish a newly verified product to the catalog. Requires coordinator, artisan, or admin role.",
+        "description": "Create a new product listing.\nArtisans must be approved before publishing; unapproved artisans receive 403 Forbidden.\nCoordinators create direct 'published' or 'approved' listings.",
         "operationId": "create_product_api_v1_products_post",
         "parameters": [
           {
@@ -800,6 +1641,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/validation-queue": {
+      "get": {
+        "tags": [
+          "Products Catalog & Management"
+        ],
+        "summary": "Get Validation Queue",
+        "description": "Listing Validation Queue: Returns items in pending_validation, approved, or rejected status.\nRequires coordinator role.",
+        "operationId": "get_validation_queue_api_v1_products_validation_queue_get",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductResponse"
+                  },
+                  "title": "Response Get Validation Queue Api V1 Products Validation Queue Get"
                 }
               }
             }
@@ -865,7 +1753,7 @@
           "Products Catalog & Management"
         ],
         "summary": "Update Product",
-        "description": "Update product details. Requires coordinator, artisan, or admin role.",
+        "description": "Update product details. Requires coordinator or artisan role.",
         "operationId": "update_product_api_v1_products__product_id__patch",
         "parameters": [
           {
@@ -926,7 +1814,7 @@
           "Products Catalog & Management"
         ],
         "summary": "Delete Product",
-        "description": "Delete a product from the catalog. Requires coordinator or admin role.",
+        "description": "Delete a product from the catalog. Requires coordinator role.",
         "operationId": "delete_product_api_v1_products__product_id__delete",
         "parameters": [
           {
@@ -955,6 +1843,122 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/validate": {
+      "post": {
+        "tags": [
+          "Products Catalog & Management"
+        ],
+        "summary": "Validate Product",
+        "description": "Flow (1) Listing Validation Queue: Approve or reject an artisan product listing with a mandatory reason on rejection.\nRequires coordinator role.",
+        "operationId": "validate_product_api_v1_products__product_id__validate_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductValidationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/publish": {
+      "post": {
+        "tags": [
+          "Products Catalog & Management"
+        ],
+        "summary": "Publish Product",
+        "description": "Flow (1) Listing Validation: Publish an approved product to the live catalog.\nEnforces strict gating: Products in 'pending_validation' or 'rejected' status cannot be published.\nRequires coordinator role.",
+        "operationId": "publish_product_api_v1_products__product_id__publish_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
               }
             }
           },
@@ -1889,6 +2893,68 @@
       }
     },
     "/api/v1/proposals": {
+      "get": {
+        "tags": [
+          "Proposal & Quote Versioning State Machine"
+        ],
+        "summary": "List proposals, optionally filtered by request_id",
+        "description": "List all proposals in the workroom, optionally filtered by custom request ID.",
+        "operationId": "list_proposals_endpoint_api_v1_proposals_get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposalResponse"
+                  },
+                  "title": "Response List Proposals Endpoint Api V1 Proposals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "Proposal & Quote Versioning State Machine"
@@ -2073,6 +3139,69 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProposalReviseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proposals/{proposal_id}/decline": {
+      "post": {
+        "tags": [
+          "Proposal & Quote Versioning State Machine"
+        ],
+        "summary": "Decline a proposal version with mandatory feedback reason",
+        "description": "Coordinator or Buyer declines proposal version.",
+        "operationId": "decline_proposal_endpoint_api_v1_proposals__proposal_id__decline_post",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalDeclineRequest"
               }
             }
           }
@@ -3126,6 +4255,90 @@
         }
       }
     },
+    "/api/v1/assignments/suggestions": {
+      "get": {
+        "tags": [
+          "Orders & Production Assignments"
+        ],
+        "summary": "Get Assignment Suggestions",
+        "description": "Flow (2) Skills-Aware Assignment Suggestions:\nRanks cluster artisans by craft technique match, open workload capacity, and QA pass record.\nRequires coordinator or admin role.",
+        "operationId": "get_assignment_suggestions_api_v1_assignments_suggestions_get",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Order to match artisan skills against",
+              "title": "Order Id"
+            },
+            "description": "Order to match artisan skills against"
+          },
+          {
+            "name": "craft",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Specific craft technique required",
+              "title": "Craft"
+            },
+            "description": "Specific craft technique required"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArtisanSuggestionResponse"
+                  },
+                  "title": "Response Get Assignment Suggestions Api V1 Assignments Suggestions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/assignments/{assignment_id}": {
       "delete": {
         "tags": [
@@ -3481,6 +4694,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InventorySummaryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/materials/{material_id}/verify": {
+      "post": {
+        "tags": [
+          "Inventory & Materials Management"
+        ],
+        "summary": "Verify Material Freshness",
+        "description": "Flow (3) Inventory Freshness Verification:\nUpdates material verification timestamp to now, resetting freshness flags.\nRequires coordinator or admin role.",
+        "operationId": "verify_material_freshness_api_v1_inventory_materials__material_id__verify_post",
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Material Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialInventoryResponse"
                 }
               }
             }
@@ -6272,6 +7538,273 @@
         ],
         "title": "ApproveResponse"
       },
+      "ArtisanApprovalRequest": {
+        "properties": {
+          "approved": {
+            "type": "boolean",
+            "title": "Approved"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "approved"
+        ],
+        "title": "ArtisanApprovalRequest"
+      },
+      "ArtisanInviteRequest": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Phone"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "craft": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Craft"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone"
+        ],
+        "title": "ArtisanInviteRequest"
+      },
+      "ArtisanJoinRequest": {
+        "properties": {
+          "shg_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shg Id",
+            "description": "Target SHG cluster to join"
+          },
+          "craft": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Craft"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Phone"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "shg_id",
+          "craft",
+          "phone"
+        ],
+        "title": "ArtisanJoinRequest"
+      },
+      "ArtisanRequestItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "artisan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Artisan Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "craft": {
+            "type": "string",
+            "title": "Craft"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "shg_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shg Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "artisan_id",
+          "name",
+          "craft",
+          "status",
+          "shg_id",
+          "created_at"
+        ],
+        "title": "ArtisanRequestItem"
+      },
+      "ArtisanSignupRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Full Name"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Phone"
+          },
+          "craft": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Craft",
+            "description": "Craft technique (e.g. Aari Embroidery, Warli)"
+          },
+          "shg_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shg Id",
+            "description": "SHG cluster to join"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "hi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "phone",
+          "craft"
+        ],
+        "title": "ArtisanSignupRequest"
+      },
+      "ArtisanSuggestionResponse": {
+        "properties": {
+          "artisan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Artisan Id"
+          },
+          "artisan_name": {
+            "type": "string",
+            "title": "Artisan Name"
+          },
+          "craft_skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Craft Skills"
+          },
+          "cluster": {
+            "type": "string",
+            "title": "Cluster"
+          },
+          "match_score": {
+            "type": "integer",
+            "title": "Match Score"
+          },
+          "recommended": {
+            "type": "boolean",
+            "title": "Recommended"
+          },
+          "active_orders": {
+            "type": "integer",
+            "title": "Active Orders"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "artisan_id",
+          "artisan_name",
+          "craft_skills",
+          "cluster",
+          "match_score",
+          "recommended",
+          "active_orders",
+          "reasons"
+        ],
+        "title": "ArtisanSuggestionResponse"
+      },
       "AuditLogCreate": {
         "properties": {
           "action": {
@@ -6424,6 +7957,98 @@
           "file"
         ],
         "title": "Body_transcribe_audio_api_v1_voice_transcribe_post"
+      },
+      "BuyerOnboardingRequest": {
+        "properties": {
+          "company_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Company Name"
+          },
+          "gstin": {
+            "type": "string",
+            "title": "Gstin",
+            "description": "15-character GSTIN"
+          },
+          "contact_person": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Contact Person"
+          },
+          "contact_phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Contact Phone"
+          },
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_name",
+          "gstin",
+          "contact_person",
+          "contact_phone"
+        ],
+        "title": "BuyerOnboardingRequest"
+      },
+      "BuyerSignupRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Full Name"
+          },
+          "company_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Company Name"
+          },
+          "gstin": {
+            "type": "string",
+            "title": "Gstin",
+            "description": "15-character GSTIN"
+          },
+          "contact_phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Contact Phone"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "company_name",
+          "gstin",
+          "contact_phone"
+        ],
+        "title": "BuyerSignupRequest"
       },
       "CartItemCreate": {
         "properties": {
@@ -7403,6 +9028,83 @@
         ],
         "title": "CustomRequestSpec"
       },
+      "CustomerAddressRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Name"
+          },
+          "street": {
+            "type": "string",
+            "minLength": 5,
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "minLength": 2,
+            "title": "City"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "title": "State"
+          },
+          "pincode": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 6,
+            "title": "Pincode"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Phone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "street",
+          "city",
+          "state",
+          "pincode",
+          "phone"
+        ],
+        "title": "CustomerAddressRequest"
+      },
+      "CustomerSignupRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password",
+            "description": "Minimum 8 characters"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Full Name"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name"
+        ],
+        "title": "CustomerSignupRequest"
+      },
       "DPPBatchRequest": {
         "properties": {
           "batch_size": {
@@ -8012,6 +9714,20 @@
           "artisan_earnings"
         ],
         "title": "FairPriceEstimate"
+      },
+      "ForgotPasswordRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ForgotPasswordRequest"
       },
       "HTTPValidationError": {
         "properties": {
@@ -9935,6 +11651,17 @@
             "title": "Gi Watermarked",
             "default": false
           },
+          "rejection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection Reason"
+          },
           "created_at": {
             "anyOf": [
               {
@@ -10039,6 +11766,32 @@
         },
         "type": "object",
         "title": "ProductUpdate"
+      },
+      "ProductValidationRequest": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "description": "Action: 'approve' or 'reject'"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Mandatory reason if action is 'reject'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "ProductValidationRequest"
       },
       "ProductionEventCreate": {
         "properties": {
@@ -10264,6 +12017,38 @@
           "spec"
         ],
         "title": "ProposalCreateRequest"
+      },
+      "ProposalDeclineRequest": {
+        "properties": {
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "description": "Exact proposal version number being declined"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Mandatory decline or rejection reason"
+          },
+          "declined_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declined By",
+            "default": "Coordinator"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "reason"
+        ],
+        "title": "ProposalDeclineRequest"
       },
       "ProposalResponse": {
         "properties": {
@@ -10787,6 +12572,34 @@
         ],
         "title": "RecentActivityItem"
       },
+      "ResendVerificationRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ResendVerificationRequest"
+      },
+      "ResetPasswordRequest": {
+        "properties": {
+          "new_password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_password"
+        ],
+        "title": "ResetPasswordRequest"
+      },
       "RiskFlag": {
         "properties": {
           "severity": {
@@ -11094,6 +12907,187 @@
         ],
         "title": "SessionDetailResponse"
       },
+      "ShgClusterSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "srlm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Srlm Id"
+          },
+          "artisan_count": {
+            "type": "integer",
+            "title": "Artisan Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "state",
+          "district"
+        ],
+        "title": "ShgClusterSummary"
+      },
+      "ShgRegistrationRequest": {
+        "properties": {
+          "group_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Group Name",
+            "description": "Collective name"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "title": "State"
+          },
+          "district": {
+            "type": "string",
+            "minLength": 2,
+            "title": "District"
+          },
+          "block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block"
+          },
+          "srlm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Srlm Id",
+            "description": "Government SRLM registration ID"
+          },
+          "contact": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Contact",
+            "description": "Coordinator phone number or email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "group_name",
+          "state",
+          "district",
+          "contact"
+        ],
+        "title": "ShgRegistrationRequest"
+      },
+      "ShgSignupRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Full Name",
+            "description": "Coordinator full name"
+          },
+          "group_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Group Name",
+            "description": "SHG collective name"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "title": "State"
+          },
+          "district": {
+            "type": "string",
+            "minLength": 2,
+            "title": "District"
+          },
+          "block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block"
+          },
+          "srlm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Srlm Id"
+          },
+          "contact_phone": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Contact Phone"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "group_name",
+          "state",
+          "district",
+          "contact_phone"
+        ],
+        "title": "ShgSignupRequest"
+      },
       "ShipmentCreate": {
         "properties": {
           "order_id": {
@@ -11270,6 +13264,51 @@
           "created_at"
         ],
         "title": "ShipmentResponse"
+      },
+      "SignupResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "onboarding_status": {
+            "type": "string",
+            "title": "Onboarding Status"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "access_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email",
+          "role",
+          "onboarding_status",
+          "message"
+        ],
+        "title": "SignupResponse"
       },
       "SimulateDbtRequest": {
         "properties": {
@@ -11534,6 +13573,170 @@
         ],
         "title": "TranscriptionResponse"
       },
+      "UnifiedSignupRequest": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "buyer",
+              "artisan",
+              "coordinator"
+            ],
+            "title": "Role"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Full Name"
+          },
+          "preferred_language": {
+            "type": "string",
+            "title": "Preferred Language",
+            "default": "en"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "gstin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gstin"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "craft": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Craft"
+          },
+          "shg_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shg Id"
+          },
+          "group_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Name"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block"
+          },
+          "srlm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Srlm Id"
+          },
+          "contact_phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Phone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "email",
+          "password",
+          "full_name"
+        ],
+        "title": "UnifiedSignupRequest"
+      },
       "UserProfileResponse": {
         "properties": {
           "user_id": {
@@ -11551,6 +13754,11 @@
               }
             ],
             "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "customer"
           },
           "roles": {
             "items": {
@@ -11574,12 +13782,57 @@
             "type": "string",
             "title": "Preferred Language",
             "default": "en"
+          },
+          "onboarding_status": {
+            "type": "string",
+            "title": "Onboarding Status",
+            "default": "completed"
+          },
+          "shg_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shg Id"
+          },
+          "artisan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artisan Id"
+          },
+          "buyer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Id"
+          },
+          "profile_details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile Details"
           }
         },
         "type": "object",
         "required": [
-          "user_id",
-          "roles"
+          "user_id"
         ],
         "title": "UserProfileResponse"
       },

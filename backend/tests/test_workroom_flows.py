@@ -2,7 +2,7 @@ import pytest
 from uuid import UUID
 
 
-def test_listing_validation_queue_and_gating(client, coordinator_headers, artisan_headers, admin_headers):
+def test_listing_validation_queue_and_gating(client, coordinator_headers, artisan_headers):
     # 1. Artisan CANNOT access validation queue -> 403 Forbidden
     res_art = client.get("/api/v1/products/validation-queue", headers=artisan_headers)
     assert res_art.status_code == 403
@@ -52,7 +52,7 @@ def test_listing_validation_queue_and_gating(client, coordinator_headers, artisa
     assert rej_res.json()["rejection_reason"] == "GI motif non-compliant with collective standards"
 
     # 7. Approve product (Admin or Coordinator)
-    app_res = client.post(f"/api/v1/products/{pid}/validate", headers=admin_headers, json={"action": "approve"})
+    app_res = client.post(f"/api/v1/products/{pid}/validate", headers=coordinator_headers, json={"action": "approve"})
     assert app_res.status_code == 200
     assert app_res.json()["status"] == "approved"
 
@@ -160,35 +160,8 @@ def test_proposal_decline_and_version_history(client, coordinator_headers):
     assert dec_res.json()["status"] == "declined"
 
 
-def test_admin_users_roles_and_demo_mode(client, admin_headers, coordinator_headers, artisan_headers):
-    # Non-admin CANNOT access users list -> 403 Forbidden
-    assert client.get("/api/v1/auth/users", headers=coordinator_headers).status_code == 403
-    assert client.get("/api/v1/auth/users", headers=artisan_headers).status_code == 403
-
-    # Admin CAN access users list -> 200 OK
-    users_res = client.get("/api/v1/auth/users", headers=admin_headers)
-    assert users_res.status_code == 200
-    users = users_res.json()
-    assert len(users) >= 4
-
-    # Update role
-    role_res = client.patch(f"/api/v1/auth/users/{users[0]['id']}/role", headers=admin_headers, json={"role": "admin"})
-    assert role_res.status_code == 200
-
-    # Demo mode setting
-    dm_get = client.get("/api/v1/auth/settings/demo-mode")
-    assert dm_get.status_code == 200
-
-    # Non-admin cannot toggle demo mode
-    assert client.post("/api/v1/auth/settings/demo-mode", headers=artisan_headers, json={"enabled": True}).status_code == 403
-
-    # Admin can toggle demo mode
-    dm_post = client.post("/api/v1/auth/settings/demo-mode", headers=admin_headers, json={"enabled": True})
-    assert dm_post.status_code == 200
-    assert dm_post.json()["demo_mode"]["enabled"] is True
-
-    # Audit logs accessible to admin and coordinator, forbidden to artisan
-    assert client.get("/api/v1/audit/logs", headers=artisan_headers).status_code == 403
-    audit_res = client.get("/api/v1/audit/logs", headers=admin_headers)
-    assert audit_res.status_code == 200
-    assert len(audit_res.json()["data"]) >= 1
+def test_no_admin_or_demo_role_switching(client, coordinator_headers, artisan_headers):
+    # Admin routes and demo role switching have been eliminated
+    assert client.get('/api/v1/auth/users', headers=coordinator_headers).status_code in (404, 405)
+    assert client.get('/api/v1/auth/settings/demo-mode').status_code in (404, 405)
+    assert client.post('/api/v1/auth/settings/demo-mode', headers=coordinator_headers, json={'enabled': True}).status_code in (404, 405)

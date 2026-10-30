@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 def test_po_factoring_sequential_state_machine_happy_path(
     client: TestClient,
-    financier_headers: dict,
+    coordinator_headers: dict,
     buyer_headers: dict,
 ):
     """
@@ -23,7 +23,7 @@ def test_po_factoring_sequential_state_machine_happy_path(
     }
 
     # Step 1: Create PO factoring request (status='po_created')
-    res_create = client.post("/api/v1/factoring/po", json=create_payload, headers=financier_headers)
+    res_create = client.post("/api/v1/factoring/po", json=create_payload, headers=coordinator_headers)
     assert res_create.status_code == 201
     factoring = res_create.json()
     assert factoring["status"] == "po_created"
@@ -33,7 +33,7 @@ def test_po_factoring_sequential_state_machine_happy_path(
     factoring_id = factoring["id"]
 
     # Step 2: Transition po_created -> tokenized
-    res_tok = client.post(f"/api/v1/factoring/po/{factoring_id}/tokenize", headers=financier_headers)
+    res_tok = client.post(f"/api/v1/factoring/po/{factoring_id}/tokenize", headers=coordinator_headers)
     assert res_tok.status_code == 200
     tok = res_tok.json()
     assert tok["status"] == "tokenized"
@@ -42,7 +42,7 @@ def test_po_factoring_sequential_state_machine_happy_path(
     assert tok["ledger"][1]["is_simulated"] is True
 
     # Step 3: Transition tokenized -> advance_disbursed (70%)
-    res_adv = client.post(f"/api/v1/factoring/po/{factoring_id}/disburse-advance", headers=financier_headers)
+    res_adv = client.post(f"/api/v1/factoring/po/{factoring_id}/disburse-advance", headers=coordinator_headers)
     assert res_adv.status_code == 200
     adv = res_adv.json()
     assert adv["status"] == "advance_disbursed"
@@ -57,7 +57,7 @@ def test_po_factoring_sequential_state_machine_happy_path(
     assert delivered["ledger"][-1]["step"] == "delivered"
 
     # Step 5: Transition delivered -> escrow_released (30%)
-    res_esc = client.post(f"/api/v1/factoring/po/{factoring_id}/release-escrow", headers=financier_headers)
+    res_esc = client.post(f"/api/v1/factoring/po/{factoring_id}/release-escrow", headers=coordinator_headers)
     assert res_esc.status_code == 200
     settled = res_esc.json()
     assert settled["status"] == "escrow_released"
@@ -66,14 +66,14 @@ def test_po_factoring_sequential_state_machine_happy_path(
     assert settled["is_simulated"] is True
 
     # Detail query verifies complete simulated ledger trail
-    res_get = client.get(f"/api/v1/factoring/po/{factoring_id}", headers=financier_headers)
+    res_get = client.get(f"/api/v1/factoring/po/{factoring_id}", headers=coordinator_headers)
     assert res_get.status_code == 200
     assert len(res_get.json()["ledger"]) == 5
 
 
 def test_po_factoring_illegal_transition_guards(
     client: TestClient,
-    financier_headers: dict,
+    coordinator_headers: dict,
 ):
     """Verify state machine transition guards reject out-of-order jumps with 409 Conflict."""
     create_payload = {
@@ -84,18 +84,18 @@ def test_po_factoring_illegal_transition_guards(
         "advance_percent": 70.0,
     }
 
-    res_create = client.post("/api/v1/factoring/po", json=create_payload, headers=financier_headers)
+    res_create = client.post("/api/v1/factoring/po", json=create_payload, headers=coordinator_headers)
     factoring_id = res_create.json()["id"]
 
     # Attempting to disburse advance while still in 'po_created' must fail (409)
-    res_bad_adv = client.post(f"/api/v1/factoring/po/{factoring_id}/disburse-advance", headers=financier_headers)
+    res_bad_adv = client.post(f"/api/v1/factoring/po/{factoring_id}/disburse-advance", headers=coordinator_headers)
     assert res_bad_adv.status_code == 409
     data_adv = res_bad_adv.json()
     msg_adv = data_adv.get("error", {}).get("message") or data_adv.get("detail", "")
     assert "Illegal transition" in msg_adv
 
     # Attempting to release escrow while still in 'po_created' must fail (409)
-    res_bad_esc = client.post(f"/api/v1/factoring/po/{factoring_id}/release-escrow", headers=financier_headers)
+    res_bad_esc = client.post(f"/api/v1/factoring/po/{factoring_id}/release-escrow", headers=coordinator_headers)
     assert res_bad_esc.status_code == 409
     data_esc = res_bad_esc.json()
     msg_esc = data_esc.get("error", {}).get("message") or data_esc.get("detail", "")

@@ -1,6 +1,6 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, Request
-from app.api.deps import get_audit, get_current_user, require_roles
+from app.api.deps import get_audit, get_current_user, require_role, require_roles
 from app.schemas.audit import AuditLogCreate
 from app.schemas.auth import CurrentUser
 from app.services.audit import AuditService
@@ -102,7 +102,7 @@ async def create_audit_log(
 @router.get("/logs")
 async def list_audit_logs(
     limit: int = 50,
-    current_user: CurrentUser = Depends(require_roles(["admin", "coordinator"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     audit: AuditService = Depends(get_audit),
 ):
     """

@@ -117,7 +117,7 @@ async def list_materials(
 @router.post("/materials", response_model=MaterialInventoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_material(
     payload: MaterialInventoryCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -158,7 +158,7 @@ async def create_material(
 async def update_material(
     material_id: UUID,
     payload: MaterialInventoryUpdate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -196,7 +196,7 @@ async def update_material(
 @router.delete("/materials/{material_id}", status_code=status.HTTP_200_OK)
 async def delete_material(
     material_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -248,7 +248,7 @@ async def get_inventory_summary(
 @router.post("/materials/{material_id}/verify", response_model=MaterialInventoryResponse)
 async def verify_material_freshness(
     material_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):

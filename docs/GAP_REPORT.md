@@ -370,3 +370,4 @@ flowchart TD
    * Replace simulated UPI dialogs with real Razorpay/Cashfree payment orders and webhook signature verification (`POST /api/v1/payments/webhook`).
 3. **End-to-End Verification:**
    * Execute full integration tests across all four user personas with real JWT session tokens.
+

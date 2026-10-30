@@ -65,7 +65,7 @@ def _to_public_response(p: dict) -> PublicPassportDetailResponse:
 @router.post("/dpp/issue", response_model=DPPPassportResponse, status_code=status.HTTP_201_CREATED)
 async def issue_product_passport(
     payload: PassportIssueRequest,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     service: MerkleService = Depends(lambda: merkle_service),
 ):
     """

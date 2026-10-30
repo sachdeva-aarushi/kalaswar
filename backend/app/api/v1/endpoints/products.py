@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.adapters.supabase import SupabaseAdapter
-from app.api.deps import get_supabase, require_roles
+from app.api.deps import get_supabase, require_role, require_roles
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 from app.schemas.product import (
@@ -138,29 +138,15 @@ async def list_products(
 
     # Merge or fallback
     all_items = {str(p["id"]): dict(p) for p in DEMO_PRODUCTS}
-    for p in products:
-        all_items[str(p["id"])] = {
-            "id": p["id"],
-            "artisan_id": p.get("artisan_id"),
-            "title": p.get("name") or p.get("title"),
-            "description": p.get("description", ""),
-            "category": p.get("category", "Crafts"),
-            "price": p.get("price", 0.0),
-            "image_url": p.get("image_url"),
-            "cloudinary_public_id": p.get("image_public_id") or p.get("cloudinary_public_id"),
-            "availability": p.get("availability", True),
-            "status": p.get("status", "published"),
-            "gi_watermarked": True,
-            "rejection_reason": p.get("rejection_reason"),
-            "created_at": p.get("created_at"),
-        }
+    for r in products:
+        all_items[str(r.get("id"))] = r
 
     filtered = list(all_items.values())
 
     if status_filter:
         filtered = [p for p in filtered if str(p.get("status", "")).lower() == status_filter.lower()]
     elif not status_filter and not artisan_id:
-        # For public listing without explicit status, default to published or approved
+        # Default public catalog view
         pass
 
     if category:
@@ -214,12 +200,12 @@ async def list_products(
 
 @router.get("/validation-queue", response_model=List[ProductResponse])
 async def get_validation_queue(
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
 ):
     """
     Listing Validation Queue: Returns items in pending_validation, approved, or rejected status.
-    Requires coordinator or admin role.
+    Requires coordinator role.
     """
     queue_items = [p for p in DEMO_PRODUCTS if p.get("status") in {"pending_validation", "approved", "rejected"}]
     return [_to_response(item) for item in queue_items]
@@ -240,7 +226,6 @@ async def get_product(
     except Exception as e:
         logger.warning("Product query error: %s", e)
 
-    # Check local demo catalog
     for p in DEMO_PRODUCTS:
         if str(p["id"]) == str(product_id):
             return _to_response(p)
@@ -252,17 +237,39 @@ async def get_product(
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(
     product: ProductCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
     Create a new product listing.
-    Artisans create listings in 'pending_validation' status for coordinator approval.
-    Coordinators and admins may create direct 'published' or 'approved' listings.
+    Artisans must be approved before publishing; unapproved artisans receive 403 Forbidden.
+    Coordinators create direct 'published' or 'approved' listings.
     """
+    is_coordinator = current_user.has_role("coordinator")
+    is_artisan = current_user.has_role("artisan")
+
+    # If caller is an artisan (and not coordinator), check approval status
+    if is_artisan and not is_coordinator:
+        # Check current user token onboarding_status
+        if current_user.onboarding_status and current_user.onboarding_status not in ("completed", "approved"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Unapproved artisans cannot publish products. Awaiting SHG coordinator approval.",
+            )
+
+        # Check DB status in artisans table
+        artisan_records = await db.query_records("artisans", {"user_id": f"eq.{current_user.id}"})
+        if artisan_records:
+            artisan_rec = artisan_records[0]
+            if artisan_rec.get("status") not in ("approved", "active"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Unapproved artisans cannot publish products. Awaiting SHG coordinator approval.",
+                )
+
     new_id = uuid4()
-    initial_status = "published" if "coordinator" in current_user.roles or "admin" in current_user.roles else "pending_validation"
+    initial_status = "published" if is_coordinator else "pending_validation"
 
     item_record = {
         "id": str(new_id),
@@ -291,6 +298,7 @@ async def create_product(
             "image_url": product.image_url,
             "image_public_id": product.cloudinary_public_id,
             "availability": product.availability,
+            "status": initial_status,
         }
         await db.insert_record("products", db_payload)
     except Exception as e:
@@ -313,13 +321,13 @@ async def create_product(
 async def validate_product(
     product_id: UUID,
     payload: ProductValidationRequest,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
     Flow (1) Listing Validation Queue: Approve or reject an artisan product listing with a mandatory reason on rejection.
-    Requires coordinator or admin role.
+    Requires coordinator role.
     """
     if payload.action not in {"approve", "reject"}:
         raise HTTPException(
@@ -356,13 +364,14 @@ async def validate_product(
 @router.post("/{product_id}/publish", response_model=ProductResponse)
 async def publish_product(
     product_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
     Flow (1) Listing Validation: Publish an approved product to the live catalog.
     Enforces strict gating: Products in 'pending_validation' or 'rejected' status cannot be published.
+    Requires coordinator role.
     """
     for p in DEMO_PRODUCTS:
         if str(p["id"]) == str(product_id):
@@ -390,12 +399,12 @@ async def publish_product(
 async def update_product(
     product_id: UUID,
     updates: ProductUpdate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Update product details. Requires coordinator, artisan, or admin role.
+    Update product details. Requires coordinator or artisan role.
     """
     update_data = updates.model_dump(exclude_unset=True)
     if not update_data:
@@ -435,26 +444,24 @@ async def update_product(
             )
             return _to_response(p)
 
-    # Return refreshed record
     return await get_product(product_id, db)
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_200_OK)
 async def delete_product(
     product_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Delete a product from the catalog. Requires coordinator or admin role.
+    Delete a product from the catalog. Requires coordinator role.
     """
     try:
         await db.delete_records("products", {"id": f"eq.{product_id}"})
     except Exception as e:
         logger.warning("DB delete error: %s", e)
 
-    # Remove from local demo
     for i, p in enumerate(DEMO_PRODUCTS):
         if str(p["id"]) == str(product_id):
             del DEMO_PRODUCTS[i]

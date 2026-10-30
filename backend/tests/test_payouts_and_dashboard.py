@@ -5,8 +5,7 @@ from fastapi.testclient import TestClient
 def test_payout_ledger_and_simulated_dbt(
     client: TestClient,
     coordinator_headers: dict,
-    financier_headers: dict,
-    customer_headers: dict,
+        customer_headers: dict,
 ):
     """Simulate Direct Benefit Transfer (DBT) wage payout to artisan with immutable ledger entry."""
     artisan_id = str(uuid.uuid4())
@@ -27,7 +26,7 @@ def test_payout_ledger_and_simulated_dbt(
     assert res_cust.status_code == 403
 
     # Financier / coordinator role succeeds
-    res_dbt = client.post("/api/v1/payouts/simulate-dbt", json=dbt_payload, headers=financier_headers)
+    res_dbt = client.post("/api/v1/payouts/simulate-dbt", json=dbt_payload, headers=coordinator_headers)
     assert res_dbt.status_code == 201
     dbt = res_dbt.json()
     assert dbt["status"] == "completed"

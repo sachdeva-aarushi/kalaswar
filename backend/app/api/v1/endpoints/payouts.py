@@ -62,7 +62,7 @@ async def list_payouts(
     artisan_id: Optional[UUID] = Query(None, description="Filter by artisan"),
     shg_id: Optional[UUID] = Query(None, description="Filter by SHG"),
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by status"),
-    current_user: CurrentUser = Depends(require_roles(["financier", "coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     db: SupabaseAdapter = Depends(get_supabase),
 ):
     """
@@ -72,7 +72,7 @@ async def list_payouts(
     payouts = list(DEMO_PAYOUTS)
 
     # Artisan role restriction: view only own payouts
-    if current_user.has_role("artisan") and not current_user.has_any_role(["financier", "coordinator", "admin"]):
+    if current_user.has_role("artisan") and not current_user.has_role("coordinator"):
         payouts = [p for p in payouts if str(p.get("artisan_id")) == current_user.id]
 
     if artisan_id:
@@ -90,7 +90,7 @@ async def list_payouts(
 @router.post("/simulate-dbt", response_model=SimulateDbtResponse, status_code=status.HTTP_201_CREATED)
 async def simulate_dbt_payout(
     payload: SimulateDbtRequest,
-    current_user: CurrentUser = Depends(require_roles(["financier", "coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):

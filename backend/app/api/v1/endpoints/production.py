@@ -112,7 +112,7 @@ async def list_production_events(
 @router.post("/production-events", response_model=ProductionEventResponse, status_code=status.HTTP_201_CREATED)
 async def create_production_event(
     payload: ProductionEventCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -186,7 +186,7 @@ async def list_quality_checks(
 @router.post("/quality-checks", response_model=QualityCheckResponse, status_code=status.HTTP_201_CREATED)
 async def create_quality_check(
     payload: QualityCheckCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -284,7 +284,7 @@ async def list_shipments(
 @router.post("/shipments", response_model=ShipmentResponse, status_code=status.HTTP_201_CREATED)
 async def create_shipment(
     payload: ShipmentCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -366,7 +366,7 @@ async def create_shipment(
 async def append_shipment_event(
     shipment_id: UUID,
     payload: ShipmentEventCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):

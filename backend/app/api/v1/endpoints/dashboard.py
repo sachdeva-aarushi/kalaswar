@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from app.adapters.supabase import SupabaseAdapter
-from app.api.deps import get_supabase, require_roles
+from app.api.deps import get_supabase, require_role, require_roles
 from app.api.v1.endpoints.inventory import DEMO_MATERIALS, _build_material_response
 from app.api.v1.endpoints.orders import DEMO_ASSIGNMENTS, DEMO_EVENTS, DEMO_ORDERS
 from app.api.v1.endpoints.production import DEMO_QUALITY_CHECKS
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/dashboard", tags=["Coordinator Dashboard & Risk Anal
 @router.get("/coordinator", response_model=CoordinatorDashboardResponse)
 async def get_coordinator_dashboard(
     shg_id: Optional[UUID] = Query(None, description="Optional SHG cluster filter"),
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
 ):
     """

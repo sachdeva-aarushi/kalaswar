@@ -8,39 +8,61 @@ from app.core.errors import AuthError
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 
+VALID_ROLES = {"coordinator", "artisan", "buyer", "customer"}
+
 
 def extract_user_roles(claims: Dict[str, Any]) -> List[str]:
-    """Extracts application roles from Supabase JWT claims."""
-    roles: List[str] = []
+    """
+    Extracts application roles from Supabase JWT claims.
+    Strictly restricted to the four verified product roles:
+    coordinator, artisan, buyer, customer.
+    There is NO admin role.
+    """
+    raw_roles: List[str] = []
 
     # 1. Direct explicit claim
     if "kalaswar_role" in claims and claims["kalaswar_role"]:
         val = claims["kalaswar_role"]
-        roles.extend(val if isinstance(val, list) else [val])
+        raw_roles.extend(val if isinstance(val, list) else [val])
 
     if "roles" in claims and isinstance(claims["roles"], list):
-        roles.extend(claims["roles"])
+        raw_roles.extend(claims["roles"])
 
     # 2. Check user_metadata
     user_meta = claims.get("user_metadata") or {}
     if "role" in user_meta and user_meta["role"]:
         r = user_meta["role"]
-        roles.extend(r if isinstance(r, list) else [r])
+        raw_roles.extend(r if isinstance(r, list) else [r])
 
     # 3. Check app_metadata
     app_meta = claims.get("app_metadata") or {}
     if "role" in app_meta and app_meta["role"]:
         r = app_meta["role"]
-        roles.extend(r if isinstance(r, list) else [r])
+        raw_roles.extend(r if isinstance(r, list) else [r])
 
     # 4. Fallback based on account_type
-    if not roles:
+    if not raw_roles:
         if user_meta.get("account_type") == "buyer":
-            roles = ["buyer"]
+            raw_roles = ["buyer"]
+        elif user_meta.get("account_type") == "artisan":
+            raw_roles = ["artisan"]
+        elif user_meta.get("account_type") in ("coordinator", "shg"):
+            raw_roles = ["coordinator"]
         else:
-            roles = ["customer"]
+            raw_roles = ["customer"]
 
-    return list(dict.fromkeys([r.lower().strip() for r in roles if isinstance(r, str) and r.strip()]))
+    # Filter to permitted roles only; discard any 'admin' or invalid strings
+    filtered = [
+        r.lower().strip()
+        for r in raw_roles
+        if isinstance(r, str) and r.lower().strip() in VALID_ROLES
+    ]
+
+    # Default to customer if no valid role found
+    if not filtered:
+        filtered = ["customer"]
+
+    return list(dict.fromkeys(filtered))
 
 
 def verify_supabase_jwt(token: str) -> Dict[str, Any]:
@@ -66,8 +88,7 @@ def verify_supabase_jwt(token: str) -> Dict[str, Any]:
     except InvalidTokenError:
         pass
 
-    # If secret verification fails or isn't matching (e.g. Supabase RS256/asymmetric),
-    # in development mode try unverified payload decode if it has valid structure.
+    # If secret verification fails, try payload decode in non-prod
     try:
         claims = jwt.decode(
             token,
@@ -95,22 +116,25 @@ def parse_current_user(token: str) -> CurrentUser:
         raise AuthError("Invalid UUID in token 'sub'") from e
 
     roles = extract_user_roles(claims)
+    user_meta = claims.get("user_metadata") or {}
+    onboarding_status = user_meta.get("onboarding_status") or claims.get("onboarding_status") or "completed"
     return CurrentUser(
         id=uid,
         email=claims.get("email"),
         roles=roles,
+        onboarding_status=onboarding_status,
         aud=claims.get("aud", "authenticated"),
-        user_metadata=claims.get("user_metadata") or {},
+        user_metadata=user_meta,
         app_metadata=claims.get("app_metadata") or {},
     )
 
 
-def create_test_token(user_id: str, email: str, roles: List[str], expired: bool = False) -> str:
+def create_test_token(user_id: str, email: str, roles: List[str], expired: bool = False, onboarding_status: str = "completed") -> str:
     """Helper for automated unit tests."""
     import time
     now = int(time.time())
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "email": email,
         "aud": "authenticated",
         "role": "authenticated",
@@ -119,6 +143,7 @@ def create_test_token(user_id: str, email: str, roles: List[str], expired: bool 
         "user_metadata": {
             "role": roles[0] if roles else "customer",
             "full_name": email.split("@")[0],
+            "onboarding_status": onboarding_status,
         },
         "kalaswar_role": roles,
     }

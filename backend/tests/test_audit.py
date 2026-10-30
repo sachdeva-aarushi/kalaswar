@@ -14,7 +14,7 @@ def mock_audit_adapter(monkeypatch):
     mock_audit_records = [
         {
             "id": "11111111-2222-3333-4444-555555555555",
-            "actor": "Platform Admin",
+            "actor": "SHG Coordinator",
             "action": "system_config_update",
             "entity": "system_settings",
             "entity_id": "config-001",
@@ -45,7 +45,7 @@ async def test_audit_service_log_action_unit():
     test_user_id = uuid4()
     test_entity_id = uuid4()
     entry = await audit_service.log_action(
-        actor="Test Admin",
+        actor="Test Coordinator",
         action="update_status",
         entity="orders",
         entity_id=test_entity_id,
@@ -55,7 +55,7 @@ async def test_audit_service_log_action_unit():
         request_id="req_test_audit_unit",
     )
 
-    assert entry["actor"] == "Test Admin"
+    assert entry["actor"] == "Test Coordinator"
     assert entry["action"] == "update_status"
     assert entry["entity"] == "orders"
     assert entry["entity_id"] == str(test_entity_id)
@@ -80,24 +80,15 @@ def test_audit_log_endpoint_create(client, artisan_headers):
     assert data["entry"]["entity"] == "sample_requests"
 
 
-def test_audit_logs_read_restricted_to_admin_or_coordinator(
-    client, admin_headers, coordinator_headers, customer_headers
+def test_audit_logs_read_restricted_to_coordinator(
+    client, coordinator_headers, customer_headers
 ):
     """
-    Verify audit log review is restricted strictly to Admins and Coordinators.
-    Admins and Coordinators must be authorized to retrieve audit logs,
+    Verify audit log review is restricted strictly to SHG Coordinators.
+    Coordinators must be authorized to retrieve audit logs,
     unauthorized Customers receive HTTP 403 Forbidden, and anonymous requests receive HTTP 401.
     """
-    # 1. Admin is authorized
-    res_admin = client.get("/api/v1/audit/logs", headers=admin_headers)
-    assert res_admin.status_code == 200
-    admin_data = res_admin.json()
-    assert "data" in admin_data
-    assert admin_data["total"] == 1
-    assert len(admin_data["data"]) == 1
-    assert admin_data["data"][0]["action"] == "system_config_update"
-
-    # 2. Coordinator is authorized
+    # 1. Coordinator is authorized
     res_coord = client.get("/api/v1/audit/logs", headers=coordinator_headers)
     assert res_coord.status_code == 200
     coord_data = res_coord.json()
@@ -105,12 +96,12 @@ def test_audit_logs_read_restricted_to_admin_or_coordinator(
     assert coord_data["total"] == 1
     assert len(coord_data["data"]) == 1
 
-    # 3. Customer is forbidden
+    # 2. Customer is forbidden
     res_cust = client.get("/api/v1/audit/logs", headers=customer_headers)
     assert res_cust.status_code == 403
     assert res_cust.json()["error"]["code"] == "FORBIDDEN"
 
-    # 4. Unauthenticated is rejected
+    # 3. Unauthenticated is rejected
     res_anon = client.get("/api/v1/audit/logs")
     assert res_anon.status_code == 401
     assert res_anon.json()["error"]["code"] == "UNAUTHORIZED"

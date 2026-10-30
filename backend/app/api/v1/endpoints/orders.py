@@ -239,7 +239,7 @@ async def get_order(
 @router.post("/orders", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_in: OrderCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "buyer"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "buyer"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -294,7 +294,7 @@ async def create_order(
 async def update_order_status(
     order_id: UUID,
     payload: OrderStatusUpdate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -384,7 +384,7 @@ async def list_assignments(
 async def get_assignment_suggestions(
     order_id: Optional[UUID] = Query(None, description="Order to match artisan skills against"),
     craft: Optional[str] = Query(None, description="Specific craft technique required"),
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
 ):
     """
     Flow (2) Skills-Aware Assignment Suggestions:
@@ -454,7 +454,7 @@ async def get_assignment_suggestions(
 @router.post("/assignments", response_model=OrderAssignmentResponse, status_code=status.HTTP_201_CREATED)
 async def assign_artisan_to_order(
     payload: OrderAssignmentCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -520,7 +520,7 @@ async def assign_artisan_to_order(
 @router.delete("/assignments/{assignment_id}", status_code=status.HTTP_200_OK)
 async def delete_assignment(
     assignment_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):

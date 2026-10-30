@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.adapters.supabase import SupabaseAdapter
-from app.api.deps import get_optional_current_user, get_supabase, require_roles
+from app.api.deps import get_optional_current_user, get_supabase, require_role, require_roles
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 from app.schemas.craft_story import CraftStoryCreate, CraftStoryResponse, CraftStoryUpdate
@@ -84,7 +84,7 @@ async def list_craft_stories(
         stories = [s for s in stories if str(s.get("artisan_id")) == str(artisan_id)]
 
     # If unauthenticated or buyer, default to published only unless specific role
-    is_staff = user and user.has_any_role(["coordinator", "admin", "artisan"])
+    is_staff = user and user.has_any_role(["coordinator", "artisan"])
     if status_filter:
         stories = [s for s in stories if s.get("status") == status_filter]
     elif not is_staff:
@@ -111,7 +111,7 @@ async def get_craft_story(
 @router.post("/", response_model=CraftStoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_craft_story(
     payload: CraftStoryCreate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin", "artisan"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):
@@ -172,7 +172,7 @@ async def create_craft_story(
 async def update_craft_story(
     story_id: UUID,
     payload: CraftStoryUpdate,
-    current_user: CurrentUser = Depends(require_roles(["coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_role("coordinator")),
     db: SupabaseAdapter = Depends(get_supabase),
     audit: AuditService = Depends(lambda: audit_service),
 ):

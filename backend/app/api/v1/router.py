@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     health,
     auth,
+    onboarding,
     audit,
     products,
     dpp,
@@ -26,6 +27,7 @@ api_router = APIRouter()
 
 api_router.include_router(health.router)
 api_router.include_router(auth.router)
+api_router.include_router(onboarding.router)
 api_router.include_router(audit.router)
 api_router.include_router(products.router)
 api_router.include_router(dpp.router)
@@ -44,5 +46,3 @@ api_router.include_router(payouts.router)
 api_router.include_router(notifications.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(factoring.router)
-
-

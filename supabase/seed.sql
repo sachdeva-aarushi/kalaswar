@@ -49,7 +49,6 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Passwords for all demo accounts: 'KalaswarDemo@2025'
 -- Deterministic User UUIDs:
---   Admin:       99999999-0000-0000-0000-000000000001
 --   Coordinator: 99999999-0000-0000-0000-000000000002
 --   Artisan:     99999999-0000-0000-0000-000000000003
 --   Customer:    99999999-0000-0000-0000-000000000004
@@ -66,7 +65,6 @@ BEGIN
       raw_app_meta_data, raw_user_meta_data, role, aud, created_at, updated_at
     )
     VALUES
-      ('99999999-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'admin@kalaswar.demo', v_hash, now(), '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Meera Joshi","role":"admin"}'::jsonb, 'authenticated', 'authenticated', now(), now()),
       ('99999999-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'coordinator.sunita@kalaswar.demo', v_hash, now(), '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Sunita Patil","role":"coordinator","preferred_language":"mr"}'::jsonb, 'authenticated', 'authenticated', now(), now()),
       ('99999999-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'artisan.anita@kalaswar.demo', v_hash, now(), '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Anita Ansari","role":"artisan","preferred_language":"hi"}'::jsonb, 'authenticated', 'authenticated', now(), now()),
       ('99999999-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'customer.priya@kalaswar.demo', v_hash, now(), '{"provider":"email","providers":["email"]}'::jsonb, '{"full_name":"Priya Sharma","role":"customer","preferred_language":"en"}'::jsonb, 'authenticated', 'authenticated', now(), now()),
@@ -80,7 +78,6 @@ $$;
 -- Profiles
 INSERT INTO public.profiles (id, display_name, preferred_language, onboarding_status, updated_at)
 VALUES
-  ('99999999-0000-0000-0000-000000000001', 'Meera Joshi (Platform Admin)', 'en', 'completed', now()),
   ('99999999-0000-0000-0000-000000000002', 'Sunita Patil (SHG Coordinator)', 'mr', 'completed', now()),
   ('99999999-0000-0000-0000-000000000003', 'Anita Ansari (Master Artisan)', 'hi', 'completed', now()),
   ('99999999-0000-0000-0000-000000000004', 'Priya Sharma (Retail Customer)', 'en', 'completed', now()),
@@ -94,7 +91,6 @@ ON CONFLICT (id) DO UPDATE SET
 -- User Roles
 INSERT INTO public.user_roles (user_id, role)
 VALUES
-  ('99999999-0000-0000-0000-000000000001', 'admin'),
   ('99999999-0000-0000-0000-000000000002', 'coordinator'),
   ('99999999-0000-0000-0000-000000000003', 'artisan'),
   ('99999999-0000-0000-0000-000000000004', 'customer'),
@@ -1258,7 +1254,6 @@ INSERT INTO public.action_audit_logs (id, actor, action, entity, entity_id, payl
 VALUES
   (
     '11110000-0001-0000-0000-000000000001',
-    'Meera Joshi (Platform Admin)',
     'cluster_registered',
     'shg_clusters',
     'aaaaaaaa-0001-0000-0000-000000000001',

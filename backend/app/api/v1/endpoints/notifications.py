@@ -85,7 +85,7 @@ async def list_notifications(
     elif current_user:
         # Filter based on current user roles
         allowed_audiences = set()
-        if current_user.has_role("coordinator") or current_user.has_role("admin"):
+        if current_user.has_role("coordinator"):
             allowed_audiences.add("coordinator")
         if current_user.has_role("artisan"):
             allowed_audiences.add("artisan")

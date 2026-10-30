@@ -15,7 +15,7 @@ router = APIRouter(prefix="/factoring", tags=["PO Micro-Factoring & Working Capi
 
 @router.get("/po", response_model=List[POFactoringResponse])
 async def list_po_factoring(
-    current_user: CurrentUser = Depends(require_roles(["financier", "coordinator", "admin", "buyer"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "buyer"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -27,7 +27,7 @@ async def list_po_factoring(
 @router.get("/po/{factoring_id}", response_model=POFactoringResponse)
 async def get_po_factoring_detail(
     factoring_id: UUID,
-    current_user: CurrentUser = Depends(require_roles(["financier", "coordinator", "admin", "buyer"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "buyer"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -39,7 +39,7 @@ async def get_po_factoring_detail(
 @router.post("/po", response_model=POFactoringResponse, status_code=status.HTTP_201_CREATED)
 async def create_po_factoring(
     payload: POFactoringCreate,
-    current_user: CurrentUser = Depends(require_roles(["financier", "coordinator", "admin", "buyer"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "buyer"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -52,7 +52,7 @@ async def create_po_factoring(
 async def tokenize_purchase_order(
     factoring_id: UUID,
     payload: Optional[POFactoringTransitionRequest] = None,
-    current_user: CurrentUser = Depends(require_roles(["financier", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -66,7 +66,7 @@ async def tokenize_purchase_order(
 async def disburse_factoring_advance(
     factoring_id: UUID,
     payload: Optional[POFactoringTransitionRequest] = None,
-    current_user: CurrentUser = Depends(require_roles(["financier", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -80,7 +80,7 @@ async def disburse_factoring_advance(
 async def mark_po_delivered(
     factoring_id: UUID,
     payload: Optional[POFactoringTransitionRequest] = None,
-    current_user: CurrentUser = Depends(require_roles(["buyer", "coordinator", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["buyer", "coordinator"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """
@@ -94,7 +94,7 @@ async def mark_po_delivered(
 async def release_factoring_escrow(
     factoring_id: UUID,
     payload: Optional[POFactoringTransitionRequest] = None,
-    current_user: CurrentUser = Depends(require_roles(["financier", "admin"])),
+    current_user: CurrentUser = Depends(require_roles(["coordinator"])),
     service: POFactoringService = Depends(lambda: po_factoring_service),
 ):
     """

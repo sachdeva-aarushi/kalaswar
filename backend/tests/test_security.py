@@ -49,25 +49,16 @@ def test_authenticated_user_profile(client, customer_headers):
     assert "customer" in data["roles"]
 
 
-def test_role_guard_admin(client, admin_headers, customer_headers, artisan_headers):
-    """Verify strictly admins can access /auth/admin-only."""
-    # Allowed
-    res_admin = client.get("/api/v1/auth/admin-only", headers=admin_headers)
-    assert res_admin.status_code == 200
-    assert res_admin.json()["access"] == "granted"
+def test_role_admin_completely_eliminated(client, admin_headers):
+    """Verify admin role is invalid and cannot access coordinator or artisan guarded endpoints."""
+    res_coord = client.get("/api/v1/auth/coordinator-only", headers=admin_headers)
+    assert res_coord.status_code == 403
 
-    # Forbidden for customer
-    res_customer = client.get("/api/v1/auth/admin-only", headers=customer_headers)
-    assert res_customer.status_code == 403
-    assert res_customer.json()["error"]["code"] == "FORBIDDEN"
-
-    # Forbidden for artisan
-    res_artisan = client.get("/api/v1/auth/admin-only", headers=artisan_headers)
+    res_artisan = client.get("/api/v1/auth/artisan-only", headers=admin_headers)
     assert res_artisan.status_code == 403
-    assert res_artisan.json()["error"]["code"] == "FORBIDDEN"
 
 
-def test_role_guard_coordinator(client, coordinator_headers, artisan_headers):
+def test_role_guard_coordinator(client, coordinator_headers, artisan_headers, customer_headers):
     """Verify coordinator endpoints allow coordinators and deny others."""
     res_coord = client.get("/api/v1/auth/coordinator-only", headers=coordinator_headers)
     assert res_coord.status_code == 200
@@ -77,9 +68,12 @@ def test_role_guard_coordinator(client, coordinator_headers, artisan_headers):
     assert res_artisan.status_code == 403
     assert res_artisan.json()["error"]["code"] == "FORBIDDEN"
 
+    res_customer = client.get("/api/v1/auth/coordinator-only", headers=customer_headers)
+    assert res_customer.status_code == 403
 
-def test_role_guard_artisan(client, artisan_headers, customer_headers):
-    """Verify artisan endpoint allows artisans and denies customers."""
+
+def test_role_guard_artisan(client, artisan_headers, customer_headers, coordinator_headers):
+    """Verify artisan endpoint allows artisans and denies customers and coordinators."""
     res_artisan = client.get("/api/v1/auth/artisan-only", headers=artisan_headers)
     assert res_artisan.status_code == 200
     assert res_artisan.json()["access"] == "granted"
@@ -89,12 +83,18 @@ def test_role_guard_artisan(client, artisan_headers, customer_headers):
     assert res_customer.json()["error"]["code"] == "FORBIDDEN"
 
 
-def test_role_guard_financier(client, financier_headers, buyer_headers):
-    """Verify financier endpoint allows financiers and denies buyers."""
-    res_fin = client.get("/api/v1/auth/financier-only", headers=financier_headers)
-    assert res_fin.status_code == 200
-    assert res_fin.json()["access"] == "granted"
+def test_role_guard_buyer(client, buyer_headers, customer_headers, artisan_headers):
+    """Verify buyer endpoint allows buyers and denies other roles."""
+    res_buyer = client.get("/api/v1/auth/buyer-only", headers=buyer_headers)
+    assert res_buyer.status_code == 200
+    assert res_buyer.json()["access"] == "granted"
 
-    res_buyer = client.get("/api/v1/auth/financier-only", headers=buyer_headers)
-    assert res_buyer.status_code == 403
-    assert res_buyer.json()["error"]["code"] == "FORBIDDEN"
+    res_customer = client.get("/api/v1/auth/buyer-only", headers=customer_headers)
+    assert res_customer.status_code == 403
+
+
+def test_role_guard_customer(client, customer_headers, artisan_headers):
+    """Verify customer endpoint allows customers and denies cross-role access."""
+    res_cust = client.get("/api/v1/auth/customer-only", headers=customer_headers)
+    assert res_cust.status_code == 200
+    assert res_cust.json()["access"] == "granted"
