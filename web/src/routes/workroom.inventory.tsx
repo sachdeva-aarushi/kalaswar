@@ -29,7 +29,7 @@ import {
   type MaterialInventory,
 } from "@/features/inventory/hooks";
 import { useAuth } from "@/features/auth";
-import { KwLoadingState, KwErrorState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwTableSkeleton } from "@/components/kw-primitives";
 import { StockTable } from "@/components/workroom/stock-table";
 import { RestockDrawer } from "@/components/workroom/restock-drawer";
 
@@ -83,7 +83,7 @@ function WorkroomInventoryPage() {
   };
 
   if (isLoading) {
-    return <KwLoadingState label="Loading materials & stock records…" retry={() => void refetch()} />;
+    return <KwTableSkeleton rows={6} cols={6} className="mt-4" />;
   }
 
   if (isError || !materials) {
@@ -268,6 +268,7 @@ function WorkroomInventoryPage() {
                     min={0}
                     value={newCountVal}
                     onChange={(e) => setNewCountVal(parseFloat(e.target.value) || 0)}
+                    aria-label="Physical count verified"
                     className="w-24 h-10 px-3 text-right rounded-lg border border-[var(--kw-outline-variant)] kw-headline-sm text-[var(--kw-primary)]"
                   />
                   <span className="text-xs text-[var(--kw-on-surface-variant)] font-semibold">

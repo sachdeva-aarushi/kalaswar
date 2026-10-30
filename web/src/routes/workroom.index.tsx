@@ -16,7 +16,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCoordinatorDashboard, type RiskFlag } from "@/features/dashboard";
 import { useHealth } from "@/features/health/hooks";
-import { KwLoadingState, KwErrorState, KwNoAccessState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwNoAccessState, KwSkeleton } from "@/components/kw-primitives";
 import {
   Activity,
   AlertTriangle,
@@ -61,7 +61,30 @@ function WorkroomIndex() {
   const { data: health, isLoading: isHealthLoading, isError: isHealthError } = useHealth();
 
   if (isDashLoading) {
-    return <KwLoadingState label="Loading coordinator dashboard & risk radar…" retry={() => void refetchDash()} />;
+    return (
+      <div className="space-y-[var(--kw-space-xl)]" role="status" aria-busy="true" aria-label="Loading workroom overview">
+        <div className="space-y-2">
+          <KwSkeleton className="h-6 w-36 rounded-full" />
+          <KwSkeleton className="h-9 w-64 rounded" />
+          <KwSkeleton className="h-4 w-80 rounded" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="kw-card p-4 space-y-3">
+              <KwSkeleton className="h-3 w-16" />
+              <KwSkeleton className="h-7 w-12" />
+              <KwSkeleton className="h-3 w-20" />
+            </div>
+          ))}
+        </div>
+        <div className="kw-card p-6 space-y-4">
+          <KwSkeleton className="h-6 w-48" />
+          <KwSkeleton className="h-24 w-full" />
+          <KwSkeleton className="h-24 w-full" />
+        </div>
+        <span className="sr-only">Loading coordinator dashboard & risk radar…</span>
+      </div>
+    );
   }
 
   if (isDashError) {

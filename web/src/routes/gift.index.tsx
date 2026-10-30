@@ -9,7 +9,7 @@
  * 4. Proposal review with version history and same-version two-sided approval
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Gift,
@@ -98,6 +98,17 @@ function GiftConciergePage() {
 
   const [declineModalOpen, setDeclineModalOpen] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (revisionModalOpen) setRevisionModalOpen(false);
+        if (declineModalOpen) setDeclineModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [revisionModalOpen, declineModalOpen]);
 
   // Mutations & Queries
   const evaluateEngine = useEvaluateFeasibility();
@@ -314,42 +325,48 @@ function GiftConciergePage() {
             {/* Quantity, Budget & Deadline */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-[var(--kw-outline-variant)]">
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-intake-quantity" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Quantity (Units)
                 </label>
                 <input
+                  id="gift-intake-quantity"
                   type="number"
                   min={1}
                   max={500}
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
+                  aria-label="Quantity of gift units"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm focus:ring-2 focus:ring-[var(--kw-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-intake-budget" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Target Budget / Unit (₹)
                 </label>
                 <input
+                  id="gift-intake-budget"
                   type="number"
                   min={100}
                   value={unitBudget}
                   onChange={(e) => setUnitBudget(Number(e.target.value))}
+                  aria-label="Target Budget per Unit in Rupees"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm focus:ring-2 focus:ring-[var(--kw-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-intake-deadline" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Required Timeline (Days)
                 </label>
                 <input
+                  id="gift-intake-deadline"
                   type="number"
                   min={5}
                   max={120}
                   value={deadlineDays}
                   onChange={(e) => setDeadlineDays(Number(e.target.value))}
+                  aria-label="Required Timeline in Days"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm focus:ring-2 focus:ring-[var(--kw-primary)]"
                 />
               </div>
@@ -357,13 +374,15 @@ function GiftConciergePage() {
 
             {/* Customisation Notes */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+              <label htmlFor="gift-intake-notes" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                 Personalisation & Dimension Requirements
               </label>
               <textarea
+                id="gift-intake-notes"
                 rows={2}
                 value={personalisation}
                 onChange={(e) => setPersonalisation(e.target.value)}
+                aria-label="Personalisation & Dimension Requirements"
                 placeholder="Specific embroidery motifs, initials, colors, custom box packaging…"
                 className="w-full p-2.5 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm focus:ring-2 focus:ring-[var(--kw-primary)]"
               />
@@ -397,61 +416,71 @@ function GiftConciergePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-spec-title" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Commission Title
                 </label>
                 <input
+                  id="gift-spec-title"
                   type="text"
                   value={specTitle}
                   onChange={(e) => setSpecTitle(e.target.value)}
+                  aria-label="Commission Title"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-spec-category" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Craft Category
                 </label>
                 <input
+                  id="gift-spec-category"
                   type="text"
                   value={specCategory}
                   onChange={(e) => setSpecCategory(e.target.value)}
+                  aria-label="Craft Category"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-spec-materials" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Materials Specification
                 </label>
                 <input
+                  id="gift-spec-materials"
                   type="text"
                   value={specMaterials}
                   onChange={(e) => setSpecMaterials(e.target.value)}
+                  aria-label="Materials Specification"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-spec-quantity" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Quantity
                 </label>
                 <input
+                  id="gift-spec-quantity"
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
+                  aria-label="Quantity specification"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
+                <label htmlFor="gift-spec-unit-price" className="block text-xs font-semibold text-[var(--kw-on-surface)] mb-1">
                   Target Unit Price (₹)
                 </label>
                 <input
+                  id="gift-spec-unit-price"
                   type="number"
                   value={unitBudget}
                   onChange={(e) => setUnitBudget(Number(e.target.value))}
+                  aria-label="Target Unit Price in Rupees"
                   className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
                 />
               </div>
@@ -638,6 +667,7 @@ function GiftConciergePage() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
+                aria-label="Load Proposal UUID"
                 placeholder="Load Proposal UUID…"
                 value={customProposalIdInput}
                 onChange={(e) => setCustomProposalIdInput(e.target.value)}
@@ -825,30 +855,45 @@ function GiftConciergePage() {
 
       {/* ── REVISION MODAL ────────────────────────────────────────────────── */}
       {revisionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="revision-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        >
           <div className="bg-[var(--kw-surface)] border border-[var(--kw-outline-variant)] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="font-bold text-base text-[var(--kw-on-surface)]">Request Proposal Revision</h3>
+            <h3 id="revision-modal-title" className="font-bold text-base text-[var(--kw-on-surface)]">
+              Request Proposal Revision
+            </h3>
             <p className="text-xs text-[var(--kw-on-surface-variant)]">
               Specify your proposed adjustments. This increments the proposal specification version.
             </p>
 
             <div>
-              <label className="block text-xs font-semibold mb-1">Proposed Unit Price (₹)</label>
+              <label htmlFor="revision-unit-price" className="block text-xs font-semibold mb-1">
+                Proposed Unit Price (₹)
+              </label>
               <input
+                id="revision-unit-price"
                 type="number"
                 value={revisedUnitPrice}
                 onChange={(e) => setRevisedUnitPrice(Number(e.target.value))}
+                aria-label="Proposed Unit Price in Rupees"
                 className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold mb-1">Reason for Revision *</label>
+              <label htmlFor="revision-reason-input" className="block text-xs font-semibold mb-1">
+                Reason for Revision *
+              </label>
               <textarea
+                id="revision-reason-input"
                 rows={3}
                 required
                 value={revisionReason}
                 onChange={(e) => setRevisionReason(e.target.value)}
+                aria-label="Reason for proposal revision"
                 placeholder="e.g. Budget ceiling ₹1,350 per unit or adjust border stitch motif"
                 className="w-full p-2.5 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
               />
@@ -873,20 +918,31 @@ function GiftConciergePage() {
 
       {/* ── DECLINE MODAL ─────────────────────────────────────────────────── */}
       {declineModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="decline-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        >
           <div className="bg-[var(--kw-surface)] border border-[var(--kw-outline-variant)] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="font-bold text-base text-red-700">Decline Proposal</h3>
+            <h3 id="decline-modal-title" className="font-bold text-base text-red-700">
+              Decline Proposal
+            </h3>
             <p className="text-xs text-[var(--kw-on-surface-variant)]">
               Please let the artisan collective coordinator know why this proposal is declined.
             </p>
 
             <div>
-              <label className="block text-xs font-semibold mb-1">Decline Reason *</label>
+              <label htmlFor="decline-reason-input" className="block text-xs font-semibold mb-1">
+                Decline Reason *
+              </label>
               <textarea
+                id="decline-reason-input"
                 rows={3}
                 required
                 value={declineReason}
                 onChange={(e) => setDeclineReason(e.target.value)}
+                aria-label="Reason for declining proposal"
                 placeholder="e.g. Project timeline changed, chosen alternative craft…"
                 className="w-full p-2.5 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-sm"
               />

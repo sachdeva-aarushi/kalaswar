@@ -452,6 +452,7 @@ function DevWhatsAppComponent() {
               </label>
               <input
                 type="text"
+                aria-label="X-Service-Token"
                 value={serviceToken}
                 onChange={(e) => setServiceToken(e.target.value)}
                 className="w-full h-8 px-2.5 rounded border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-low)] font-mono text-xs"
@@ -463,6 +464,7 @@ function DevWhatsAppComponent() {
               </label>
               <input
                 type="text"
+                aria-label="Artisan E.164 Phone Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full h-8 px-2.5 rounded border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-low)] font-mono text-xs"
@@ -707,26 +709,30 @@ function DevWhatsAppComponent() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[var(--kw-on-surface)]">
+                    <label htmlFor="whatsapp-custom-photo" className="text-xs font-semibold text-[var(--kw-on-surface)]">
                       Or Custom Image URL:
                     </label>
                     <input
+                      id="whatsapp-custom-photo"
                       type="text"
                       placeholder="https://..."
                       value={customPhotoUrl}
                       onChange={(e) => setCustomPhotoUrl(e.target.value)}
+                      aria-label="Custom image URL"
                       className="w-full h-8 px-2.5 rounded border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-low)] text-xs"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[var(--kw-on-surface)]">
+                    <label htmlFor="whatsapp-photo-caption" className="text-xs font-semibold text-[var(--kw-on-surface)]">
                       Caption:
                     </label>
                     <input
+                      id="whatsapp-photo-caption"
                       type="text"
                       value={caption}
                       onChange={(e) => setCaption(e.target.value)}
+                      aria-label="Photo caption in Hindi or English"
                       className="w-full h-8 px-2.5 rounded border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-low)] text-xs"
                     />
                   </div>

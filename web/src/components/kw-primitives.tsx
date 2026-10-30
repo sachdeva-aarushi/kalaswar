@@ -169,24 +169,131 @@ export function KwErrorState({
   );
 }
 
+// ─── Skeletons ────────────────────────────────────────────────────────────────
+
+interface SkeletonProps {
+  className?: string;
+}
+
+export function KwSkeleton({ className = "" }: SkeletonProps) {
+  return (
+    <div
+      className={`animate-pulse rounded bg-[var(--kw-surface-container-high)] ${className}`}
+      aria-hidden="true"
+    />
+  );
+}
+
+export function KwCardSkeleton({ className = "" }: SkeletonProps) {
+  return (
+    <div
+      className={`kw-card flex flex-col justify-between border border-[var(--kw-outline-variant)] p-4 ${className}`}
+      role="status"
+      aria-busy="true"
+      aria-label="Loading card content"
+    >
+      <div className="space-y-3">
+        <KwSkeleton className="aspect-4/3 w-full rounded-lg" />
+        <KwSkeleton className="h-5 w-3/4 rounded" />
+        <KwSkeleton className="h-4 w-full rounded" />
+        <KwSkeleton className="h-3 w-1/2 rounded" />
+      </div>
+      <div className="mt-4 flex items-center justify-between border-t border-[var(--kw-outline-variant)] pt-3">
+        <KwSkeleton className="h-5 w-20 rounded" />
+        <KwSkeleton className="h-8 w-24 rounded-lg" />
+      </div>
+      <span className="sr-only">Loading item details…</span>
+    </div>
+  );
+}
+
+export function KwProductGridSkeleton({ count = 8 }: { count?: number }) {
+  return (
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[var(--kw-space-md)]"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading craft catalog"
+    >
+      {Array.from({ length: count }).map((_, idx) => (
+        <KwCardSkeleton key={idx} />
+      ))}
+      <span className="sr-only">Loading craft catalog…</span>
+    </div>
+  );
+}
+
+export function KwTableSkeleton({
+  rows = 5,
+  cols = 5,
+  className = "",
+}: {
+  rows?: number;
+  cols?: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`kw-card p-0 overflow-x-auto border border-[var(--kw-outline-variant)] ${className}`}
+      role="status"
+      aria-busy="true"
+      aria-label="Loading table data"
+    >
+      <div className="p-4 space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <KwSkeleton className="h-5 w-40 rounded" />
+          <KwSkeleton className="h-8 w-24 rounded-lg" />
+        </div>
+        <div className="divide-y divide-[var(--kw-outline-variant)]">
+          <div className="flex gap-4 pb-3">
+            {Array.from({ length: cols }).map((_, i) => (
+              <KwSkeleton key={`h-${i}`} className="h-4 flex-1 rounded" />
+            ))}
+          </div>
+          {Array.from({ length: rows }).map((_, r) => (
+            <div key={`r-${r}`} className="flex items-center gap-4 py-3.5">
+              {Array.from({ length: cols }).map((_, c) => (
+                <KwSkeleton key={`c-${c}`} className="h-4 flex-1 rounded" />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <span className="sr-only">Loading records…</span>
+    </div>
+  );
+}
+
 // ─── Empty ────────────────────────────────────────────────────────────────────
 
 interface EmptyStateProps {
   title: string;
   description?: string;
+  icon?: ReactNode;
   action?: ReactNode;
+  className?: string;
 }
 
-export function KwEmptyState({ title, description, action }: EmptyStateProps) {
+export function KwEmptyState({
+  title,
+  description,
+  icon,
+  action,
+  className = "",
+}: EmptyStateProps) {
   return (
-    <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 px-4 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-[var(--kw-surface-container)]">
-        <PackageSearch className="size-6 text-[var(--kw-outline)]" aria-hidden="true" />
+    <div
+      className={`flex min-h-[320px] flex-col items-center justify-center gap-4 px-4 text-center ${className}`}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="flex size-12 items-center justify-center rounded-full bg-[var(--kw-surface-container)] text-[var(--kw-on-surface-variant)]">
+        {icon || <PackageSearch className="size-6 text-[var(--kw-outline)]" aria-hidden="true" />}
       </div>
       <div className="space-y-1">
         <p className="text-sm font-semibold text-[var(--kw-on-surface)]">{title}</p>
         {description && (
-          <p className="text-xs text-[var(--kw-on-surface-variant)]">{description}</p>
+          <p className="text-xs text-[var(--kw-on-surface-variant)] max-w-sm">{description}</p>
         )}
       </div>
       {action}

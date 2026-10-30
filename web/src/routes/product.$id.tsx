@@ -186,7 +186,7 @@ function ProductDetail() {
                     {artisan.photo_url && (
                       <img
                         src={artisan.photo_url}
-                        alt=""
+                        alt={artisan.name}
                         className="size-16 shrink-0 rounded-full object-cover"
                       />
                     )}

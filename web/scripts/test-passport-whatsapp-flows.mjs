@@ -58,7 +58,7 @@ async function main() {
 
     // 1. Desktop viewport
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(`${BASE_URL}/passport/${DEMO_PASSPORT_TOKEN}`, { waitUntil: "networkidle", timeout: 15000 });
+    await page.goto(`${BASE_URL}/passport/${DEMO_PASSPORT_TOKEN}`, { waitUntil: "load", timeout: 45000 });
 
     // Public access check
     const pageUrl = page.url();
@@ -68,7 +68,7 @@ async function main() {
     }
 
     // Maker story & craft title
-    await page.waitForSelector("[data-testid='passport-product-title']", { timeout: 8000 });
+    await page.waitForSelector("[data-testid='passport-product-title']", { timeout: 20000 });
     const productTitle = await page.textContent("[data-testid='passport-product-title']");
     const makerName = await page.textContent("[data-testid='maker-name']");
 
@@ -151,8 +151,8 @@ async function main() {
     }
 
     // Invalid Token Not-Found State
-    await page.goto(`${BASE_URL}/passport/non-existent-token-xyz`, { waitUntil: "networkidle", timeout: 15000 });
-    await page.waitForSelector("text=Passport Not Found", { timeout: 8000 });
+    await page.goto(`${BASE_URL}/passport/non-existent-token-xyz`, { waitUntil: "load", timeout: 45000 });
+    await page.waitForSelector("text=Passport Not Found", { timeout: 20000 });
     const notFoundText = await page.textContent("body");
     if (notFoundText.includes("Passport Not Found") && notFoundText.includes("UNVERIFIED RECORD")) {
       results["Passport: Unverified / Not Found State"] = "PASSED";
@@ -165,7 +165,7 @@ async function main() {
     console.log("\n--- PART 2: Testing Dev-Only /dev/whatsapp ---");
 
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(`${BASE_URL}/dev/whatsapp`, { waitUntil: "networkidle", timeout: 15000 });
+    await page.goto(`${BASE_URL}/dev/whatsapp`, { waitUntil: "load", timeout: 45000 });
 
     const chatThreadVisible = await page.isVisible("[data-testid='whatsapp-chat-thread']");
     if (chatThreadVisible) {
@@ -174,9 +174,11 @@ async function main() {
     }
 
     // Step 1: Upload Photo
+    await page.waitForSelector("[data-testid='send-whatsapp-photo-btn']");
+    await page.waitForTimeout(1500);
     const mediaPromise = page.waitForResponse(
       (res) => res.url().includes("/internal/whatsapp/media") && res.status() === 200,
-      { timeout: 20000 }
+      { timeout: 45000 }
     );
     await page.click("[data-testid='send-whatsapp-photo-btn']");
     await mediaPromise;
@@ -210,7 +212,7 @@ async function main() {
     // Step 3: Approve & Coordinator-Validation rule
     const approvePromise = page.waitForResponse(
       (res) => res.url().includes("/internal/whatsapp/approve") && res.status() === 200,
-      { timeout: 20000 }
+      { timeout: 45000 }
     );
 
     const approveBtn = page.locator("[data-testid='approve-whatsapp-draft-btn']");

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   CheckCircle2,
@@ -21,6 +21,15 @@ interface VerificationDetailsModalProps {
 export function VerificationDetailsModal({ isOpen, onClose, passport }: VerificationDetailsModalProps) {
   const [copiedProof, setCopiedProof] = useState(false);
   const [showHowToCheck, setShowHowToCheck] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

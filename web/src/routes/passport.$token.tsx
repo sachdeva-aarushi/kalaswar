@@ -22,7 +22,7 @@ import { ProvenanceCertificate } from "@/components/passport/ProvenanceCertifica
 import { FairWageDonut } from "@/components/passport/FairWageDonut";
 import { MerkleProofCard } from "@/components/passport/MerkleProofCard";
 import { VerificationDetailsModal } from "@/components/passport/VerificationDetailsModal";
-import { KwLoadingState, KwErrorState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwSkeleton } from "@/components/kw-primitives";
 import {
   Shield,
   QrCode,
@@ -155,8 +155,28 @@ function PassportPage() {
         {/* Main Content Viewport */}
         <main className="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-8 py-8 sm:py-10">
           {isLoading ? (
-            <div className="min-h-[60vh] flex items-center justify-center">
-              <KwLoadingState label="Resolving on-chain Craft Passport ledger…" />
+            <div
+              className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start"
+              role="status"
+              aria-busy="true"
+              aria-label="Resolving on-chain Craft Passport ledger"
+            >
+              <div className="lg:col-span-5 space-y-4">
+                <KwSkeleton className="aspect-[4/5] w-full rounded-[var(--kw-radius-lg)]" />
+                <div className="grid grid-cols-3 gap-3">
+                  <KwSkeleton className="aspect-[4/3] rounded-[var(--kw-radius)]" />
+                  <KwSkeleton className="aspect-[4/3] rounded-[var(--kw-radius)]" />
+                  <KwSkeleton className="aspect-[4/3] rounded-[var(--kw-radius)]" />
+                </div>
+              </div>
+              <div className="lg:col-span-7 space-y-6">
+                <KwSkeleton className="h-8 w-3/4 rounded" />
+                <KwSkeleton className="h-4 w-1/2 rounded" />
+                <KwSkeleton className="h-28 w-full rounded-[var(--kw-radius-lg)]" />
+                <KwSkeleton className="h-44 w-full rounded-[var(--kw-radius-lg)]" />
+                <KwSkeleton className="h-40 w-full rounded-[var(--kw-radius-lg)]" />
+              </div>
+              <span className="sr-only">Resolving on-chain Craft Passport ledger…</span>
             </div>
           ) : isError || !passport ? (
             /* Stitch C-05: Passport Not Found & Unverified State */
@@ -212,6 +232,7 @@ function PassportPage() {
                 <input
                   type="text"
                   placeholder="Enter passport token (e.g. dpp-demo-kantha-001)"
+                  aria-label="Enter craft passport token"
                   value={tokenInput}
                   onChange={(e) => setTokenInput(e.target.value)}
                   className="flex-1 h-10 px-3 rounded-[var(--kw-radius)] border border-[var(--kw-outline-variant)] bg-white text-xs text-[var(--kw-on-surface)] focus:outline-hidden focus:ring-2 focus:ring-[var(--kw-primary-container)]"
@@ -257,6 +278,7 @@ function PassportPage() {
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImageIdx(idx)}
+                      aria-label={`View specimen angle ${idx + 1}: ${photo.caption}`}
                       className={`relative aspect-[4/3] rounded-[var(--kw-radius)] overflow-hidden border transition-all ${
                         selectedImageIdx === idx
                           ? "ring-2 ring-[var(--kw-primary-container)] border-transparent opacity-100 shadow-sm"

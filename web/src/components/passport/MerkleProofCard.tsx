@@ -78,6 +78,7 @@ export function MerkleProofCard({ passport, verification, isLoadingVerification 
             type="button"
             data-testid="copy-merkle-root-btn"
             onClick={() => handleCopy(passport.merkle_root, "root")}
+            aria-label="Copy Merkle root hash"
             className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded bg-[var(--kw-surface-container-high)] hover:bg-[var(--kw-surface-container-highest)] text-xs text-[var(--kw-on-surface)] transition-colors active:scale-95"
             title="Copy Merkle root"
           >
@@ -118,6 +119,7 @@ export function MerkleProofCard({ passport, verification, isLoadingVerification 
               type="button"
               data-testid="copy-polygon-tx-btn"
               onClick={() => handleCopy(passport.polygon_tx_hash!, "tx")}
+              aria-label="Copy Polygon transaction hash"
               className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded bg-[var(--kw-surface-container-high)] hover:bg-[var(--kw-surface-container-highest)] text-xs text-[var(--kw-on-surface)] transition-colors active:scale-95"
               title="Copy transaction hash"
             >

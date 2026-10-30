@@ -15,7 +15,7 @@
  */
 
 /* ── Google Fonts for the workroom shell ─────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap");
 
 /* ── .kw-app root ─────────────────────────────────────────────────────────── */
 .kw-app {
@@ -87,9 +87,10 @@
   --kw-divider: var(--kw-outline-variant);
 
   /* ── Typography ──────────────────────────────────────────────────────────── */
-  --kw-font-headline: "Manrope", system-ui, sans-serif;
-  --kw-font-body:     "Inter", system-ui, sans-serif;
-  --kw-font-label:    "Inter", system-ui, sans-serif;
+  --kw-font-devanagari: "Noto Sans Devanagari", "Kohinoor Devanagari", "Yantramanav", "Mangal", sans-serif;
+  --kw-font-headline: "Manrope", var(--kw-font-devanagari), system-ui, sans-serif;
+  --kw-font-body:     "Inter", var(--kw-font-devanagari), system-ui, sans-serif;
+  --kw-font-label:    "Inter", var(--kw-font-devanagari), system-ui, sans-serif;
 
   /* ── Spacing (8-px grid) ─────────────────────────────────────────────────── */
   --kw-space-xs: 0.5rem;    /* 8px */
@@ -125,6 +126,19 @@
 /* ── Base elements inside .kw-app ─────────────────────────────────────────── */
 .kw-app * {
   box-sizing: border-box;
+}
+
+/* Keyboard accessibility: distinct visible focus ring */
+.kw-app :focus-visible {
+  outline: 2px solid var(--kw-primary-container);
+  outline-offset: 2px;
+}
+
+/* Vernacular Hindi text rendering fallback */
+.kw-app [lang="hi"],
+.kw-app .kw-font-hindi,
+.kw-app .font-hindi {
+  font-family: var(--kw-font-devanagari);
 }
 
 /* ── Card ─────────────────────────────────────────────────────────────────── */

@@ -140,6 +140,7 @@ export function StockTable({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            aria-label="Search materials or cluster"
             placeholder="Search materials or cluster…"
             className="w-full h-9 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] placeholder:text-[var(--kw-on-surface-variant)] focus:outline-none focus:border-[var(--kw-primary-container)]"
           />

@@ -4,7 +4,7 @@
 
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useOrderList } from "@/features/orders/hooks";
-import { KwLoadingState, KwErrorState, KwEmptyState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwEmptyState, KwTableSkeleton } from "@/components/kw-primitives";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 
 export const Route = createFileRoute("/workroom/orders/")({
@@ -29,7 +29,7 @@ function WorkroomOrdersList() {
       </div>
 
       {isLoading ? (
-        <KwLoadingState label="Loading orders…" />
+        <KwTableSkeleton rows={6} cols={8} />
       ) : isError ? (
         <KwErrorState
           title="Could not load orders"

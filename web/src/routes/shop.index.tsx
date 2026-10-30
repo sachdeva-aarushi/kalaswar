@@ -26,7 +26,7 @@ import {
 import { useProductList } from "@/features/products/hooks";
 import { useAddToCart } from "@/features/cart/hooks";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { KwLoadingState, KwErrorState, KwEmptyState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwEmptyState, KwProductGridSkeleton } from "@/components/kw-primitives";
 
 export const Route = createFileRoute("/shop/")({
   head: () => ({ meta: [{ title: "Craft Catalog — Kalaswar" }] }),
@@ -125,7 +125,7 @@ function ShopIndex() {
         {/* Search & Inputs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-3 size-4 text-[var(--kw-on-surface-variant)]" />
+            <Search className="absolute left-3 top-3 size-4 text-[var(--kw-on-surface-variant)]" aria-hidden="true" />
             <input
               type="text"
               value={searchTerm}
@@ -133,6 +133,7 @@ function ShopIndex() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
+              aria-label="Search crafts by name, technique or material"
               placeholder="Search by craft, silk, wood, motif…"
               className="w-full h-10 pl-9 pr-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-xs text-[var(--kw-on-surface)] focus:outline-hidden focus:ring-2 focus:ring-[var(--kw-primary)]"
             />
@@ -143,6 +144,7 @@ function ShopIndex() {
               type="number"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
+              aria-label="Minimum price in Indian Rupees"
               placeholder="Min ₹"
               className="w-1/2 h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-xs text-[var(--kw-on-surface)] focus:outline-hidden focus:ring-2 focus:ring-[var(--kw-primary)]"
             />
@@ -151,6 +153,7 @@ function ShopIndex() {
               type="number"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
+              aria-label="Maximum price in Indian Rupees"
               placeholder="Max ₹"
               className="w-1/2 h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface)] text-xs text-[var(--kw-on-surface)] focus:outline-hidden focus:ring-2 focus:ring-[var(--kw-primary)]"
             />
@@ -209,7 +212,7 @@ function ShopIndex() {
 
       {/* ── Product Grid ─────────────────────────────────────────────────── */}
       {isLoading ? (
-        <KwLoadingState label="Loading authentic craft catalog…" retry={() => void refetch()} />
+        <KwProductGridSkeleton count={8} />
       ) : isError ? (
         <KwErrorState
           title="Could not load products"
@@ -260,7 +263,7 @@ function ShopIndex() {
 
                     {/* GI Badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[10px] font-bold text-amber-900 border border-amber-200">
-                      <ShieldCheck className="size-3 text-emerald-600" />
+                      <ShieldCheck className="size-3 text-emerald-600" aria-hidden="true" />
                       <span>GI Origin</span>
                     </div>
 
@@ -298,15 +301,17 @@ function ShopIndex() {
                       to="/product/$id"
                       params={{ id: product.id }}
                       className="size-8 rounded-lg border border-[var(--kw-outline-variant)] flex items-center justify-center text-[var(--kw-on-surface-variant)] hover:bg-[var(--kw-surface-container)]"
-                      title="View craft details & living story"
+                      title={`View craft details for ${title}`}
+                      aria-label={`View craft details for ${title}`}
                     >
-                      <Eye className="size-4" />
+                      <Eye className="size-4" aria-hidden="true" />
                     </Link>
 
                     <button
                       type="button"
                       disabled={addToCart.isPending}
                       onClick={() => void handleAddToCart(product)}
+                      aria-label={`Add ${title} to cart`}
                       className={`h-8 px-2.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors ${
                         isAdded
                           ? "bg-emerald-600 text-white"
@@ -315,12 +320,12 @@ function ShopIndex() {
                     >
                       {isAdded ? (
                         <>
-                          <Check className="size-3.5" />
+                          <Check className="size-3.5" aria-hidden="true" />
                           <span>Added</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingBag className="size-3.5" />
+                          <ShoppingBag className="size-3.5" aria-hidden="true" />
                           <span>Add to Cart</span>
                         </>
                       )}

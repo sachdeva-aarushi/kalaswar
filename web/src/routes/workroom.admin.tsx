@@ -21,7 +21,7 @@ import {
   useToggleDemoMode,
   type AdminUser,
 } from "@/features/admin/hooks";
-import { KwLoadingState, KwErrorState, KwNoAccessState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwNoAccessState, KwTableSkeleton } from "@/components/kw-primitives";
 import {
   ShieldCheck,
   Users,
@@ -193,7 +193,7 @@ function WorkroomAdminPage() {
       {activeTab === "users" && (
         <div className="space-y-4">
           {isUsersLoading ? (
-            <KwLoadingState label="Loading registered users…" retry={() => void refetchUsers()} />
+            <KwTableSkeleton rows={5} cols={5} />
           ) : !users?.length ? (
             <KwEmptyState title="No users found" description="No registered platform users." />
           ) : (
@@ -226,6 +226,7 @@ function WorkroomAdminPage() {
                           value={u.role}
                           onChange={(e) => void handleRoleChange(u.id, e.target.value)}
                           disabled={updateUserRole.isPending}
+                          aria-label={`Role assignment for ${u.display_name || u.email}`}
                           className="h-8 px-2 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] font-medium focus:outline-none focus:border-[var(--kw-primary-container)]"
                         >
                           <option value="admin">admin (Platform Admin)</option>
@@ -251,7 +252,7 @@ function WorkroomAdminPage() {
       {activeTab === "audit" && (
         <div className="space-y-4">
           {isAuditLoading ? (
-            <KwLoadingState label="Loading audit logs…" retry={() => void refetchAudit()} />
+            <KwTableSkeleton rows={6} cols={5} />
           ) : !auditLogs.length ? (
             <KwEmptyState title="No audit entries" description="No audit log entries recorded." />
           ) : (

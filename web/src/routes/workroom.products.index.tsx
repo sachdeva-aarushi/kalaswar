@@ -10,7 +10,7 @@
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useProductList,
   usePublishProduct,
@@ -19,7 +19,7 @@ import {
   type ApiProduct,
 } from "@/features/products/hooks";
 import { useAuth } from "@/features/auth";
-import { KwLoadingState, KwErrorState, KwEmptyState } from "@/components/kw-primitives";
+import { KwLoadingState, KwErrorState, KwEmptyState, KwTableSkeleton } from "@/components/kw-primitives";
 import {
   Plus,
   Package,
@@ -48,6 +48,16 @@ function WorkroomProductsList() {
   const [rejectModalItem, setRejectModalItem] = useState<ApiProduct | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && rejectModalItem) {
+        setRejectModalItem(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [rejectModalItem]);
 
   const {
     data: catalogData,
@@ -214,7 +224,7 @@ function WorkroomProductsList() {
           )}
 
           {isQueueLoading ? (
-            <KwLoadingState label="Loading validation queue…" retry={() => void refetchQueue()} />
+            <KwTableSkeleton rows={5} cols={6} />
           ) : isQueueError ? (
             <KwErrorState
               title="Could not load validation queue"
@@ -363,7 +373,7 @@ function WorkroomProductsList() {
       {activeTab === "catalog" && (
         <>
           {isCatalogLoading ? (
-            <KwLoadingState label="Loading products…" retry={() => void refetchCatalog()} />
+            <KwTableSkeleton rows={6} cols={6} />
           ) : isCatalogError ? (
             <KwErrorState
               title="Could not load products"
@@ -463,19 +473,27 @@ function WorkroomProductsList() {
 
       {/* ── Rejection Reason Modal ────────────────────────────────────────── */}
       {rejectModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reject-listing-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
+        >
           <div className="w-full max-w-md bg-[var(--kw-surface-container-lowest)] rounded-2xl p-6 shadow-xl flex flex-col gap-5 border border-[var(--kw-outline-variant)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <XCircle className="size-5 text-red-600" />
-                <h3 className="kw-headline-sm text-[var(--kw-primary)]">Reject Craft Listing</h3>
+                <XCircle className="size-5 text-red-600" aria-hidden="true" />
+                <h3 id="reject-listing-title" className="kw-headline-sm text-[var(--kw-primary)]">
+                  Reject Craft Listing
+                </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setRejectModalItem(null)}
+                aria-label="Close reject listing dialog"
                 className="text-[var(--kw-on-surface-variant)] hover:text-[var(--kw-on-surface)]"
               >
-                <X className="size-5" />
+                <X className="size-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -486,13 +504,15 @@ function WorkroomProductsList() {
               </p>
 
               <div className="space-y-1">
-                <label className="kw-label-sm uppercase tracking-wider text-[11px] text-[var(--kw-on-surface-variant)]">
+                <label htmlFor="rejection-reason-input" className="kw-label-sm uppercase tracking-wider text-[11px] text-[var(--kw-on-surface-variant)]">
                   Rejection Reason (Required)
                 </label>
                 <textarea
+                  id="rejection-reason-input"
                   rows={3}
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
+                  aria-label="Rejection reason for craft listing"
                   placeholder="e.g. Dimensions not specified in description. Photograph lacks GI watermark evidence."
                   className="w-full p-2.5 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)]"
                 />

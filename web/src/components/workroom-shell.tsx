@@ -21,7 +21,7 @@ import {
   Briefcase,
   ShieldCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { performSignOut } from "@/lib/auth-client";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
 import kwAppCss from "@/kw-app.css?url";
@@ -43,6 +43,16 @@ export function WorkroomShell() {
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sidebarOpen]);
+
   return (
     <>
       {/* Inject scoped workroom stylesheet */}
@@ -51,6 +61,7 @@ export function WorkroomShell() {
       <div className="kw-app flex min-h-screen">
         {/* Sidebar */}
         <nav
+          id="workroom-sidebar-nav"
           className={`kw-sidebar fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:static lg:translate-x-0 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
@@ -65,6 +76,7 @@ export function WorkroomShell() {
                 <Link
                   to={to}
                   activeOptions={{ exact: to === "/workroom" }}
+                  onClick={() => setSidebarOpen(false)}
                   className="flex items-center gap-3 rounded-[var(--kw-radius)] px-3 py-2.5 text-[rgba(255,255,255,0.7)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-white [&.active]:bg-[var(--kw-primary-container)] [&.active]:text-white"
                 >
                   <Icon className="size-5 shrink-0" aria-hidden="true" />
@@ -99,13 +111,15 @@ export function WorkroomShell() {
         <div className="flex flex-1 flex-col min-w-0">
           <DemoModeBanner />
           {/* Top bar */}
-          <header className="kw-topbar shrink-0">
+          <header className="kw-topbar shrink-0 px-3 sm:px-6">
             <button
               type="button"
               id="workroom-sidebar-toggle"
               className="mr-3 rounded-[var(--kw-radius-sm)] p-1.5 text-[var(--kw-on-surface-variant)] hover:bg-[var(--kw-surface-container)] lg:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle sidebar"
+              aria-expanded={sidebarOpen}
+              aria-controls="workroom-sidebar-nav"
+              aria-label="Toggle navigation sidebar"
             >
               <Menu className="size-5" aria-hidden="true" />
             </button>
@@ -119,7 +133,7 @@ export function WorkroomShell() {
           </header>
 
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-[var(--kw-space-lg)]">
+          <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8">
             <Outlet />
           </main>
         </div>

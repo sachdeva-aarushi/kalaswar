@@ -30,7 +30,12 @@ export function FairWageDonut({ wageSplitPct, productPrice }: FairWageDonutProps
       <div className="flex flex-col sm:flex-row items-center gap-6">
         {/* Visual Progress Dial / Gauge */}
         <div className="relative size-28 shrink-0 flex items-center justify-center">
-          <svg className="size-full -rotate-90" viewBox="0 0 36 36">
+          <svg
+            className="size-full -rotate-90"
+            viewBox="0 0 36 36"
+            role="img"
+            aria-label={`Fair Wage Breakdown: ${artisanShare}% direct artisan wage`}
+          >
             {/* Background circle */}
             <path
               className="text-[var(--kw-surface-container-highest)]"
