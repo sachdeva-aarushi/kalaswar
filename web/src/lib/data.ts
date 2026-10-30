@@ -1625,7 +1625,7 @@ export const publishedStoriesQuery = () =>
     queryFn: () => fetchPublishedStories(),
   });
 
-export async function fetchStoryById(id: string): Promise<CraftStoryWithRefs | undefined> {
+export async function fetchStoryById(id: string): Promise<CraftStoryWithRefs | null> {
   const { data, error } = await supabase
     .from("craft_stories")
     .select("*, story_consents(*), artisans(name), products(name, image_url)")
@@ -1653,7 +1653,7 @@ export const storyByIdQuery = (id: string) =>
     queryFn: () => fetchStoryById(id),
   });
 
-export async function fetchPublishedStoryForProduct(productId: string): Promise<CraftStoryWithRefs | undefined> {
+export async function fetchPublishedStoryForProduct(productId: string): Promise<CraftStoryWithRefs | null> {
   const { data, error } = await supabase
     .from("craft_stories")
     .select("*, story_consents(*), artisans(name), products(name, image_url)")
@@ -1673,7 +1673,7 @@ export async function fetchPublishedStoryForProduct(productId: string): Promise<
     product_name: s.products?.name ?? null,
     product_image: s.products?.image_url ?? null,
   }));
-  return rows[0];
+  return rows[0] ?? null;
 }
 
 export const publishedStoryForProductQuery = (productId: string) =>

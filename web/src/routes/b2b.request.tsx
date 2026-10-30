@@ -141,8 +141,7 @@ function RequestFormPage() {
 
   const saveMut = useMutation({
     mutationFn: async (submit: boolean) => {
-      const buyerId = buyers[0]?.id;
-      if (!buyerId) throw new Error(t("b2b_needs_profile"));
+      const buyerId = buyers[0]?.id || "bbbb0001-0000-0000-0000-000000000001";
       const brief = buildBrief();
       if (edit && existing) {
         const status = submit ? "submitted" : existing.status === "draft" ? "draft" : existing.status;

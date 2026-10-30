@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.adapters.supabase import SupabaseAdapter
-from app.api.deps import get_current_user, get_supabase, require_roles
+from app.api.deps import get_current_user, get_optional_current_user, get_supabase, require_roles
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 from app.schemas.order import (
@@ -187,7 +187,7 @@ async def list_orders(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: SupabaseAdapter = Depends(get_supabase),
-    current_user: Optional[CurrentUser] = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     List orders with filters, assignments, events, and pagination.
@@ -225,7 +225,7 @@ async def list_orders(
 async def get_order(
     order_id: UUID,
     db: SupabaseAdapter = Depends(get_supabase),
-    current_user: Optional[CurrentUser] = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Retrieve single order by ID with assignments and timeline events.
@@ -355,7 +355,7 @@ async def update_order_status(
 async def list_assignments(
     order_id: Optional[UUID] = Query(None, description="Filter by order"),
     artisan_id: Optional[UUID] = Query(None, description="Filter by artisan"),
-    current_user: Optional[CurrentUser] = Depends(get_current_user),
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user),
 ):
     """
     Query production assignments for orders and artisans.

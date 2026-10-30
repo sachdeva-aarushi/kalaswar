@@ -6,10 +6,11 @@
  */
 
 import { Outlet, Link } from "@tanstack/react-router";
-import { ShoppingBag, Gift } from "lucide-react";
+import { ShoppingBag, Gift, Briefcase } from "lucide-react";
 import { DemoModeBanner } from "@/components/demo-mode-banner";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { useCart } from "@/features/cart/hooks";
 import kwAppCss from "@/kw-app.css?url";
-
 
 interface PublicShellProps {
   /** "shop" or "gift" — determines active nav highlight */
@@ -17,6 +18,9 @@ interface PublicShellProps {
 }
 
 export function PublicShell({ section }: PublicShellProps) {
+  const { data: cart } = useCart();
+  const totalItems = cart?.total_items ?? (cart?.items ?? []).reduce((s, i) => s + i.quantity, 0);
+
   return (
     <>
       <link rel="stylesheet" href={kwAppCss} />
@@ -49,6 +53,33 @@ export function PublicShell({ section }: PublicShellProps) {
             <Gift className="size-4" aria-hidden="true" />
             Gift
           </Link>
+          <Link
+            to="/b2b"
+            className="flex items-center gap-1.5 rounded-[var(--kw-radius)] px-3 py-1.5 kw-label-md text-[var(--kw-on-surface-variant)] hover:bg-[var(--kw-surface-container)] transition-colors"
+          >
+            <Briefcase className="size-4" aria-hidden="true" />
+            For Business
+          </Link>
+
+          {/* Cart Trigger Button */}
+          <CartDrawer
+            trigger={
+              <button
+                type="button"
+                className="relative flex items-center gap-1.5 rounded-[var(--kw-radius)] px-3 py-1.5 kw-label-md text-[var(--kw-on-surface)] bg-[var(--kw-surface-container)] hover:bg-[var(--kw-surface-container-high)] transition-colors ml-1"
+                aria-label="View shopping cart"
+              >
+                <ShoppingBag className="size-4 text-[var(--kw-primary)]" />
+                <span className="hidden sm:inline">Cart</span>
+                {totalItems > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full bg-[var(--kw-primary)] text-white text-[10px] font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            }
+          />
+
           <Link
             to="/auth"
             search={{ redirect: undefined }}
