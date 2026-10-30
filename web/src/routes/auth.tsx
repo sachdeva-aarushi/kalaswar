@@ -43,6 +43,13 @@ const LANGS = [
   { value: "mr", label: "मराठी" },
 ];
 
+const DEMO_PRESETS = [
+  { label: "Shopper", email: "shopper@kalaswar.org", password: "demo-pass-123" },
+  { label: "Coordinator", email: "coordinator@kalaswar.org", password: "demo-pass-123" },
+  { label: "Artisan", email: "artisan@kalaswar.org", password: "demo-pass-123" },
+  { label: "Admin", email: "admin@kalaswar.org", password: "demo-pass-123" },
+];
+
 type ErrorKind = "creds" | "exists" | "weak" | "generic" | null;
 
 function AuthPage() {
@@ -60,6 +67,7 @@ function AuthPage() {
   const [orgName, setOrgName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ErrorKind>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [awaitingConfirm, setAwaitingConfirm] = useState(false);
 
   useEffect(() => {
@@ -68,6 +76,7 @@ function AuthPage() {
 
   const submit = async () => {
     setError(null);
+    setErrorMsg(null);
     setBusy(true);
     try {
       if (mode === "signin") {
@@ -77,16 +86,11 @@ function AuthPage() {
           if (msg.includes("invalid login credentials") || msg.includes("invalid email or password")) {
             setError("creds");
           } else {
-            setError("creds");
+            setError("generic");
+            setErrorMsg(res.error.message);
           }
           return;
         }
-        // Redirect by role from the profiles table:
-        // artisan -> /workroom/artisan
-        // coordinator -> /workroom
-        // admin -> /workroom/admin
-        // buyer -> /shop
-        // customer -> /shop
         const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : getRedirectForRole(res.role);
         await navigate({ to: target });
       } else {
@@ -104,12 +108,16 @@ function AuthPage() {
         });
         if (res.error) {
           const msg = res.error.message?.toLowerCase() ?? "";
-          if (msg.includes("already registered") || msg.includes("already exists")) {
+          if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("user already registered")) {
             setError("exists");
           } else if (msg.includes("at least 8")) {
             setError("weak");
+          } else if (msg.includes("rate limit") || msg.includes("over_email_send_rate_limit")) {
+            setError("generic");
+            setErrorMsg("Supabase email verification rate limit reached. Please sign in directly with the pre-configured demo logins below.");
           } else {
             setError("generic");
+            setErrorMsg(res.error.message);
           }
           return;
         }
@@ -120,8 +128,9 @@ function AuthPage() {
         const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : getRedirectForRole(accountType);
         await navigate({ to: target });
       }
-    } catch {
+    } catch (e: any) {
       setError("generic");
+      setErrorMsg(e?.message ?? null);
     } finally {
       setBusy(false);
     }
@@ -243,7 +252,9 @@ function AuthPage() {
           )}
 
           {error && (
-            <DemoNote className="text-destructive">{t(`auth_err_${error === "weak" ? "weak" : error === "exists" ? "exists" : error === "creds" ? "creds" : "generic"}`)}</DemoNote>
+            <DemoNote className="text-destructive">
+              {errorMsg ?? t(`auth_err_${error === "weak" ? "weak" : error === "exists" ? "exists" : error === "creds" ? "creds" : "generic"}`)}
+            </DemoNote>
           )}
 
           <Button type="submit" className="w-full" disabled={busy || !email || !password || (mode === "signup" && !fullName.trim())}>
@@ -265,6 +276,30 @@ function AuthPage() {
             {mode === "signin" ? t("auth_mode_switch_signup") : t("auth_mode_switch_signin")}
           </button>
         </div>
+        {mode === "signin" && (
+          <div className="mt-4 rounded-lg bg-muted/40 p-3 border border-border">
+            <p className="text-xs font-semibold text-foreground mb-1.5">Demo Accounts (click to auto-fill):</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {DEMO_PRESETS.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => {
+                    setEmail(p.email);
+                    setPassword(p.password);
+                    setError(null);
+                    setErrorMsg(null);
+                  }}
+                  className="flex items-center justify-between rounded border border-border bg-background px-2.5 py-1.5 text-xs text-foreground transition-colors hover:bg-accent hover:border-primary/50 text-left"
+                >
+                  <span className="font-medium truncate">{p.label}</span>
+                  <span className="text-[10px] text-muted-foreground ml-1 shrink-0">Auto-fill</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 border-t border-border pt-4">
           <p className="text-xs text-muted-foreground">{t("auth_demo_entry")}</p>
           <div className="mt-2 flex flex-wrap justify-end gap-2">
