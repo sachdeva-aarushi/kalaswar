@@ -249,3 +249,4 @@ export function ScoreRadarCard({ result }: ScoreRadarCardProps) {
     </div>
   );
 }
+

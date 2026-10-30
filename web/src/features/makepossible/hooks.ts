@@ -73,3 +73,4 @@ export function useEvaluateFeasibility() {
       apiClient.post<MakePossibleEvaluationResult>("/api/v1/makepossible/evaluate", payload),
   });
 }
+
