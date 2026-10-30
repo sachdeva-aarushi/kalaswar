@@ -277,6 +277,78 @@ export interface ActionAuditLog {
   created_at: string;
 }
 
+export type ProvenanceStage =
+  | 'PRODUCTION_STARTED'
+  | 'INSPECTED_AND_PACKAGED'
+  | 'IN_TRANSIT'
+  | 'DELIVERED_AND_VERIFIED';
+
+export type BatchLifecycleStatus =
+  | 'PENDING'
+  | 'SUBMITTED'
+  | 'CONFIRMED'
+  | 'FAILED';
+
+export type QrTagStatus =
+  | 'ACTIVE'
+  | 'REVOKED'
+  | 'REPLACED';
+
+export interface BlockchainBatch {
+  id: string;
+  batch_reference: string;
+  merkle_root: string;
+  leaf_count: number;
+  status: BatchLifecycleStatus;
+  chain_id: number;
+  contract_address: string | null;
+  tx_hash: string | null;
+  block_number: number | null;
+  submitted_at: string | null;
+  confirmed_at: string | null;
+  failed_at: string | null;
+  error_message: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductProvenanceLog {
+  id: string;
+  product_id: string;
+  order_id: string | null;
+  stage: ProvenanceStage;
+  stage_sequence: number;
+  actor_role: 'artisan' | 'coordinator' | 'logistics' | 'buyer' | 'admin';
+  actor_display_name: string;
+  recorded_by: string | null;
+  coarse_location: string;
+  canonical_hash: string;
+  batch_id: string | null;
+  merkle_index: number | null;
+  merkle_proof: Record<string, unknown>[] | null;
+  idempotency_key: string | null;
+  metadata: Record<string, unknown>;
+  occurred_at: string;
+  created_at: string;
+}
+
+export interface ProductQrTag {
+  id: string;
+  product_id: string;
+  token_hash: string;
+  public_code: string;
+  status: QrTagStatus;
+  is_active: boolean;
+  version: number;
+  revoked_at: string | null;
+  revoked_reason: string | null;
+  replaced_by_tag_id: string | null;
+  issued_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ─── Shared helpers ──────────────────────────────────────────────────────────
 export interface CloudinaryAssetRef {
   public_id: string;
@@ -299,9 +371,15 @@ export interface Database {
       carts:              { Row: Cart;             Insert: Omit<Cart, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Omit<Cart, 'id' | 'created_at'>>; };
       cart_items:         { Row: CartItem;         Insert: Omit<CartItem, 'id' | 'added_at' | 'updated_at'>; Update: Partial<Omit<CartItem, 'id' | 'added_at'>>; };
       action_audit_logs:  { Row: ActionAuditLog;   Insert: Omit<ActionAuditLog, 'id' | 'created_at'>; Update: never; };
+      blockchain_batches: { Row: BlockchainBatch;  Insert: Omit<BlockchainBatch, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Omit<BlockchainBatch, 'id' | 'created_at'>>; };
+      product_provenance_logs: { Row: ProductProvenanceLog; Insert: Omit<ProductProvenanceLog, 'id' | 'stage_sequence' | 'occurred_at' | 'created_at'>; Update: Pick<ProductProvenanceLog, 'batch_id' | 'merkle_index' | 'merkle_proof'>; };
+      product_qr_tags:    { Row: ProductQrTag;     Insert: Omit<ProductQrTag, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Omit<ProductQrTag, 'id' | 'created_at'>>; };
     };
     Enums: {
       app_role: AppRole;
+      provenance_stage: ProvenanceStage;
+      batch_lifecycle_status: BatchLifecycleStatus;
+      qr_tag_status: QrTagStatus;
     };
   };
 }

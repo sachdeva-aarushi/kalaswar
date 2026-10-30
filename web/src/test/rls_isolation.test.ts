@@ -352,3 +352,339 @@ describe('Role isolation: financier is not admin and vice versa', () => {
     }
   });
 });
+
+
+// ─── Provenance RLS Predicate Emulations (Migration 0018) ────────────────────
+
+/**
+ * blockchain_batches — "Public read confirmed batches"
+ * USING: status = 'CONFIRMED' OR has_role(uid(), 'admin')
+ */
+function batchPublicRead(userId: string | null, batchStatus: string): boolean {
+  if (batchStatus === 'CONFIRMED') return true;
+  if (userId && hasRole(userRoles, userId, 'admin')) return true;
+  return false;
+}
+
+/**
+ * blockchain_batches — "Admin manages batches"
+ * USING/CHECK: has_role(uid(), 'admin')
+ */
+function batchAdminManage(userId: string): boolean {
+  return hasRole(userRoles, userId, 'admin');
+}
+
+/**
+ * product_provenance_logs — "Public read provenance logs"
+ * USING: true
+ */
+function provenancePublicRead(): boolean {
+  return true;
+}
+
+/**
+ * product_provenance_logs — "Admin inserts provenance logs"
+ * CHECK: has_role(uid(), 'admin')
+ */
+function provenanceAdminInsert(userId: string): boolean {
+  return hasRole(userRoles, userId, 'admin');
+}
+
+/**
+ * product_provenance_logs — "Coordinator inserts provenance for own SHG"
+ * CHECK: has_role(uid(), 'coordinator')
+ *        AND actor_role IN ('coordinator', 'logistics')
+ *        AND EXISTS(product→artisan→shg chain with is_shg_coordinator)
+ */
+function provenanceCoordinatorInsert(
+  userId: string,
+  actorRole: string,
+  productArtisanId: string,
+): boolean {
+  if (!hasRole(userRoles, userId, 'coordinator')) return false;
+  if (!['coordinator', 'logistics'].includes(actorRole)) return false;
+  const artisan = artisans.find(a => a.id === productArtisanId);
+  if (!artisan) return false;
+  return isShgCoordinator(userRoles, memberships, userId, artisan.shg_id);
+}
+
+/**
+ * product_provenance_logs — "Artisan inserts initial stage only"
+ * CHECK: has_role(uid(), 'artisan')
+ *        AND stage = 'PRODUCTION_STARTED'
+ *        AND actor_role = 'artisan'
+ *        AND is_org_artisan(uid(), product.artisan_id)
+ */
+function provenanceArtisanInsert(
+  userId: string,
+  stage: string,
+  actorRole: string,
+  productArtisanId: string,
+): boolean {
+  if (!hasRole(userRoles, userId, 'artisan')) return false;
+  if (stage !== 'PRODUCTION_STARTED') return false;
+  if (actorRole !== 'artisan') return false;
+  return isOrgArtisan(memberships, userId, productArtisanId);
+}
+
+/**
+ * product_qr_tags — "Admin reads all QR tags"
+ */
+function qrTagAdminRead(userId: string): boolean {
+  return hasRole(userRoles, userId, 'admin');
+}
+
+/**
+ * product_qr_tags — "Coordinator reads QR tags for own SHG"
+ */
+function qrTagCoordinatorRead(userId: string, productArtisanId: string): boolean {
+  const artisan = artisans.find(a => a.id === productArtisanId);
+  if (!artisan) return false;
+  return isShgCoordinator(userRoles, memberships, userId, artisan.shg_id);
+}
+
+/**
+ * product_qr_tags — "Admin manages QR tags"
+ */
+function qrTagAdminManage(userId: string): boolean {
+  return hasRole(userRoles, userId, 'admin');
+}
+
+/**
+ * product_qr_tags — "Coordinator creates QR tags for own SHG"
+ */
+function qrTagCoordinatorCreate(userId: string, productArtisanId: string): boolean {
+  if (!hasRole(userRoles, userId, 'coordinator')) return false;
+  const artisan = artisans.find(a => a.id === productArtisanId);
+  if (!artisan) return false;
+  return isShgCoordinator(userRoles, memberships, userId, artisan.shg_id);
+}
+
+// ─── Tests: Provenance (Migration 0018) ──────────────────────────────────────
+
+describe('RLS: blockchain_batches', () => {
+  it('anon can read CONFIRMED batches', () => {
+    expect(batchPublicRead(null, 'CONFIRMED')).toBe(true);
+  });
+
+  it('anon cannot read PENDING batches', () => {
+    expect(batchPublicRead(null, 'PENDING')).toBe(false);
+  });
+
+  it('anon cannot read SUBMITTED batches', () => {
+    expect(batchPublicRead(null, 'SUBMITTED')).toBe(false);
+  });
+
+  it('anon cannot read FAILED batches', () => {
+    expect(batchPublicRead(null, 'FAILED')).toBe(false);
+  });
+
+  it('admin can read any batch status', () => {
+    expect(batchPublicRead(ADMIN_USER, 'PENDING')).toBe(true);
+    expect(batchPublicRead(ADMIN_USER, 'SUBMITTED')).toBe(true);
+    expect(batchPublicRead(ADMIN_USER, 'CONFIRMED')).toBe(true);
+    expect(batchPublicRead(ADMIN_USER, 'FAILED')).toBe(true);
+  });
+
+  it('admin can manage (create/update) batches', () => {
+    expect(batchAdminManage(ADMIN_USER)).toBe(true);
+  });
+
+  it('coordinator cannot manage batches', () => {
+    expect(batchAdminManage(COORD_A)).toBe(false);
+  });
+
+  it('artisan cannot manage batches', () => {
+    expect(batchAdminManage(ARTISAN_USER)).toBe(false);
+  });
+
+  it('customer cannot manage batches', () => {
+    expect(batchAdminManage(CUSTOMER)).toBe(false);
+  });
+});
+
+describe('RLS: product_provenance_logs', () => {
+  it('anyone (including anon) can read provenance logs', () => {
+    expect(provenancePublicRead()).toBe(true);
+  });
+
+  it('admin can insert any stage', () => {
+    expect(provenanceAdminInsert(ADMIN_USER)).toBe(true);
+  });
+
+  it('coordinator A can insert for SHG A product with coordinator role', () => {
+    expect(provenanceCoordinatorInsert(COORD_A, 'coordinator', ARTISAN_A)).toBe(true);
+  });
+
+  it('coordinator A can insert for SHG A product with logistics role', () => {
+    expect(provenanceCoordinatorInsert(COORD_A, 'logistics', ARTISAN_A)).toBe(true);
+  });
+
+  it('coordinator A cannot insert for SHG B product', () => {
+    expect(provenanceCoordinatorInsert(COORD_A, 'coordinator', ARTISAN_B)).toBe(false);
+  });
+
+  it('coordinator B cannot insert for SHG A product', () => {
+    expect(provenanceCoordinatorInsert(COORD_B, 'coordinator', ARTISAN_A)).toBe(false);
+  });
+
+  it('coordinator cannot insert with artisan actor_role', () => {
+    expect(provenanceCoordinatorInsert(COORD_A, 'artisan', ARTISAN_A)).toBe(false);
+  });
+
+  it('artisan can insert PRODUCTION_STARTED for own product', () => {
+    expect(provenanceArtisanInsert(ARTISAN_USER, 'PRODUCTION_STARTED', 'artisan', ARTISAN_A)).toBe(true);
+  });
+
+  it('artisan CANNOT insert INSPECTED_AND_PACKAGED (CRP impersonation blocked)', () => {
+    expect(provenanceArtisanInsert(ARTISAN_USER, 'INSPECTED_AND_PACKAGED', 'artisan', ARTISAN_A)).toBe(false);
+  });
+
+  it('artisan CANNOT insert with coordinator actor_role (impersonation)', () => {
+    expect(provenanceArtisanInsert(ARTISAN_USER, 'PRODUCTION_STARTED', 'coordinator', ARTISAN_A)).toBe(false);
+  });
+
+  it('artisan CANNOT insert for another artisan product', () => {
+    expect(provenanceArtisanInsert(ARTISAN_USER, 'PRODUCTION_STARTED', 'artisan', ARTISAN_B)).toBe(false);
+  });
+
+  it('customer cannot insert any provenance event', () => {
+    expect(provenanceAdminInsert(CUSTOMER)).toBe(false);
+    expect(provenanceCoordinatorInsert(CUSTOMER, 'coordinator', ARTISAN_A)).toBe(false);
+    expect(provenanceArtisanInsert(CUSTOMER, 'PRODUCTION_STARTED', 'artisan', ARTISAN_A)).toBe(false);
+  });
+});
+
+describe('RLS: product_qr_tags', () => {
+  it('admin can read all QR tags', () => {
+    expect(qrTagAdminRead(ADMIN_USER)).toBe(true);
+  });
+
+  it('coordinator A can read QR tags for SHG A products', () => {
+    expect(qrTagCoordinatorRead(COORD_A, ARTISAN_A)).toBe(true);
+  });
+
+  it('coordinator A cannot read QR tags for SHG B products', () => {
+    expect(qrTagCoordinatorRead(COORD_A, ARTISAN_B)).toBe(false);
+  });
+
+  it('coordinator B cannot read QR tags for SHG A products', () => {
+    expect(qrTagCoordinatorRead(COORD_B, ARTISAN_A)).toBe(false);
+  });
+
+  it('admin can manage (CRUD) all QR tags', () => {
+    expect(qrTagAdminManage(ADMIN_USER)).toBe(true);
+  });
+
+  it('coordinator A can create QR tags for SHG A products', () => {
+    expect(qrTagCoordinatorCreate(COORD_A, ARTISAN_A)).toBe(true);
+  });
+
+  it('coordinator A cannot create QR tags for SHG B products', () => {
+    expect(qrTagCoordinatorCreate(COORD_A, ARTISAN_B)).toBe(false);
+  });
+
+  it('artisan cannot read QR tags (not admin, not coordinator)', () => {
+    expect(qrTagAdminRead(ARTISAN_USER)).toBe(false);
+    expect(qrTagCoordinatorRead(ARTISAN_USER, ARTISAN_A)).toBe(false);
+  });
+
+  it('customer cannot read or create QR tags', () => {
+    expect(qrTagAdminRead(CUSTOMER)).toBe(false);
+    expect(qrTagCoordinatorRead(CUSTOMER, ARTISAN_A)).toBe(false);
+    expect(qrTagCoordinatorCreate(CUSTOMER, ARTISAN_A)).toBe(false);
+  });
+});
+
+describe('Provenance: stage transition logic', () => {
+  // Pure-function emulation of the validate_provenance_stage_transition trigger
+  const STAGE_MAP: Record<string, number> = {
+    PRODUCTION_STARTED: 1,
+    INSPECTED_AND_PACKAGED: 2,
+    IN_TRANSIT: 3,
+    DELIVERED_AND_VERIFIED: 4,
+  };
+
+  const STAGE_ROLES: Record<string, string[]> = {
+    PRODUCTION_STARTED:     ['artisan', 'coordinator', 'admin'],
+    INSPECTED_AND_PACKAGED: ['coordinator', 'admin'],
+    IN_TRANSIT:             ['coordinator', 'logistics', 'admin'],
+    DELIVERED_AND_VERIFIED: ['coordinator', 'logistics', 'buyer', 'admin'],
+  };
+
+  function validateTransition(
+    currentMaxSeq: number,
+    newStage: string,
+    actorRole: string,
+  ): { ok: boolean; error?: string } {
+    const seq = STAGE_MAP[newStage];
+    if (seq === undefined) return { ok: false, error: 'Invalid stage' };
+
+    if (currentMaxSeq === 0 && seq !== 1) {
+      return { ok: false, error: 'Initial event must be PRODUCTION_STARTED' };
+    }
+    if (currentMaxSeq > 0 && seq <= currentMaxSeq) {
+      return { ok: false, error: 'Stage regression or duplicate' };
+    }
+    if (currentMaxSeq > 0 && seq !== currentMaxSeq + 1) {
+      return { ok: false, error: 'Stage sequence gap' };
+    }
+
+    const allowed = STAGE_ROLES[newStage];
+    if (!allowed || !allowed.includes(actorRole)) {
+      return { ok: false, error: `Role ${actorRole} not allowed for ${newStage}` };
+    }
+
+    return { ok: true };
+  }
+
+  it('allows valid forward sequence: 1→2→3→4', () => {
+    expect(validateTransition(0, 'PRODUCTION_STARTED', 'artisan').ok).toBe(true);
+    expect(validateTransition(1, 'INSPECTED_AND_PACKAGED', 'coordinator').ok).toBe(true);
+    expect(validateTransition(2, 'IN_TRANSIT', 'logistics').ok).toBe(true);
+    expect(validateTransition(3, 'DELIVERED_AND_VERIFIED', 'buyer').ok).toBe(true);
+  });
+
+  it('rejects initial event that is not PRODUCTION_STARTED', () => {
+    const r = validateTransition(0, 'INSPECTED_AND_PACKAGED', 'coordinator');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('Initial event');
+  });
+
+  it('rejects stage regression (recording stage 1 after stage 2)', () => {
+    const r = validateTransition(2, 'PRODUCTION_STARTED', 'artisan');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('regression');
+  });
+
+  it('rejects duplicate stage submission', () => {
+    const r = validateTransition(1, 'PRODUCTION_STARTED', 'artisan');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('regression');
+  });
+
+  it('rejects stage sequence gap (1→3 skipping 2)', () => {
+    const r = validateTransition(1, 'IN_TRANSIT', 'logistics');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('gap');
+  });
+
+  it('rejects artisan self-certifying INSPECTED_AND_PACKAGED', () => {
+    const r = validateTransition(1, 'INSPECTED_AND_PACKAGED', 'artisan');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('not allowed');
+  });
+
+  it('rejects buyer recording IN_TRANSIT', () => {
+    const r = validateTransition(2, 'IN_TRANSIT', 'buyer');
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain('not allowed');
+  });
+
+  it('admin can record any stage', () => {
+    expect(validateTransition(0, 'PRODUCTION_STARTED', 'admin').ok).toBe(true);
+    expect(validateTransition(1, 'INSPECTED_AND_PACKAGED', 'admin').ok).toBe(true);
+    expect(validateTransition(2, 'IN_TRANSIT', 'admin').ok).toBe(true);
+    expect(validateTransition(3, 'DELIVERED_AND_VERIFIED', 'admin').ok).toBe(true);
+  });
+});
