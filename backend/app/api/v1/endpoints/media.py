@@ -80,3 +80,4 @@ async def get_fallback_asset():
         "status": "success",
         "fallback_url": FALLBACK_SVG_DATA_URL,
     }
+
