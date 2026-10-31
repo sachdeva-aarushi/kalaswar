@@ -9,7 +9,7 @@ import { LoadingState, ErrorState, EmptyState } from '@/components/StateView';
 
 export default function MyWorkScreen() {
   const router = useRouter();
-  const { data: tasks, isLoading, isError, refetch } = useArtisanTasks();
+  const { data: tasks, isLoading, isError, error, refetch } = useArtisanTasks();
   const [filter, setFilter] = useState<'all' | 'in_progress' | 'completed'>('all');
 
   if (isLoading) {
@@ -23,15 +23,23 @@ export default function MyWorkScreen() {
   if (isError) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <ErrorState onRetry={() => refetch()} />
+        <ErrorState
+          title="कार्य सूची लोड नहीं हो सकी · Could not load tasks"
+          message={error?.message || 'Please check your network connection and retry.'}
+          onRetry={() => refetch()}
+        />
       </SafeAreaView>
     );
   }
 
+  const inProgressCount = tasks?.filter((t) => (t.progressPercent ?? 0) < 100).length ?? 0;
+  const completedCount = tasks?.filter((t) => (t.progressPercent ?? 0) >= 100).length ?? 0;
+  const totalCount = tasks?.length ?? 0;
+
   const filteredTasks = tasks?.filter((t) => {
     if (filter === 'all') return true;
-    if (filter === 'in_progress') return t.progressPercent < 100;
-    return t.progressPercent >= 100;
+    if (filter === 'in_progress') return (t.progressPercent ?? 0) < 100;
+    return (t.progressPercent ?? 0) >= 100;
   });
 
   return (
@@ -54,9 +62,9 @@ export default function MyWorkScreen() {
         {/* Filter Pills */}
         <View style={styles.filterRow}>
           {[
-            { id: 'all', label: `All Tasks (${tasks?.length ?? 3})` },
-            { id: 'in_progress', label: 'In Progress (2)' },
-            { id: 'completed', label: 'Done (1)' },
+            { id: 'all', label: `All Tasks (${totalCount})` },
+            { id: 'in_progress', label: `In Progress (${inProgressCount})` },
+            { id: 'completed', label: `Done (${completedCount})` },
           ].map((tab) => (
             <TouchableOpacity
               key={tab.id}
@@ -81,7 +89,7 @@ export default function MyWorkScreen() {
         {(!filteredTasks || filteredTasks.length === 0) && (
           <EmptyState
             title="कोई कार्य नहीं · No tasks here"
-            message="वर्तमान में इस श्रेणी में कोई कार्य उपलब्ध नहीं है।"
+            message="जब नया कार्य सौंपा जाएगा तो वह यहाँ दिखेगा। · Assigned orders from your coordinator will appear here."
           />
         )}
 

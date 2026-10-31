@@ -9,8 +9,7 @@ import { useArtisanTasks } from '@/hooks/queries/use-artisan-tasks';
 import { useEarnings } from '@/hooks/queries/use-earnings';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
-import { LoadingState, ErrorState, AuthExpiredState } from '@/components/StateView';
-import { DemoSwitcher } from '@/components/DemoSwitcher';
+import { LoadingState, ErrorState, EmptyState, AuthExpiredState } from '@/components/StateView';
 
 export default function ArtisanHomeScreen() {
   const router = useRouter();
@@ -31,7 +30,7 @@ export default function ArtisanHomeScreen() {
   }
 
   if (isError) {
-    if (error?.message === 'auth_expired') {
+    if (error?.message === 'auth_expired' || error?.message?.includes('JWT') || error?.message?.includes('auth')) {
       return (
         <SafeAreaView style={styles.safeArea}>
           <AuthExpiredState onSignIn={() => router.replace('/(auth)/login')} />
@@ -40,7 +39,11 @@ export default function ArtisanHomeScreen() {
     }
     return (
       <SafeAreaView style={styles.safeArea}>
-        <ErrorState onRetry={() => refetch()} />
+        <ErrorState
+          title={isHindi ? 'कार्यकक्ष लोड नहीं हो सका' : 'Could not load workroom'}
+          message={error?.message || (isHindi ? 'कृपया पुनः प्रयास करें' : 'Please check your connection and retry')}
+          onRetry={() => refetch()}
+        />
       </SafeAreaView>
     );
   }
@@ -103,10 +106,10 @@ export default function ArtisanHomeScreen() {
           </View>
           <View style={styles.welcomeInfo}>
             <Text style={styles.welcomeGreeting}>
-              Namaste, {user?.name || 'Anita'}
+              Namaste, {user?.name || 'Artisan Partner'}
             </Text>
             <Text style={styles.clusterSubtext} numberOfLines={1}>
-              Bhagirathi cluster (भागीरथी स्वयं सहायता समूह)
+              {user?.cluster || 'DAY-NRLM Self Help Group (स्वयं सहायता समूह)'}
             </Text>
           </View>
 
@@ -216,6 +219,17 @@ export default function ArtisanHomeScreen() {
           </View>
         )}
 
+        {/* Empty Task State when no active task assigned */}
+        {!currentTask && (
+          <View style={styles.emptyTaskCard}>
+            <Ionicons name="sparkles-outline" size={32} color={Palette.secondary} />
+            <Text style={styles.emptyTaskTitle}>No active tasks · अभी कोई नया काम नहीं है</Text>
+            <Text style={styles.emptyTaskSub}>
+              जब नया आर्डर मिलेगा तो समन्वयक द्वारा आपको कार्य सौंपा जाएगा। · New tasks will appear here when orders are assigned by your SHG coordinator.
+            </Text>
+          </View>
+        )}
+
         {/* Earnings Glance Card */}
         <View style={styles.earningsCardContainer}>
           <View style={styles.earningsHeaderRow}>
@@ -236,13 +250,13 @@ export default function ArtisanHomeScreen() {
           <View style={styles.amountDisplayRow}>
             <View>
               <Text style={styles.bigAmountText}>
-                ₹{earnings?.totalThisMonth.toLocaleString() ?? '4,250'}
+                ₹{earnings?.totalThisMonth != null ? earnings.totalThisMonth.toLocaleString() : '0'}
               </Text>
               <Text style={styles.amountSubtext}>कुल अर्जित राशि</Text>
             </View>
             <View style={styles.growthBadge}>
               <Ionicons name="trending-up" size={14} color={Palette.primary} />
-              <Text style={styles.growthText}>+{earnings?.growthPercent ?? 18}%</Text>
+              <Text style={styles.growthText}>+{earnings?.growthPercent ?? 0}%</Text>
             </View>
           </View>
 
@@ -254,7 +268,7 @@ export default function ArtisanHomeScreen() {
                 <Text style={styles.breakdownPaidTag}>Paid · मिला</Text>
               </View>
               <Text style={styles.breakdownPaidAmount}>
-                ₹{earnings?.paidAmount.toLocaleString() ?? '2,800'}
+                ₹{earnings?.paidAmount != null ? earnings.paidAmount.toLocaleString() : '0'}
               </Text>
             </View>
 
@@ -264,7 +278,7 @@ export default function ArtisanHomeScreen() {
                 <Text style={styles.breakdownComingTag}>Coming · बाकी</Text>
               </View>
               <Text style={styles.breakdownComingAmount}>
-                ₹{earnings?.comingAmount.toLocaleString() ?? '1,450'}
+                ₹{earnings?.comingAmount != null ? earnings.comingAmount.toLocaleString() : '0'}
               </Text>
             </View>
           </View>
@@ -274,7 +288,7 @@ export default function ArtisanHomeScreen() {
             <View style={styles.payoutDueRow}>
               <Ionicons name="time-outline" size={16} color={Palette.onSurfaceVariant} />
               <Text style={styles.payoutDueText}>
-                Next payout {earnings?.nextPayoutDate} · {earnings?.nextPayoutDateHi}
+                Next payout {earnings?.nextPayoutDate || 'Weekly DBT'} · {earnings?.nextPayoutDateHi || 'साप्ताहिक चक्र'}
               </Text>
             </View>
             <TouchableOpacity
@@ -330,9 +344,6 @@ export default function ArtisanHomeScreen() {
             <Ionicons name="mic" size={18} color={Palette.onSecondary} />
           </View>
         </TouchableOpacity>
-
-        {/* Persona Switcher for Verification */}
-        <DemoSwitcher />
       </ScrollView>
     </SafeAreaView>
   );
@@ -514,6 +525,30 @@ const styles = StyleSheet.create({
     borderRadius: Radii.card,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
+  },
+  emptyTaskCard: {
+    backgroundColor: Palette.surfaceContainer,
+    borderRadius: Radii.card,
+    padding: Spacing.xl,
+    marginBottom: Spacing.md,
+    alignItems: 'center',
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Palette.borderNeutral,
+    borderStyle: 'dashed',
+  },
+  emptyTaskTitle: {
+    ...Typography.headlineSm,
+    color: Palette.primary,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+  },
+  emptyTaskSub: {
+    ...Typography.bodyMd,
+    color: Palette.onSurfaceVariant,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   taskCardHeader: {
     flexDirection: 'row',

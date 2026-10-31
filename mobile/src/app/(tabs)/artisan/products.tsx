@@ -184,25 +184,36 @@ export default function ArtisanProductsScreen() {
         {/* Product Items List */}
         {displayedItems.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Ionicons name="file-tray-outline" size={36} color={Palette.secondary} />
-            <Text style={styles.emptyTitle}>No items pending · कोई सामान बाकी नहीं</Text>
-            <Text style={styles.emptySub}>
-              All submitted items are updated. Click below to add a new handmade product.
+            <Ionicons name="sparkles-outline" size={44} color={Palette.secondary} />
+            <Text style={styles.emptyTitle}>
+              {isHindi ? 'कोई सामान सूचीबद्ध नहीं है' : 'No products listed yet'}
             </Text>
+            <Text style={styles.emptySub}>
+              {isHindi
+                ? 'अपना पहला हस्तशिल्प सामान जोड़ने के लिए नीचे दिए गए बटन पर टैप करें।'
+                : 'Tap the button below to add your first handcrafted product.'}
+            </Text>
+            <TouchableOpacity
+              style={[styles.addProductBtn, { marginTop: Spacing.md, alignSelf: 'center', paddingHorizontal: Spacing.xl }]}
+              onPress={() => router.push('/artisan/camera')}
+              accessibilityLabel="Add first product"
+            >
+              <Ionicons name="camera-outline" size={20} color={Palette.onPrimary} />
+              <Text style={styles.addProductText}>{isHindi ? 'पहला सामान जोड़ें' : 'Add First Product'}</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.productsList}>
-            {displayedItems.map((item: ProductItem, index) => {
+            {displayedItems.map((item: ProductItem) => {
               const isWaiting = item.status === 'in_review';
               const isApproved = item.status === 'published';
               const isDraft = item.status === 'draft';
-              const hasChangeFeedback = index === 1;
 
               return (
                 <View key={item.id} style={styles.productCard}>
                   <View style={styles.productCardTop}>
                     <Image
-                      source={{ uri: item.image_url }}
+                      source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800' }}
                       style={styles.productThumb}
                       resizeMode="cover"
                     />
@@ -222,31 +233,16 @@ export default function ArtisanProductsScreen() {
                       </View>
 
                       <Text style={styles.hindiSub}>
-                        {index === 0
-                          ? 'हाथ से कढ़ाई किया कुशन कवर'
-                          : index === 1
-                          ? 'पेस्टल लैपटॉप स्लीव'
-                          : index === 2
-                          ? 'कांथा कढ़ाई झोला'
-                          : 'सिल्क ब्रोकेड पाउच'}
+                        {item.category || (isHindi ? 'पारंपरिक हस्तशिल्प' : 'Traditional Handicraft')} · ₹{item.price.toLocaleString()}
                       </Text>
 
                       {/* Status Badges */}
                       <View style={styles.badgesRow}>
-                        {isWaiting && !hasChangeFeedback && (
+                        {isWaiting && (
                           <View style={styles.waitingBadge}>
                             <Ionicons name="time-outline" size={14} color={Palette.onSecondaryContainer} />
                             <Text style={styles.waitingBadgeText}>
                               Waiting for review · समीक्षा जारी
-                            </Text>
-                          </View>
-                        )}
-
-                        {hasChangeFeedback && (
-                          <View style={styles.alertBadge}>
-                            <Ionicons name="alert-circle" size={14} color={Palette.errorTerracotta} />
-                            <Text style={styles.alertBadgeText}>
-                              Changes needed · बदलाव चाहिए
                             </Text>
                           </View>
                         )}
@@ -277,16 +273,6 @@ export default function ArtisanProductsScreen() {
                           </Text>
                         </View>
                       </View>
-
-                      {/* Coordinator feedback bubble */}
-                      {hasChangeFeedback && (
-                        <View style={styles.feedbackBubble}>
-                          <Ionicons name="chatbubble" size={15} color={Palette.errorTerracotta} />
-                          <Text style={styles.feedbackBubbleText}>
-                            <Text style={{ fontWeight: '700' }}>Sunita: </Text>Photo is a bit dark (फ़ोटो धुंधली है)
-                          </Text>
-                        </View>
-                      )}
                     </View>
                   </View>
                 </View>

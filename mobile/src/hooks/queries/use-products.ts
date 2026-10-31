@@ -20,24 +20,22 @@ export function useProducts() {
   return useQuery({
     queryKey: ['products'],
     queryFn: async (): Promise<ProductItem[]> => {
-      try {
-        const data = await apiFetch<{ items: any[] }>('/api/v1/products?page_size=30');
-        if (data && data.items) {
-          return data.items.map((item: any) => ({
-            id: item.id,
-            title: item.title || item.name || 'Untitled Craft',
-            category: item.category || 'Handicrafts',
-            price: Number(item.price || 0),
-            artisan_share: Math.round(Number(item.price || 0) * 0.68),
-            artisan_name: item.artisan_name || 'Artisan Partner',
-            cluster: 'DAY-NRLM Artisan Cluster',
-            status: item.status === 'published' ? 'published' : 'in_review',
-            gi_tagged: Boolean(item.gi_watermarked),
-            image_url: item.image_url || '',
-          }));
-        }
-      } catch (err) {
-        console.warn('Failed to fetch real products from API:', err);
+      const data = await apiFetch<{ items: any[] }>('/api/v1/products?page_size=50');
+      if (data && Array.isArray(data.items)) {
+        return data.items.map((item: any) => ({
+          id: String(item.id),
+          title: item.title || item.name || 'Untitled Craft',
+          category: item.category || 'Handicrafts',
+          price: Number(item.price || 0),
+          artisan_share: Math.round(Number(item.price || 0) * 0.68),
+          artisan_name: item.artisan_name || 'Artisan Partner',
+          cluster: 'DAY-NRLM Artisan Cluster',
+          status: item.status === 'published' ? 'published' : 'in_review',
+          gi_tagged: Boolean(item.gi_watermarked),
+          image_url: item.image_url || '',
+          dimensions: item.dimensions,
+          quantity: item.stock_quantity ?? item.quantity,
+        }));
       }
       return [];
     },

@@ -10,6 +10,7 @@ export interface AuthUser {
   name: string | null;
   role: AppRole;
   phone?: string | null;
+  cluster?: string | null;
 }
 
 export interface DemoAccount {

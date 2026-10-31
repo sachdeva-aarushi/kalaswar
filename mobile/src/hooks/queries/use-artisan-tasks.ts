@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { apiFetch } from '@/api/client';
 
 export interface ArtisanTaskStep {
   stepNumber: number;
@@ -34,146 +34,86 @@ export interface ArtisanTask {
   steps: ArtisanTaskStep[];
 }
 
-export const SEEDED_ARTISAN_TASKS: ArtisanTask[] = [
-  {
-    id: 'task-cushion-01',
-    orderNumber: 'KO-2026-0034',
-    craftName: 'Embroider 12 cushion covers',
-    craftNameHi: '12 कुशन कवर की कढ़ाई',
-    stageName: 'Hand Kantha & Suf Mirror Work',
-    stageNameHi: 'हाथ की कढ़ाई और शीशे का काम',
-    progressPercent: 33,
-    targetUnits: 12,
-    completedUnits: 4,
-    dueDate: 'Due 20 Nov',
-    dueDateHi: '20 नवंबर तक',
-    cluster: 'Bhagirathi Cluster (भागीरथी स्वयं सहायता समूह)',
-    imageUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
-    wagePerUnit: 350,
-    estimatedEarnings: 4200,
-    materialsNote: 'Unbleached natural cotton fabric, red silk thread, miniature mirrors',
-    steps: [
-      {
-        stepNumber: 1,
-        title: 'Fabric cutting & 40x40 cm marking',
-        hindiTitle: 'कपड़ा काटना और 40x40 सेमी नाप लेना',
-        isCompleted: true,
-      },
-      {
-        stepNumber: 2,
-        title: 'Geometric boundary running stitches',
-        hindiTitle: 'ज्यामितीय बॉर्डर टांके लगाना',
-        isCompleted: true,
-      },
-      {
-        stepNumber: 3,
-        title: 'Central floral mirror insertion',
-        hindiTitle: 'बीच में शीशा और फूल की कढ़ाई',
-        isCompleted: false,
-      },
-      {
-        stepNumber: 4,
-        title: 'Edge binding & iron pressing',
-        hindiTitle: 'किनारी सिलाई और फिनिशिंग',
-        isCompleted: false,
-      },
-    ],
-  },
-  {
-    id: 'task-silk-02',
-    orderNumber: 'KW-ORD-9012',
-    craftName: 'Pure Banarasi Katan Silk Stole',
-    craftNameHi: 'शुद्ध बनारसी कातान सिल्क स्टोल',
-    stageName: 'Jacquard Zari Selvage Insertion',
-    stageNameHi: 'जैकार्ड ज़री किनारी बुनाई',
-    progressPercent: 80,
-    targetUnits: 10,
-    completedUnits: 8,
-    dueDate: 'Due 12 Nov',
-    dueDateHi: '12 नवंबर तक',
-    cluster: 'Varanasi Handloom Federation',
-    imageUrl: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&auto=format&fit=crop&q=70',
-    wagePerUnit: 450,
-    estimatedEarnings: 4500,
-    materialsNote: 'Pure mulberry raw silk hanks, brass zari metallic weft',
-    steps: [
-      {
-        stepNumber: 1,
-        title: 'Warp thread tension setup on loom',
-        hindiTitle: 'करघे पर ताना धागा लगाना',
-        isCompleted: true,
-      },
-      {
-        stepNumber: 2,
-        title: 'Body jacquard weft shuttle pass',
-        hindiTitle: 'बॉडी बुनाई शटल चलाना',
-        isCompleted: true,
-      },
-      {
-        stepNumber: 3,
-        title: 'Zari floral border selvage finish',
-        hindiTitle: 'ज़री बॉर्डर फिनिशिंग',
-        isCompleted: false,
-      },
-    ],
-  },
-  {
-    id: 'task-sikki-03',
-    orderNumber: 'KO-2026-0041',
-    craftName: 'Sikki Grass Hampers (Set of 5)',
-    craftNameHi: 'सिक्की घास का डिब्बा (5 सेट)',
-    stageName: 'Grass Coiling & Lid Fitting',
-    stageNameHi: 'घास की बुनाई और ढक्कन जोड़ना',
-    progressPercent: 0,
-    targetUnits: 5,
-    completedUnits: 0,
-    dueDate: 'Due 28 Nov',
-    dueDateHi: '28 नवंबर तक',
-    cluster: 'Mithila Craft Cluster',
-    imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=70',
-    wagePerUnit: 240,
-    estimatedEarnings: 1200,
-    materialsNote: 'Dry golden sikki grass, natural lac dye pigments',
-    steps: [
-      {
-        stepNumber: 1,
-        title: 'Grass soaking & softening',
-        hindiTitle: 'सिक्की घास भिगोना व मुलायम करना',
-        isCompleted: false,
-      },
-      {
-        stepNumber: 2,
-        title: 'Coil base weaving',
-        hindiTitle: 'गोल आधार की बुनाई',
-        isCompleted: false,
-      },
-    ],
-  },
-];
+function _mapOrderToTask(order: any): ArtisanTask {
+  const isComplete = order.status === 'delivered' || order.status === 'ready_for_dispatch';
+  const isInProduction = order.status === 'in_production';
+  const progressPercent = isComplete ? 100 : isInProduction ? 60 : 15;
+  const targetUnits = Number(order.quantity || 1);
+  const completedUnits = isComplete ? targetUnits : isInProduction ? Math.max(1, Math.floor(targetUnits / 2)) : 0;
+  const unitPrice = Number(order.unit_price || 1200);
+  const wagePerUnit = Math.round(unitPrice * 0.6);
+  const estimatedEarnings = wagePerUnit * targetUnits;
 
-export function useArtisanTasks() {
+  const stageName = isComplete
+    ? 'Ready for Dispatch / Delivered'
+    : isInProduction
+    ? 'In Production · Crafting Stage'
+    : 'Order Assigned · Awaiting Production';
+
+  const stageNameHi = isComplete
+    ? 'प्रेषण तैयार / वितरित'
+    : isInProduction
+    ? 'निर्माण जारी है'
+    : 'कार्य सौंपा गया';
+
+  const dueDate = order.expected_dispatch_at ? `Due ${order.expected_dispatch_at}` : 'Ongoing task';
+  const dueDateHi = order.expected_dispatch_at ? `${order.expected_dispatch_at} तक` : 'प्रगति पर';
+
+  return {
+    id: String(order.id),
+    orderNumber: order.customer_reference || `ORD-${order.id.substring(0, 8).toUpperCase()}`,
+    craftName: order.product_title || 'Handcrafted Artisan Order',
+    craftNameHi: order.product_title || 'हस्तशिल्प कार्य',
+    title: order.product_title,
+    titleHi: order.product_title,
+    stageName,
+    stageNameHi,
+    progressPercent,
+    targetUnits,
+    totalUnits: targetUnits,
+    completedUnits,
+    dueDate,
+    dueDateHi,
+    cluster: 'DAY-NRLM Artisan Cluster (स्वयं सहायता समूह)',
+    clusterName: 'DAY-NRLM Artisan Cluster',
+    imageUrl: order.product_image_url || 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&auto=format&fit=crop&q=70',
+    wagePerUnit,
+    estimatedEarnings,
+    materialsNote: 'Natural raw craft materials, non-toxic dyes, certified handloom components',
+    materialsAssigned: 'Natural organic materials supplied by SHG cluster',
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Material preparation & initial measurement',
+        hindiTitle: 'सामग्री तैयार करना और नाप लेना',
+        isCompleted: true,
+      },
+      {
+        stepNumber: 2,
+        title: 'Handcrafting, stitching & artisan detailing',
+        hindiTitle: 'हाथ की कढ़ाई, बुनाई और बारीक़ काम',
+        isCompleted: isInProduction || isComplete,
+      },
+      {
+        stepNumber: 3,
+        title: 'Quality inspection & SHG packaging',
+        hindiTitle: 'गुणवत्ता जाँच और समूह द्वारा पैकिंग',
+        isCompleted: isComplete,
+      },
+    ],
+  };
+}
+
+export function useArtisanTasks(artisanId?: string) {
   return useQuery({
-    queryKey: ['artisan-tasks'],
+    queryKey: ['artisan-tasks', artisanId],
     queryFn: async (): Promise<ArtisanTask[]> => {
-      try {
-        const { data: assignments, error } = await supabase
-          .from('order_assignments')
-          .select('*, orders(*)')
-          .limit(10);
-
-        if (error) {
-          if (error.message.includes('JWT') || error.message.includes('expired')) {
-            const err = new Error('auth_expired');
-            err.name = 'AuthExpiredError';
-            throw err;
-          }
-        }
-      } catch (err: any) {
-        if (err?.name === 'AuthExpiredError' || err?.message === 'auth_expired') {
-          throw err;
-        }
+      const endpoint = artisanId ? `/api/v1/orders?artisan_id=${artisanId}&page_size=20` : '/api/v1/orders?page_size=20';
+      const res = await apiFetch<{ items: any[]; total: number }>(endpoint);
+      if (!res || !res.items) {
+        return [];
       }
-      return SEEDED_ARTISAN_TASKS;
+      return res.items.map(_mapOrderToTask);
     },
   });
 }
@@ -182,8 +122,8 @@ export function useTaskDetail(taskId: string) {
   return useQuery({
     queryKey: ['artisan-task', taskId],
     queryFn: async (): Promise<ArtisanTask> => {
-      const matched = SEEDED_ARTISAN_TASKS.find((t) => t.id === taskId);
-      return matched || SEEDED_ARTISAN_TASKS[0];
+      const order = await apiFetch<any>(`/api/v1/orders/${taskId}`);
+      return _mapOrderToTask(order);
     },
   });
 }
@@ -203,10 +143,18 @@ export function useLogTaskProgress() {
       completedUnits?: number;
       notes?: string;
     }) => {
-      return { taskId, units: units ?? completedUnits ?? 0, notes };
+      const doneUnits = units ?? completedUnits ?? 1;
+      return apiFetch(`/api/v1/orders/${taskId}/events`, {
+        method: 'POST',
+        body: JSON.stringify({
+          event_type: 'production_milestone',
+          note: `Progress logged: ${doneUnits} units completed. ${notes || ''}`.trim(),
+        }),
+      });
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['artisan-tasks'] });
+      void queryClient.invalidateQueries({ queryKey: ['artisan-task'] });
     },
   });
 }
