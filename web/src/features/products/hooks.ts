@@ -199,3 +199,52 @@ export function useValidateProduct() {
     },
   });
 }
+
+export interface ProductAiDraftPayload {
+  text_description: string;
+  materials?: string[];
+  estimated_hours?: number;
+}
+
+export interface ProductAiDraftResponse {
+  title: string;
+  description: string;
+  category: string;
+  materials: string[];
+  estimated_hours: number;
+  tags: string[];
+  suggested_price: number;
+}
+
+export function useProductAiDraft() {
+  return useMutation({
+    mutationFn: (payload: ProductAiDraftPayload) =>
+      apiClient.post<ProductAiDraftResponse>("/api/v1/products/ai-draft", payload),
+  });
+}
+
+export function useProductAiDraftVoice() {
+  return useMutation({
+    mutationFn: (file: Blob | File) => {
+      const formData = new FormData();
+      formData.append("file", file, "voice_draft.wav");
+      return apiClient.post<ProductAiDraftResponse>("/api/v1/products/ai-draft-voice", formData);
+    },
+  });
+}
+
+export function useUploadMedia() {
+  return useMutation({
+    mutationFn: (file: File | Blob) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiClient.post<{
+        url: string;
+        public_id: string;
+        format: string;
+        bytes: number;
+        secure_url?: string;
+      }>("/api/v1/media/upload", formData);
+    },
+  });
+}

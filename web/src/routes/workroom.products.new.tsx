@@ -1,113 +1,245 @@
 /**
- * /workroom/products/new — Kalaswar Workroom New Product Onboarding & FairPrice Review
- *
- * Stitch Screen ID: 3026cf650eea4d8197c3b8738758689f
- * (Merged variant: 6fb87e6315814a988edd7a375397a07a Kalaswar Workroom - Review Product)
- * Scoped under .kw-app.
+ * /workroom/products/new — Kalaswar New Product Onboarding with Real Photo Upload & Voice/Text AI Draft
+ * Feature 3: create a product (photo upload plus voice or text description -> AI draft -> submit for SHG validation)
  */
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
-  CheckCircle2,
-  Play,
-  Pause,
-  Mic,
-  Languages,
-  Sparkles,
   Camera,
+  CheckCircle2,
+  FileAudio,
+  Loader2,
+  Mic,
   Plus,
-  ShieldCheck,
-  Check,
-  X,
+  Sparkles,
+  Square,
+  Upload,
+  AlertCircle,
 } from "lucide-react";
 import {
   useCreateProduct,
   useFairPriceEstimate,
+  useProductAiDraft,
+  useProductAiDraftVoice,
+  useUploadMedia,
   type FairPriceEstimateResponse,
 } from "@/features/products/hooks";
+import { useBackendProfile } from "@/features/auth/hooks";
+import { useAuth } from "@/features/auth";
 import { PricingBreakdownCard } from "@/components/workroom/pricing-breakdown-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/workroom/products/new")({
   head: () => ({
-    meta: [{ title: "New Product — Kalaswar Workroom" }],
+    meta: [{ title: "New Craft Listing — Kalaswar Workroom" }],
   }),
   component: WorkroomNewProductPage,
 });
 
 function WorkroomNewProductPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: profile } = useBackendProfile();
+
   const createProduct = useCreateProduct();
   const estimatePricing = useFairPriceEstimate();
+  const aiDraftText = useProductAiDraft();
+  const aiDraftVoice = useProductAiDraftVoice();
+  const uploadMedia = useUploadMedia();
 
-  // Form fields (pre-filled from voice note AI transcription)
-  const [title, setTitle] = useState("Handcrafted Botanical Raw Silk Cushion");
+  // Photo state
+  const [uploadedImages, setUploadedImages] = useState<{ url: string; public_id?: string }[]>([]);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  // Raw description prompt for AI
+  const [rawDescription, setRawDescription] = useState("");
+  const [aiDraftNotice, setAiDraftNotice] = useState<string | null>(null);
+
+  // Form fields
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Home Decor");
-  const [description, setDescription] = useState(
-    "Lavish square hand-embroidered artisanal raw silk cushion with delicate botanical flora, dyed using natural madder and forest indigo.",
-  );
-  const [artisanId, setArtisanId] = useState("cccccccc-0001-0000-0000-000000000001");
-  const [materials, setMaterials] = useState("Handspun raw silk, natural indigo dye, cotton lining");
-  const [dimensions, setDimensions] = useState("40 × 40 cm (Square)");
-  const [priceInr, setPriceInr] = useState(1650);
+  const [description, setDescription] = useState("");
+  const [materials, setMaterials] = useState("");
+  const [dimensions, setDimensions] = useState("");
+  const [estimatedHours, setEstimatedHours] = useState(8);
+  const [priceInr, setPriceInr] = useState(1200);
 
-  // Stepper / Review state
-  const [step, setStep] = useState<"describe" | "review">("describe");
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [activeThumb, setActiveThumb] = useState(0);
+  // Pricing & submit state
   const [pricingData, setPricingData] = useState<FairPriceEstimateResponse | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Compute live FairPrice estimate
+  // Compute live FairPrice estimate when title/materials change
   useEffect(() => {
-    estimatePricing.mutate(
-      {
-        product_title: title,
-        materials: [
-          { name: "Raw Silk Fabric", quantity: 1.2, unit: "meters", unit_cost_inr: 350 },
-          { name: "Natural Indigo Dye", quantity: 0.2, unit: "kg", unit_cost_inr: 400 },
-        ],
-        labour_stages: [
-          { stage_name: "Hand Embroidery", hours: 14, hourly_rate_inr: 150 },
-        ],
-        packaging_inr: 40,
-        overhead_percent: 10,
-        target_margin_percent: 20,
-      },
-      {
-        onSuccess: (data) => {
-          setPricingData(data);
-          if (data.suggested_retail_price) {
-            setPriceInr(Math.round(data.suggested_retail_price));
-          }
+    if (title.trim()) {
+      estimatePricing.mutate(
+        {
+          product_title: title,
+          materials: [
+            { name: materials || "Artisanal Raw Materials", quantity: 1, unit: "units", unit_cost_inr: 400 },
+          ],
+          labour_stages: [
+            { stage_name: "Handcrafting & Assembly", hours: estimatedHours, hourly_rate_inr: 150 },
+          ],
+          packaging_inr: 50,
+          overhead_percent: 10,
+          target_margin_percent: 20,
         },
-      },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title]);
+        {
+          onSuccess: (data) => {
+            setPricingData(data);
+            if (data.suggested_retail_price) {
+              setPriceInr(Math.round(data.suggested_retail_price));
+            }
+          },
+        },
+      );
+    }
+  }, [title, materials, estimatedHours]);
 
-  const images = [
-    "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/cushion_01.jpg",
-    "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/stole_01.jpg",
-    "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/warli_01.jpg",
-  ];
+  // Handle Photo File Upload
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handlePublish = async () => {
-    await createProduct.mutateAsync({
-      artisan_id: artisanId,
-      title,
-      description,
-      category,
-      price: priceInr,
-      image_url: images[0],
-      materials,
-      dimensions,
-    });
-    void navigate({ to: "/workroom/products" });
+    setIsUploadingPhoto(true);
+    setSubmitError(null);
+    try {
+      const res = await uploadMedia.mutateAsync(file);
+      setUploadedImages((prev) => [...prev, { url: res.secure_url || res.url, public_id: res.public_id }]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Image upload failed";
+      setSubmitError(`Image upload error: ${msg}`);
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
+  // Generate AI Draft from typed description
+  const handleGenerateAiDraftFromText = async () => {
+    if (!rawDescription.trim()) return;
+    setSubmitError(null);
+    try {
+      const draft = await aiDraftText.mutateAsync({
+        text_description: rawDescription,
+      });
+
+      setTitle(draft.title);
+      setDescription(draft.description);
+      if (draft.category) setCategory(draft.category);
+      if (draft.materials?.length) setMaterials(draft.materials.join(", "));
+      if (draft.estimated_hours) setEstimatedHours(draft.estimated_hours);
+      if (draft.suggested_price) setPriceInr(draft.suggested_price);
+
+      setAiDraftNotice("AI draft generated from craft description. Verify details below.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to generate AI draft";
+      setSubmitError(msg);
+    }
+  };
+
+  // Start Audio Recording
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        stream.getTracks().forEach((track) => track.stop());
+
+        setIsRecording(false);
+        setSubmitError(null);
+        try {
+          const draft = await aiDraftVoice.mutateAsync(audioBlob);
+          setTitle(draft.title);
+          setDescription(draft.description);
+          if (draft.category) setCategory(draft.category);
+          if (draft.materials?.length) setMaterials(draft.materials.join(", "));
+          if (draft.estimated_hours) setEstimatedHours(draft.estimated_hours);
+          if (draft.suggested_price) setPriceInr(draft.suggested_price);
+
+          setAiDraftNotice("AI draft transcribed and structured from voice note.");
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Failed to process voice note";
+          setSubmitError(msg);
+        }
+      };
+
+      recorder.start();
+      setIsRecording(true);
+    } catch {
+      setSubmitError("Could not access microphone. Please ensure microphone permissions are granted.");
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  // Submit product for SHG validation
+  const handlePublish = async () => {
+    if (!title.trim()) {
+      setSubmitError("Product title is required.");
+      return;
+    }
+    if (uploadedImages.length === 0) {
+      setSubmitError("Please upload at least one craft photo.");
+      return;
+    }
+
+    const artisanId = profile?.artisan_id || user?.id;
+    if (!artisanId) {
+      setSubmitError("Artisan identity not detected. Please sign in again.");
+      return;
+    }
+
+    setSubmitError(null);
+    try {
+      await createProduct.mutateAsync({
+        artisan_id: artisanId,
+        title,
+        description,
+        category,
+        price: priceInr,
+        image_url: uploadedImages[0].url,
+        cloudinary_public_id: uploadedImages[0].public_id,
+        materials,
+        dimensions,
+        production_lead_time_days: 7,
+      });
+
+      void navigate({ to: "/workroom/products" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to submit listing";
+      setSubmitError(msg);
+    }
+  };
+
+  const isArtisanRole = profile?.roles?.includes("artisan") && !profile?.roles?.includes("coordinator");
+  const isUnapproved = isArtisanRole && profile?.onboarding_status !== "approved" && profile?.onboarding_status !== "completed";
+
   return (
-    <div className="space-y-6 pb-28">
+    <div className="space-y-6 pb-28 mx-auto max-w-5xl">
       {/* ── Top Header Row ────────────────────────────────────────────────── */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--kw-outline-variant)] pb-4">
         <div className="space-y-1">
@@ -116,192 +248,211 @@ function WorkroomNewProductPage() {
             className="inline-flex items-center gap-1.5 text-[var(--kw-primary)] kw-body-sm hover:underline w-fit"
           >
             <ArrowLeft className="size-4" />
-            <span>Products</span>
+            <span>Craft Catalog</span>
           </Link>
           <div className="flex items-baseline gap-4 mt-0.5">
-            <h1 className="kw-headline-xl text-[var(--kw-primary)]">New product</h1>
+            <h1 className="kw-headline-xl text-[var(--kw-primary)]">New Craft Listing</h1>
             <span className="text-xs text-[var(--kw-on-surface-variant)] flex items-center gap-1">
               <span className="size-1.5 rounded-full bg-[var(--kw-primary)]" />
-              Draft · Voice AI auto-filled
+              Photo + Voice/Text AI Draft
             </span>
           </div>
-        </div>
-
-        {/* Center Stepper */}
-        <div className="flex items-center gap-3 text-xs font-semibold self-start md:self-end">
-          <span className="inline-flex items-center gap-1 text-[var(--kw-primary-container)]">
-            <CheckCircle2 className="size-3.5" />
-            <span>Photo</span>
-          </span>
-          <span className="text-[var(--kw-outline-variant)]">·</span>
-          <button
-            type="button"
-            onClick={() => setStep("describe")}
-            className={`inline-flex items-center gap-1 ${
-              step === "describe"
-                ? "text-[var(--kw-primary)] font-bold border-b-2 border-[var(--kw-primary)] pb-0.5"
-                : "text-[var(--kw-on-surface-variant)]"
-            }`}
-          >
-            <CheckCircle2 className="size-3.5" />
-            <span>Describe</span>
-          </button>
-          <span className="text-[var(--kw-outline-variant)]">·</span>
-          <button
-            type="button"
-            onClick={() => setStep("review")}
-            className={`inline-flex items-center gap-1 ${
-              step === "review"
-                ? "text-[var(--kw-primary)] font-bold border-b-2 border-[var(--kw-primary)] pb-0.5"
-                : "text-[var(--kw-on-surface-variant)]"
-            }`}
-          >
-            <span>Review & FairPrice</span>
-          </button>
-        </div>
-
-        {/* Right utility actions */}
-        <div className="flex items-center gap-3 self-start md:self-end">
-          <Link
-            to="/workroom/products"
-            className="text-xs text-[var(--kw-on-surface-variant)] hover:text-[var(--kw-error)] px-2 py-1"
-          >
-            Discard
-          </Link>
-          <button
-            type="button"
-            className="size-9 rounded-lg bg-[var(--kw-surface-container)] text-[var(--kw-primary)] font-semibold text-xs flex items-center justify-center hover:bg-[var(--kw-surface-container-high)]"
-          >
-            हि
-          </button>
         </div>
       </header>
 
+      {/* Unapproved Warning */}
+      {isUnapproved && (
+        <div className="flex items-start gap-3 rounded-xl bg-amber-50 p-4 border border-amber-200 text-amber-900 text-sm">
+          <AlertCircle className="size-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold">SHG Coordinator Approval Pending</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Your artisan account is currently awaiting validation from your Self-Help Group coordinator. You can prepare drafts, but final publication requires SHG validation.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {submitError && (
+        <div className="rounded-xl bg-rose-50 p-4 border border-rose-200 text-rose-800 text-sm font-medium">
+          {submitError}
+        </div>
+      )}
+
+      {aiDraftNotice && (
+        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-4 border border-emerald-200 text-emerald-800 text-sm font-medium">
+          <CheckCircle2 className="size-4 text-emerald-600" />
+          <span>{aiDraftNotice}</span>
+        </div>
+      )}
+
       {/* ── Main Two-Column Workspace ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column (5/12): Craft Visuals & Voice Note */}
+        {/* Left Column (5/12): Craft Photo Upload & Voice/Text AI Assist */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Photos Zone */}
-          <section className="kw-card p-5 space-y-3">
+          {/* Photo Upload Zone */}
+          <section className="kw-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="kw-label-sm uppercase tracking-wider text-[var(--kw-on-surface-variant)] font-bold text-xs">
-                Product Photos (3/5)
+                Product Photos ({uploadedImages.length}/5)
               </span>
-              <button
-                type="button"
-                className="text-xs text-[var(--kw-primary)] hover:underline flex items-center gap-1 font-semibold"
-              >
-                <Plus className="size-3.5" />
-                <span>Add photo</span>
-              </button>
-            </div>
-
-            {/* Main photo */}
-            <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[var(--kw-surface-container)] border border-[var(--kw-outline-variant)] shadow-sm">
-              <img
-                src={images[activeThumb]}
-                alt="Product preview"
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handlePhotoSelect}
+                className="hidden"
               />
-              <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[11px] font-semibold text-[var(--kw-primary)]">
-                ★ Primary photo
-              </div>
-            </div>
-
-            {/* Thumbnails */}
-            <div className="grid grid-cols-4 gap-2 pt-1">
-              {images.map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveThumb(i)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                    activeThumb === i
-                      ? "border-[var(--kw-primary)] ring-2 ring-[var(--kw-primary)]/20"
-                      : "border-transparent opacity-80 hover:opacity-100"
-                  }`}
-                >
-                  <img src={img} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-              <div className="aspect-square rounded-lg border border-dashed border-[var(--kw-outline-variant)] flex flex-col items-center justify-center text-[var(--kw-on-surface-variant)] hover:bg-[var(--kw-surface-container-low)] cursor-pointer">
-                <Camera className="size-4" />
-                <span className="text-[10px] mt-0.5">+ Slot</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Artisan Voice Note Zone */}
-          <section className="kw-card p-5 space-y-3">
-            <span className="kw-label-sm uppercase tracking-wider text-[var(--kw-on-surface-variant)] font-bold text-xs block">
-              Artisan Voice Note
-            </span>
-
-            {/* Waveform Player */}
-            <div className="rounded-xl bg-[var(--kw-surface-container-low)] p-3.5 border border-[var(--kw-outline-variant)] flex items-center gap-3">
-              <button
+              <Button
                 type="button"
-                onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                className="size-9 rounded-full bg-[var(--kw-primary-container)] text-white flex items-center justify-center hover:bg-[var(--kw-primary)] transition-colors shrink-0 shadow-sm"
+                variant="outline"
+                size="sm"
+                disabled={isUploadingPhoto || uploadedImages.length >= 5}
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs text-[var(--kw-primary)] flex items-center gap-1 font-semibold h-8"
               >
-                {isPlayingAudio ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
-              </button>
+                {isUploadingPhoto ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Plus className="size-3.5" />
+                )}
+                <span>Upload Photo</span>
+              </Button>
+            </div>
 
-              {/* Fake animated waveform */}
-              <div className="flex-1 flex items-center gap-1 h-7">
-                {[12, 20, 24, 16, 22, 26, 18, 14, 22, 10, 16, 14, 8, 18, 12].map((h, i) => (
-                  <span
+            {/* Main preview */}
+            {uploadedImages.length > 0 ? (
+              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[var(--kw-surface-container)] border border-[var(--kw-outline-variant)] shadow-sm">
+                <img
+                  src={uploadedImages[0].url}
+                  alt="Uploaded craft preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[11px] font-semibold text-[var(--kw-primary)]">
+                  ★ Primary photo (Cloudinary)
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full aspect-[4/3] rounded-xl border-2 border-dashed border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-low)] flex flex-col items-center justify-center cursor-pointer hover:border-[var(--kw-primary)] transition-colors p-6 text-center"
+              >
+                <div className="size-12 rounded-full bg-[var(--kw-surface-container)] flex items-center justify-center text-[var(--kw-primary)] mb-2">
+                  <Camera className="size-6" />
+                </div>
+                <p className="text-sm font-semibold text-[var(--kw-on-surface)]">Upload Craft Photo</p>
+                <p className="text-xs text-[var(--kw-on-surface-variant)] mt-1">
+                  Supports JPEG, PNG, or WebP. Optimized via Cloudinary CDN.
+                </p>
+              </div>
+            )}
+
+            {/* Additional Thumbnails */}
+            {uploadedImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2 pt-1">
+                {uploadedImages.map((img, i) => (
+                  <div
                     key={i}
-                    className={`w-1 rounded-full transition-all duration-200 ${
-                      isPlayingAudio && i < 8 ? "bg-[var(--kw-primary)] animate-pulse" : "bg-[var(--kw-outline-variant)]"
-                    }`}
-                    style={{ height: `${h}px` }}
-                  />
+                    className="relative aspect-square rounded-lg overflow-hidden border border-[var(--kw-outline-variant)]"
+                  >
+                    <img src={img.url} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                  </div>
                 ))}
               </div>
-              <span className="text-xs font-mono text-[var(--kw-on-surface-variant)]">0:48 / 1:12</span>
-              <Mic className="size-4 text-[var(--kw-on-surface-variant)]" />
+            )}
+          </section>
+
+          {/* Voice / Text AI Draft Assistant */}
+          <section className="kw-card p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-[var(--kw-primary)]" />
+              <h2 className="kw-label-sm uppercase tracking-wider text-[var(--kw-on-surface-variant)] font-bold text-xs">
+                AI Craft Assistant
+              </h2>
+            </div>
+            <p className="text-xs text-[var(--kw-on-surface-variant)]">
+              Record a voice note or describe the craft materials, hours, and technique to auto-generate the listing fields.
+            </p>
+
+            {/* Voice record action */}
+            <div className="rounded-xl bg-[var(--kw-surface-container-low)] p-4 border border-[var(--kw-outline-variant)] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant={isRecording ? "destructive" : "default"}
+                  size="sm"
+                  onClick={isRecording ? handleStopRecording : handleStartRecording}
+                  disabled={aiDraftVoice.isPending}
+                  className="size-10 rounded-full flex items-center justify-center p-0 shrink-0"
+                >
+                  {aiDraftVoice.isPending ? (
+                    <Loader2 className="size-4 animate-spin text-white" />
+                  ) : isRecording ? (
+                    <Square className="size-4 text-white" />
+                  ) : (
+                    <Mic className="size-4 text-white" />
+                  )}
+                </Button>
+                <div>
+                  <p className="text-xs font-semibold text-[var(--kw-on-surface)]">
+                    {isRecording ? "Listening... click to finish" : "Voice Note AI Draft"}
+                  </p>
+                  <p className="text-[11px] text-[var(--kw-on-surface-variant)]">
+                    Speak in Hindi, Marathi, or English.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Translation Chip */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--kw-surface-container)] text-xs text-[var(--kw-on-surface-variant)]">
-              <Languages className="size-3.5 text-[var(--kw-primary)]" />
-              <span>Bengali audio translated to English</span>
-            </div>
-
-            {/* Transcript */}
-            <div className="rounded-lg bg-[var(--kw-surface-container-low)] p-3 text-xs leading-relaxed text-[var(--kw-on-surface)] italic">
-              “Used handspun cotton base with natural madder and indigo silk floss. Zardozi floral jaal pattern on front. Took roughly 34 loom hours across two weeks.”
-            </div>
-
-            <div className="flex items-center gap-1.5 text-[11px] text-[var(--kw-primary)] font-medium">
-              <Sparkles className="size-3.5" />
-              <span>AI draft generated from voice note & photo analysis.</span>
+            {/* Text description prompt */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[var(--kw-on-surface-variant)] uppercase tracking-wider">
+                Or Type Craft Description
+              </label>
+              <textarea
+                value={rawDescription}
+                onChange={(e) => setRawDescription(e.target.value)}
+                rows={3}
+                placeholder="e.g. Pure raw silk cushion hand-embroidered with botanical flora, dyed with natural madder and indigo floss, took 12 hours..."
+                className="w-full p-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--kw-primary)]"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateAiDraftFromText}
+                disabled={!rawDescription.trim() || aiDraftText.isPending}
+                className="w-full text-xs flex items-center justify-center gap-1.5"
+              >
+                {aiDraftText.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="size-3.5 text-[var(--kw-primary)]" />
+                )}
+                <span>Generate AI Draft from Text</span>
+              </Button>
             </div>
           </section>
         </div>
 
-        {/* Right Column (7/12): Editorial Verification & Pricing */}
+        {/* Right Column (7/12): Product Review & FairPrice Details */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Notification banner */}
-          <div className="rounded-xl bg-[rgba(35,76,61,0.12)] p-3.5 flex items-center justify-between text-xs text-[var(--kw-primary)] font-medium">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-[var(--kw-primary)]" />
-              <span>AI drafted 4 fields from Lakshmi’s voice note. Review and verify before submitting.</span>
-            </div>
-          </div>
-
-          {/* Form Fields */}
           <div className="kw-card p-6 space-y-4">
+            <h2 className="kw-headline-sm text-[var(--kw-on-surface)] border-b border-[var(--kw-outline-variant)] pb-3">
+              Craft Listing Details
+            </h2>
+
             <div className="space-y-1.5">
               <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
-                Product Title
+                Product Title *
               </label>
-              <input
+              <Input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full h-11 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] kw-headline-sm text-[var(--kw-primary)] focus:outline-none focus:border-[var(--kw-primary-container)]"
+                placeholder="e.g. Botanical Madder Hand-Embroidered Silk Cushion"
+                required
+                className="h-11"
               />
             </div>
 
@@ -313,39 +464,41 @@ function WorkroomNewProductPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)]"
+                  className="w-full h-10 px-3 rounded-md border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--kw-primary)]"
                 >
                   <option value="Home Decor">Home Decor (Cushions & Throws)</option>
-                  <option value="Textiles & Apparel">Textiles & Apparel (Stoles & Scarves)</option>
+                  <option value="Textiles & Apparel">Textiles & Apparel (Stoles & Sarees)</option>
                   <option value="Paintings & Folk Art">Paintings & Folk Art (Warli / Pattachitra)</option>
                   <option value="Pottery & Clay">Pottery & Terracotta</option>
+                  <option value="Jewelry & Accessories">Jewelry & Metal Craft</option>
                 </select>
               </div>
 
               <div className="space-y-1.5">
                 <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
-                  Lead Artisan
+                  Estimated Crafting Hours
                 </label>
-                <select
-                  value={artisanId}
-                  onChange={(e) => setArtisanId(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)]"
-                >
-                  <option value="cccccccc-0001-0000-0000-000000000001">Radha Devi (Santiniketan · Kantha)</option>
-                  <option value="cccccccc-0002-0000-0000-000000000002">Suresh Warli (Dahanu · Warli Art)</option>
-                </select>
+                <Input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={estimatedHours}
+                  onChange={(e) => setEstimatedHours(parseInt(e.target.value, 10) || 1)}
+                  className="h-10"
+                />
               </div>
             </div>
 
             <div className="space-y-1.5">
               <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
-                Product Description
+                Description & Technique
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full p-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] kw-body-sm text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)] resize-none"
+                placeholder="Detailed craft description and provenance technique..."
+                className="w-full p-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--kw-primary)] resize-none"
               />
             </div>
 
@@ -354,25 +507,40 @@ function WorkroomNewProductPage() {
                 <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
                   Materials Used
                 </label>
-                <input
+                <Input
                   type="text"
                   value={materials}
                   onChange={(e) => setMaterials(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)]"
+                  placeholder="e.g. Raw silk, madder root dye, cotton floss"
+                  className="h-10"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
-                  Dimensions / Specs
+                  Dimensions / Size
                 </label>
-                <input
+                <Input
                   type="text"
                   value={dimensions}
                   onChange={(e) => setDimensions(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-[var(--kw-outline-variant)] bg-[var(--kw-surface-container-lowest)] text-xs text-[var(--kw-on-surface)] focus:outline-none focus:border-[var(--kw-primary-container)]"
+                  placeholder="e.g. 40 x 40 cm"
+                  className="h-10"
                 />
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="kw-label-sm text-[var(--kw-on-surface-variant)] uppercase tracking-wider text-[11px]">
+                Price (INR ₹)
+              </label>
+              <Input
+                type="number"
+                min="50"
+                value={priceInr}
+                onChange={(e) => setPriceInr(parseInt(e.target.value, 10) || 0)}
+                className="h-10"
+              />
             </div>
           </div>
 
@@ -388,26 +556,32 @@ function WorkroomNewProductPage() {
             Selling Price: ₹{priceInr.toLocaleString("en-IN")}
           </span>
           <span className="text-xs text-[var(--kw-on-surface-variant)]">
-            Verified FairPrice costing build-up included.
+            Transparent FairPrice calculation included.
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setStep("review")}
-            className="kw-btn kw-btn-secondary h-11 text-xs"
+          <Link
+            to="/workroom/products"
+            className="kw-btn kw-btn-secondary h-11 text-xs px-4"
           >
-            Review Details
-          </button>
-          <button
+            Cancel
+          </Link>
+          <Button
             type="button"
-            disabled={createProduct.isPending}
+            disabled={createProduct.isPending || !title.trim() || uploadedImages.length === 0}
             onClick={() => void handlePublish()}
-            className="kw-btn kw-btn-primary h-11 text-xs shadow-sm"
+            className="kw-btn kw-btn-primary h-11 text-xs shadow-sm flex items-center gap-2 px-6"
           >
-            {createProduct.isPending ? "Publishing…" : "Publish to Workroom Catalog"}
-          </button>
+            {createProduct.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="size-4" />
+            )}
+            <span>
+              {isArtisanRole ? "Submit for SHG Validation" : "Publish to Catalog"}
+            </span>
+          </Button>
         </div>
       </footer>
     </div>

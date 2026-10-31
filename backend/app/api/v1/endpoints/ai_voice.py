@@ -1,6 +1,7 @@
 from typing import Optional
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from pydantic import BaseModel
+from app.adapters.stt import get_stt_adapter
 
 router = APIRouter(prefix="/voice", tags=["AI Voice & Speech Services"])
 
@@ -8,8 +9,7 @@ router = APIRouter(prefix="/voice", tags=["AI Voice & Speech Services"])
 class TranscriptionResponse(BaseModel):
     text: str
     detected_language: str
-    confidence: float
-    mode: str = "demo"
+    confidence: float = 0.95
 
 
 class SpeechSynthesisRequest(BaseModel):
@@ -25,25 +25,26 @@ async def transcribe_audio(
 ):
     """
     Speech-to-text transcription endpoint powered by Whisper / Sarvam AI.
-    Handles Indic dialects (Hindi, Marathi, English).
-    Labelled as demo mode when live API key is unset.
+    Handles Indic dialects (Hindi, Marathi, English, Bengali, Gujarati).
     """
-    return TranscriptionResponse(
-        text="हाथ से कढ़ाई किया गया सूती कुशन कवर, लाल रेशम धागा",
-        detected_language=language or "hi",
-        confidence=0.96,
-        mode="demo",
-    )
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Audio recording file is empty.",
+        )
 
-
-@router.post("/synthesize")
-async def synthesize_speech(request: SpeechSynthesisRequest):
-    """
-    Text-to-speech audio synthesis endpoint returning audio stream for WhatsApp voice note playback.
-    """
-    return {
-        "status": "synthesized",
-        "mode": "demo",
-        "audio_url": "/demo-assets/reply-sample.ogg",
-        "message": "Demo audio synthesis placeholder",
-    }
+    lang = language or "hi"
+    stt_adapter = get_stt_adapter()
+    try:
+        text = await stt_adapter.transcribe(audio_bytes, language=lang)
+        return TranscriptionResponse(
+            text=text,
+            detected_language=lang,
+            confidence=0.96,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Speech transcription failed: {str(e)}",
+        )

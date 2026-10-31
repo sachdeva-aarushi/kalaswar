@@ -52,34 +52,22 @@ async def list_shg_clusters(db: SupabaseAdapter = Depends(get_supabase)):
     """
     Lists available SHG collectives for artisan self-registration join picker.
     Publicly accessible so artisans can select their collective during signup.
+    Reads live collectives from database with zero fake demo fallbacks.
     """
     records = await db.query_records("shgs")
-    if records:
-        clusters = []
-        for r in records:
-            clusters.append(
-                ShgClusterSummary(
-                    id=UUID(str(r.get("id"))),
-                    name=str(r.get("name") or r.get("group_name") or "SHG Collective"),
-                    state=str(r.get("state") or ""),
-                    district=str(r.get("district") or ""),
-                    srlm_id=r.get("srlm_id"),
-                    artisan_count=int(r.get("artisan_count") or 0),
-                )
+    clusters = []
+    for r in (records or []):
+        clusters.append(
+            ShgClusterSummary(
+                id=UUID(str(r.get("id"))),
+                name=str(r.get("name") or r.get("group_name") or "SHG Collective"),
+                state=str(r.get("state") or ""),
+                district=str(r.get("district") or ""),
+                srlm_id=r.get("srlm_id"),
+                artisan_count=int(r.get("artisan_count") or 0),
             )
-        return clusters
-
-    return [
-        ShgClusterSummary(
-            id=UUID(c["id"]),
-            name=c["name"],
-            state=c["state"],
-            district=c["district"],
-            srlm_id=c.get("srlm_id"),
-            artisan_count=c["artisan_count"],
         )
-        for c in DEFAULT_CLUSTERS
-    ]
+    return clusters
 
 
 @router.post("/shg", status_code=status.HTTP_201_CREATED)
@@ -141,10 +129,17 @@ async def submit_artisan_join_request(
     Artisan Onboarding:
     Artisan requests to join an SHG collective with craft specialty and contact phone.
     Enters 'pending_approval' status until approved by the SHG coordinator.
+    Reuses existing artisan record if present to avoid duplication.
     """
-    artisan_id = str(uuid4())
+    existing_artisans = await db.query_records("artisans", {"user_id": f"eq.{current_user.id}"})
+    if existing_artisans:
+        artisan_id = existing_artisans[0]["id"]
+    else:
+        artisan_id = str(uuid4())
+
+    now_iso = datetime.now(timezone.utc).isoformat()
     artisan_record = {
-        "id": artisan_id,
+        "id": str(artisan_id),
         "user_id": str(current_user.id),
         "name": current_user.user_metadata.get("full_name") or current_user.email or "Artisan",
         "shg_id": str(payload.shg_id),
@@ -152,21 +147,24 @@ async def submit_artisan_join_request(
         "phone": payload.phone,
         "bio": payload.bio,
         "status": "pending",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": now_iso,
     }
+    if not existing_artisans:
+        artisan_record["created_at"] = now_iso
+
     await db.upsert_record("artisans", artisan_record)
 
     # Update profile onboarding status to pending_approval
     await db.update_records(
         "profiles",
         {"id": f"eq.{current_user.id}"},
-        {"onboarding_status": "pending_approval", "updated_at": datetime.now(timezone.utc).isoformat()},
+        {"onboarding_status": "pending_approval", "updated_at": now_iso},
     )
 
     return {
         "status": "pending_approval",
         "onboarding_status": "pending_approval",
-        "artisan_id": artisan_id,
+        "artisan_id": str(artisan_id),
         "shg_id": str(payload.shg_id),
         "message": "Join request submitted. Awaiting approval from SHG Coordinator.",
     }

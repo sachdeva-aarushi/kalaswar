@@ -49,3 +49,21 @@ class PaginatedProductResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class ProductAiDraftRequest(BaseModel):
+    description: str = Field(..., min_length=2, description="Text or voice transcript description")
+    language: str = Field(default="hi", description="Language code (hi, en, mr, bn, gu)")
+    image_url: Optional[str] = None
+
+
+class ProductAiDraftResponse(BaseModel):
+    title: str
+    description: str
+    category: str
+    craft: Optional[str] = None
+    materials: List[str] = Field(default_factory=list)
+    colour: Optional[str] = None
+    suggested_price: float = 0.0
+    making_hours: float = 0.0
+    raw_transcript: Optional[str] = None

@@ -19,6 +19,11 @@ import { Palette, Typography, Spacing, Radii, Shadows } from '@/constants/theme'
 import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
 import { getApiBaseUrl } from '@/constants/env';
+import {
+  useProductAiDraft,
+  useProductAiDraftVoice,
+  useUploadMedia,
+} from '@/hooks/queries/use-products';
 
 export default function ArtisanVoiceScreen() {
   const router = useRouter();
@@ -39,6 +44,10 @@ export default function ArtisanVoiceScreen() {
 
   const [isSubmittingPipeline, setIsSubmittingPipeline] = useState(false);
   const [pipelineError, setPipelineError] = useState<string | null>(null);
+
+  const aiDraftText = useProductAiDraft();
+  const aiDraftVoice = useProductAiDraftVoice();
+  const uploadMedia = useUploadMedia();
 
   useEffect(() => {
     return () => {
@@ -142,75 +151,61 @@ export default function ArtisanVoiceScreen() {
     setIsSubmittingPipeline(true);
     setPipelineError(null);
 
-    // Generate unique WhatsApp message ID style idempotency ID
-    const whatsappMessageId = `wamid.HBgM${Date.now()}${Math.random().toString(36).substring(2, 8)}`;
-    const phone = user?.phone || '+919876543210';
-
     try {
-      const baseUrl = getApiBaseUrl();
+      let uploadedUrl: string | undefined = photoUri || undefined;
+      let uploadedPublicId: string | undefined = undefined;
 
-      // Step 1: Ingest Media if available
-      if (photoBase64 || photoUri) {
+      // Step 1: Upload photo to Cloudinary via backend if uri present
+      if (photoUri && !photoUri.startsWith('http')) {
         try {
-          await fetch(`${baseUrl}/api/v1/internal/whatsapp/media`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              phone,
-              media_url: photoUri || 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800',
-              media_base64: photoBase64,
-              whatsapp_message_id: whatsappMessageId,
-              caption: 'Artisan craft sample photo',
-            }),
-          });
-        } catch {
-          // Continue pipeline
+          const uploadRes = await uploadMedia.mutateAsync(photoUri);
+          uploadedUrl = uploadRes.secure_url || uploadRes.url;
+          uploadedPublicId = uploadRes.public_id;
+        } catch (uploadErr) {
+          console.warn('Image upload failed, continuing with local URI:', uploadErr);
         }
       }
 
-      // Step 2: Post Voice Description with Idempotency Token
-      const voiceRes = await fetch(`${baseUrl}/api/v1/internal/whatsapp/voice`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone,
-          audio_url: recordingUri || 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3',
-          audio_base64: null,
+      // Step 2: Generate real AI Draft from voice recording or description
+      let draft: any;
+      if (recordingUri) {
+        draft = await aiDraftVoice.mutateAsync({
+          uri: recordingUri,
           language: isHindi ? 'hi' : 'en',
-          whatsapp_message_id: whatsappMessageId,
-          content_type: 'audio/m4a',
-        }),
-      });
-
-      if (voiceRes.ok) {
-        const data = await voiceRes.json();
-        router.push({
-          pathname: '/artisan/review',
-          params: {
-            title: data.hindi_text || 'हस्तनिर्मित कढ़ाई कुशन कवर (40x40 cm)',
-            fairPrice: data.fair_price?.estimated_retail_price || 1450,
-            artisanShare: data.fair_price?.artisan_wage || 986,
-            materials: 'सूती कपड़ा, लाल रेशमी धागा, शीशे',
-            idempotencyId: whatsappMessageId,
-            photoUri: photoUri || undefined,
-          },
-        } as any);
-        return;
+        });
+      } else {
+        draft = await aiDraftText.mutateAsync({
+          text_description: isHindi
+            ? 'हाथ से बना पारंपरिक शिल्प उत्पाद, प्राकृतिक सामग्री'
+            : 'Handcrafted traditional artisan product with natural materials',
+          language: isHindi ? 'hi' : 'en',
+        });
       }
+
+      router.push({
+        pathname: '/artisan/review',
+        params: {
+          title: draft.title,
+          description: draft.description,
+          category: draft.category,
+          materials: draft.materials?.join(', ') || '',
+          estimatedHours: String(draft.estimated_hours || 8),
+          fairPrice: String(draft.suggested_price || 1200),
+          artisanShare: String(Math.round((draft.suggested_price || 1200) * 0.68)),
+          photoUri: uploadedUrl,
+          photoPublicId: uploadedPublicId,
+        },
+      } as any);
     } catch (err: any) {
-      console.warn('Backend listing pipeline fallback:', err);
+      const msg = err?.message || 'Failed to generate AI craft draft';
+      setPipelineError(msg);
+      Alert.alert(
+        isHindi ? 'त्रुटि' : 'Error',
+        msg
+      );
     } finally {
       setIsSubmittingPipeline(false);
     }
-
-    // Resilient offline fallback to AI Draft Review screen
-    router.push({
-      pathname: '/artisan/review',
-      params: {
-        idempotencyId: whatsappMessageId,
-        photoUri: photoUri || undefined,
-      },
-    } as any);
   };
 
   return (

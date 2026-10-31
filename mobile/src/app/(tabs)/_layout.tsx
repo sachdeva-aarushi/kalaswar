@@ -116,12 +116,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => renderIcon('person', color, size),
         }}
       />
-      <Tabs.Screen
-        name="artisan/camera"
-        options={{
-          href: null,
-        }}
-      />
 
       {/* Shopper Tabs */}
       <Tabs.Screen

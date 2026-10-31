@@ -15,18 +15,35 @@ import { useTranslation } from 'react-i18next';
 import { Palette, Typography, Spacing, Radii, Shadows } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
-import { DemoSwitcher } from '@/components/DemoSwitcher';
+import {
+  useArtisanProfile,
+  useUpdateArtisanProfile,
+  useShgClusters,
+  useJoinShg,
+} from '@/hooks/queries/use-artisan-profile';
 
 export default function ArtisanProfileScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { isHindi, setLanguage, toggleLanguage } = useLanguage();
+  const { isHindi, setLanguage } = useLanguage();
 
+  const { data: profile, isLoading: isProfileLoading } = useArtisanProfile();
+  const updateProfile = useUpdateArtisanProfile();
+  const { data: clusters = [], isLoading: isClustersLoading } = useShgClusters();
+  const joinShgMutation = useJoinShg();
+
+  const [selectedClusterId, setSelectedClusterId] = useState('');
   const [textSize, setTextSize] = useState<'normal' | 'large' | 'xlarge'>('large');
   const [voiceHelpActive, setVoiceHelpActive] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isNarrating, setIsNarrating] = useState(false);
+
+  const toggleLanguage = async () => {
+    const nextLang = isHindi ? 'en' : 'hi';
+    await setLanguage(nextLang);
+    updateProfile.mutate({ preferred_language: nextLang });
+  };
 
   const handleCheckSync = () => {
     setIsSyncing(true);
@@ -174,16 +191,18 @@ export default function ArtisanProfileScreen() {
             {/* 64dp Avatar circle with initials */}
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarInitials}>
-                {getInitials(user.name || 'Lakshmi Mondal')}
+                {getInitials(profile?.display_name || user.name || 'Artisan')}
               </Text>
             </View>
 
             <View style={styles.profileInfoCol}>
-              <Text style={styles.profileName}>{user.name || 'Lakshmi Mondal'}</Text>
+              <Text style={styles.profileName}>
+                {profile?.display_name || user.name || 'Artisan'}
+              </Text>
               <Text style={styles.profileCluster}>
-                {isHindi
-                  ? 'कढ़ाई शिल्पकार · भागीरथी क्लस्टर'
-                  : 'Embroidery Artisan · Bhagirathi Cluster'}
+                {profile?.shg_id
+                  ? isHindi ? `एसएचजी क्लस्टर: ${profile.shg_id}` : `SHG Cluster: ${profile.shg_id}`
+                  : isHindi ? 'कोई क्लस्टर संबद्ध नहीं' : 'No SHG Cluster affiliated'}
               </Text>
             </View>
           </View>
@@ -192,17 +211,99 @@ export default function ArtisanProfileScreen() {
           <View style={styles.phoneBadgeRow}>
             <View style={styles.phoneBadgeLeft}>
               <Ionicons name="phone-portrait-outline" size={20} color={Palette.primary} />
-              <Text style={styles.phoneBadgeNumber}>+91 98765 43210</Text>
+              <Text style={styles.phoneBadgeNumber}>{profile?.phone || user?.phone || '+91 98765 43210'}</Text>
             </View>
 
-            <View style={styles.verifiedPill}>
-              <Ionicons name="checkmark-circle" size={16} color={Palette.primary} />
-              <Text style={styles.verifiedText}>
-                {isHindi ? 'सत्यापित शिल्पकार' : 'Verified Artisan'}
+            <View style={[styles.verifiedPill, profile?.onboarding_status !== 'approved' && { backgroundColor: Palette.surfaceContainer }]}>
+              <Ionicons
+                name={profile?.onboarding_status === 'approved' ? 'checkmark-circle' : 'time-outline'}
+                size={16}
+                color={profile?.onboarding_status === 'approved' ? Palette.primary : Palette.outline}
+              />
+              <Text style={[styles.verifiedText, profile?.onboarding_status !== 'approved' && { color: Palette.onSurfaceVariant }]}>
+                {profile?.onboarding_status === 'approved'
+                  ? isHindi ? 'सत्यापित शिल्पकार' : 'Verified Artisan'
+                  : isHindi ? 'सत्यापन लंबित' : 'Pending Approval'}
               </Text>
             </View>
           </View>
         </View>
+
+        {/* Feature 2: SHG Membership & Join Section */}
+        {(!profile?.shg_id || profile?.onboarding_status === 'pending_approval') && (
+          <View style={[styles.settingCard, { padding: Spacing.md }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.xs }}>
+              <Ionicons name="people" size={22} color={Palette.primary} />
+              <Text style={styles.settingTitle}>
+                {isHindi ? 'स्वयं सहायता समूह (SHG) से जुड़ें' : 'Join Self-Help Group (SHG)'}
+              </Text>
+            </View>
+
+            {profile?.onboarding_status === 'pending_approval' ? (
+              <Text style={[styles.settingSub, { color: Palette.primary, marginTop: 4 }]}>
+                {isHindi
+                  ? 'आपका जुड़ने का अनुरोध समन्वयक के पास सत्यापन के लिए लंबित है।'
+                  : 'Your request to join an SHG cluster is awaiting coordinator approval.'}
+              </Text>
+            ) : (
+              <View style={{ marginTop: 8 }}>
+                <Text style={styles.settingSub}>
+                  {isHindi
+                    ? 'उत्पादों की लिस्टिंग और सामूहिक बिक्री के लिए अपना स्थानीय क्लस्टर चुनें:'
+                    : 'Choose your local cluster for product validation & group dispatch:'}
+                </Text>
+
+                <View style={{ marginTop: 8, gap: 6 }}>
+                  {clusters.slice(0, 4).map((c) => (
+                    <TouchableOpacity
+                      key={c.id}
+                      style={[
+                        styles.segmentBtn,
+                        selectedClusterId === c.id && styles.segmentBtnActive,
+                        { paddingVertical: 10, paddingHorizontal: 12, alignItems: 'flex-start' },
+                      ]}
+                      onPress={() => setSelectedClusterId(c.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.segmentLabel,
+                          selectedClusterId === c.id && styles.segmentLabelActive,
+                          { fontSize: 13 },
+                        ]}
+                      >
+                        {c.name} {c.state ? `(${c.state})` : ''}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <TouchableOpacity
+                  style={[
+                    styles.narrateBtn,
+                    { marginTop: 10, backgroundColor: Palette.primary, paddingVertical: 12, borderRadius: Radii.md },
+                    (!selectedClusterId || joinShgMutation.isPending) && { opacity: 0.6 },
+                  ]}
+                  disabled={!selectedClusterId || joinShgMutation.isPending}
+                  onPress={() => {
+                    if (selectedClusterId) {
+                      joinShgMutation.mutate({
+                        cluster_id: selectedClusterId,
+                        self_declared_experience_years: 5,
+                        daily_capacity: 2,
+                      });
+                    }
+                  }}
+                >
+                  <Text style={[styles.narrateBtnText, { color: Palette.onPrimary, fontWeight: '700' }]}>
+                    {joinShgMutation.isPending
+                      ? isHindi ? 'अनुरोध भेज रहे हैं...' : 'Submitting request...'
+                      : isHindi ? 'क्लस्टर से जुड़ने का अनुरोध भेजें' : 'Request to Join Cluster'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Grouped Settings Section */}
         <View style={styles.sectionHeaderRow}>
@@ -473,9 +574,6 @@ export default function ArtisanProfileScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Demo Switcher for fast role change & testing */}
-        <DemoSwitcher />
 
         {/* Bottom Section: Sign Out */}
         <View style={styles.bottomSection}>

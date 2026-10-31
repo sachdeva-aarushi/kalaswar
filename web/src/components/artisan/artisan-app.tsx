@@ -26,7 +26,8 @@ import { StoryEditorSection } from "@/components/artisan/story-editor";
 import { NotificationsPanel } from "@/components/notifications-panel";
 import { Wordmark } from "@/components/wordmark";
 import { LanguageSelect } from "@/components/language-select";
-import { DemoBadge, DemoNote } from "@/components/demo-note";
+import { useBackendProfile } from "@/features/auth/hooks";
+import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -50,14 +51,23 @@ export function ArtisanApp() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const reduce = useReducedMotion();
-  const [artisanId, setArtisanId] = useState(DEMO_ARTISAN_ID);
+  const { data: profile } = useBackendProfile();
+  const { user } = useAuth();
+  const { data: artisanList } = useQuery(artisansQuery());
+  const effectiveArtisanId = profile?.artisan_id || user?.id || artisanList?.[0]?.id || "";
+  const [artisanId, setArtisanId] = useState(effectiveArtisanId || DEMO_ARTISAN_ID);
+
+  useEffect(() => {
+    if (effectiveArtisanId) {
+      setArtisanId(effectiveArtisanId);
+    }
+  }, [effectiveArtisanId]);
+
   const [fallbackReply, setFallbackReply] = useState("");
   const [transcript, setTranscript] = useState("");
   const [focus, setFocus] = useState<VoiceIntent | null>(null);
   const [question, setQuestion] = useState("");
   const responseRef = useRef<HTMLDivElement>(null);
-
-  const { data: artisanList } = useQuery(artisansQuery());
   const { data: artisan } = useQuery({
     ...artisanQuery(artisanId),
     placeholderData: (prev) => prev,
@@ -120,7 +130,7 @@ export function ArtisanApp() {
           scrollTo("sec-open_help");
           break;
         case "upload_product":
-          navigate({ to: "/shg/products", search: { new: true, edit: undefined } });
+          navigate({ to: "/workroom/products/new" });
           break;
         case "edit_product":
           navigate({ to: "/shg/products", search: { new: false, edit: productId ?? "" } });
@@ -259,10 +269,6 @@ export function ArtisanApp() {
           <LanguageSelect />
         </div>
       </header>
-
-      <div className="mt-4">
-        <DemoBadge />
-      </div>
 
       {/* ---------- Voice panel ---------- */}
       <section

@@ -70,6 +70,15 @@ app.include_router(internal_whatsapp.router)
 # Direct root-level mount for public Digital Product Passports (/public/passports/...)
 app.include_router(dpp.router)
 
+# Direct root-level mount for Twilio WhatsApp Webhook (/whatsapp-webhook and /whatsappwebhook)
+try:
+    from whatsapp_webhook import whatsapp_webhook
+
+    app.post("/whatsapp-webhook", tags=["WhatsApp Webhook"])(whatsapp_webhook)
+    app.post("/whatsappwebhook", tags=["WhatsApp Webhook"])(whatsapp_webhook)
+except Exception:
+    pass
+
 
 # Top-level Health check endpoint
 @app.get("/health", response_model=HealthResponse, tags=["Health"])

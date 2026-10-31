@@ -17,6 +17,7 @@ from app.schemas.auth import (
     ShgSignupRequest,
     SignupResponse,
     UnifiedSignupRequest,
+    UpdateProfileRequest,
     UserProfileResponse,
 )
 from app.services.audit import audit_service
@@ -91,8 +92,8 @@ async def get_my_profile(
             onboarding_status = "completed"
 
     display_name = (
-        current_user.user_metadata.get("full_name")
-        or (profiles[0].get("display_name") if profiles else None)
+        (profiles[0].get("display_name") if profiles and profiles[0].get("display_name") else None)
+        or current_user.user_metadata.get("full_name")
         or (current_user.email.split("@")[0] if current_user.email else "User")
     )
 
@@ -102,13 +103,85 @@ async def get_my_profile(
         role=primary_role,
         roles=current_user.roles,
         display_name=display_name,
-        preferred_language=current_user.user_metadata.get("preferred_language") or profile_details.get("preferred_language", "en"),
+        preferred_language=(
+            profile_details.get("preferred_language")
+            or (profiles[0].get("preferred_language") if profiles else None)
+            or current_user.user_metadata.get("preferred_language")
+            or "en"
+        ),
         onboarding_status=onboarding_status,
         shg_id=shg_id,
         artisan_id=artisan_id,
         buyer_id=buyer_id,
         profile_details=profile_details,
     )
+
+
+@router.patch("/profile", response_model=UserProfileResponse)
+async def update_my_profile(
+    payload: UpdateProfileRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: SupabaseAdapter = Depends(get_supabase),
+):
+    """
+    Updates the authenticated user's profile details and language preference.
+    Artisans can update their name, language, phone, craft specialties, and bio.
+    Upserts records if they do not yet exist.
+    """
+    now_iso = datetime.now(timezone.utc).isoformat()
+    existing_profiles = await db.query_records("profiles", {"id": f"eq.{current_user.id}"})
+
+    profile_updates: Dict[str, Any] = {"updated_at": now_iso}
+    if payload.display_name is not None:
+        profile_updates["display_name"] = payload.display_name
+    if payload.preferred_language is not None:
+        profile_updates["preferred_language"] = payload.preferred_language
+    if payload.shipping_address is not None:
+        profile_updates["shipping_address"] = payload.shipping_address
+
+    if existing_profiles:
+        await db.update_records("profiles", {"id": f"eq.{current_user.id}"}, profile_updates)
+    else:
+        profile_record = {
+            "id": str(current_user.id),
+            "display_name": payload.display_name or (current_user.email.split("@")[0] if current_user.email else "User"),
+            "preferred_language": payload.preferred_language or "en",
+            "onboarding_status": current_user.onboarding_status or "completed",
+            "created_at": now_iso,
+            "updated_at": now_iso,
+        }
+        if payload.shipping_address:
+            profile_record["shipping_address"] = payload.shipping_address
+        await db.upsert_record("profiles", profile_record)
+
+    if current_user.primary_role == "artisan":
+        artisan_updates: Dict[str, Any] = {"updated_at": now_iso}
+        if payload.display_name is not None:
+            artisan_updates["name"] = payload.display_name
+        if payload.phone is not None:
+            artisan_updates["phone"] = payload.phone
+        if payload.bio is not None:
+            artisan_updates["bio"] = payload.bio
+        if payload.craft_specialties is not None:
+            artisan_updates["craft_specialties"] = payload.craft_specialties
+
+        existing_artisans = await db.query_records("artisans", {"user_id": f"eq.{current_user.id}"})
+        if existing_artisans:
+            await db.update_records("artisans", {"user_id": f"eq.{current_user.id}"}, artisan_updates)
+        else:
+            await db.upsert_record("artisans", {
+                "id": str(uuid4()),
+                "user_id": str(current_user.id),
+                "name": payload.display_name or (current_user.email.split("@")[0] if current_user.email else "Artisan"),
+                "phone": payload.phone,
+                "bio": payload.bio,
+                "craft_specialties": payload.craft_specialties or [],
+                "status": "pending",
+                "created_at": now_iso,
+                "updated_at": now_iso,
+            })
+
+    return await get_my_profile(current_user=current_user, db=db)
 
 
 # -----------------------------------------------------------------------------

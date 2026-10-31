@@ -71,6 +71,59 @@
         }
       }
     },
+    "/api/v1/auth/profile": {
+      "patch": {
+        "tags": [
+          "Authentication & Role Guards"
+        ],
+        "summary": "Update My Profile",
+        "description": "Updates the authenticated user's profile details and language preference.\nArtisans can update their name, language, phone, craft specialties, and bio.\nUpserts records if they do not yet exist.",
+        "operationId": "update_my_profile_api_v1_auth_profile_patch",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/signup/customer": {
       "post": {
         "tags": [
@@ -582,7 +635,7 @@
           "Onboarding & Verification"
         ],
         "summary": "List Shg Clusters",
-        "description": "Lists available SHG collectives for artisan self-registration join picker.\nPublicly accessible so artisans can select their collective during signup.",
+        "description": "Lists available SHG collectives for artisan self-registration join picker.\nPublicly accessible so artisans can select their collective during signup.\nReads live collectives from database with zero fake demo fallbacks.",
         "operationId": "list_shg_clusters_api_v1_onboarding_shg_clusters_get",
         "responses": {
           "200": {
@@ -659,7 +712,7 @@
           "Onboarding & Verification"
         ],
         "summary": "Submit Artisan Join Request",
-        "description": "Artisan Onboarding:\nArtisan requests to join an SHG collective with craft specialty and contact phone.\nEnters 'pending_approval' status until approved by the SHG coordinator.",
+        "description": "Artisan Onboarding:\nArtisan requests to join an SHG collective with craft specialty and contact phone.\nEnters 'pending_approval' status until approved by the SHG coordinator.\nReuses existing artisan record if present to avoid duplication.",
         "operationId": "submit_artisan_join_request_api_v1_onboarding_artisan_join_request_post",
         "parameters": [
           {
@@ -1815,6 +1868,112 @@
         }
       }
     },
+    "/api/v1/products/ai-draft": {
+      "post": {
+        "tags": [
+          "Products Catalog & Management"
+        ],
+        "summary": "Generate Product Ai Draft",
+        "description": "Extracts structured craft attributes and FairPrice suggestion from artisan voice transcript or text.\nUses LLM adapter for structured extraction and domain FairPrice engine.",
+        "operationId": "generate_product_ai_draft_api_v1_products_ai_draft_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductAiDraftRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductAiDraftResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/ai-draft-voice": {
+      "post": {
+        "tags": [
+          "Products Catalog & Management"
+        ],
+        "summary": "Generate Product Ai Draft From Voice",
+        "description": "Transcribes artisan voice audio and generates structured craft draft with FairPrice suggestion.",
+        "operationId": "generate_product_ai_draft_from_voice_api_v1_products_ai_draft_voice_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_generate_product_ai_draft_from_voice_api_v1_products_ai_draft_voice_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductAiDraftResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/products/{product_id}": {
       "get": {
         "tags": [
@@ -2414,7 +2573,7 @@
           "AI Voice & Speech Services"
         ],
         "summary": "Transcribe Audio",
-        "description": "Speech-to-text transcription endpoint powered by Whisper / Sarvam AI.\nHandles Indic dialects (Hindi, Marathi, English).\nLabelled as demo mode when live API key is unset.",
+        "description": "Speech-to-text transcription endpoint powered by Whisper / Sarvam AI.\nHandles Indic dialects (Hindi, Marathi, English, Bengali, Gujarati).",
         "operationId": "transcribe_audio_api_v1_voice_transcribe_post",
         "requestBody": {
           "content": {
@@ -2434,46 +2593,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/TranscriptionResponse"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/voice/synthesize": {
-      "post": {
-        "tags": [
-          "AI Voice & Speech Services"
-        ],
-        "summary": "Synthesize Speech",
-        "description": "Text-to-speech audio synthesis endpoint returning audio stream for WhatsApp voice note playback.",
-        "operationId": "synthesize_speech_api_v1_voice_synthesize_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SpeechSynthesisRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -7431,6 +7550,88 @@
         }
       }
     },
+    "/whatsapp-webhook": {
+      "post": {
+        "tags": [
+          "WhatsApp Webhook"
+        ],
+        "summary": "Whatsapp Webhook",
+        "description": "Twilio WhatsApp webhook endpoint parsing application/x-www-form-urlencoded data.\n\n- Detects 'Approve & Publish' interactive button clicks and updates status to 'Published'.\n- Formats completed drafts as WhatsApp Interactive Messages (Button template).",
+        "operationId": "whatsapp_webhook_whatsapp_webhook_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_whatsapp_webhook_whatsapp_webhook_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Whatsapp Webhook Whatsapp Webhook Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsappwebhook": {
+      "post": {
+        "tags": [
+          "WhatsApp Webhook"
+        ],
+        "summary": "Whatsapp Webhook",
+        "description": "Twilio WhatsApp webhook endpoint parsing application/x-www-form-urlencoded data.\n\n- Detects 'Approve & Publish' interactive button clicks and updates status to 'Published'.\n- Formats completed drafts as WhatsApp Interactive Messages (Button template).",
+        "operationId": "whatsapp_webhook_whatsappwebhook_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_whatsapp_webhook_whatsappwebhook_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Whatsapp Webhook Whatsappwebhook Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -8043,6 +8244,25 @@
         ],
         "title": "BatchCommitResponse"
       },
+      "Body_generate_product_ai_draft_from_voice_api_v1_products_ai_draft_voice_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "hi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_generate_product_ai_draft_from_voice_api_v1_products_ai_draft_voice_post"
+      },
       "Body_transcribe_audio_api_v1_voice_transcribe_post": {
         "properties": {
           "file": {
@@ -8092,6 +8312,196 @@
           "file"
         ],
         "title": "Body_upload_media_file_api_v1_media_upload_post"
+      },
+      "Body_whatsapp_webhook_whatsapp_webhook_post": {
+        "properties": {
+          "NumMedia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Nummedia",
+            "default": 0
+          },
+          "MediaUrl0": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediaurl0"
+          },
+          "MediaContentType0": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediacontenttype0"
+          },
+          "Body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "From": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "ButtonPayload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buttonpayload"
+          },
+          "ButtonText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buttontext"
+          },
+          "button_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Button Id"
+          }
+        },
+        "type": "object",
+        "title": "Body_whatsapp_webhook_whatsapp_webhook_post"
+      },
+      "Body_whatsapp_webhook_whatsappwebhook_post": {
+        "properties": {
+          "NumMedia": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Nummedia",
+            "default": 0
+          },
+          "MediaUrl0": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediaurl0"
+          },
+          "MediaContentType0": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediacontenttype0"
+          },
+          "Body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "From": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "ButtonPayload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buttonpayload"
+          },
+          "ButtonText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buttontext"
+          },
+          "button_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Button Id"
+          }
+        },
+        "type": "object",
+        "title": "Body_whatsapp_webhook_whatsappwebhook_post"
       },
       "BuyerOnboardingRequest": {
         "properties": {
@@ -11638,6 +12048,111 @@
         ],
         "title": "PayoutResponse"
       },
+      "ProductAiDraftRequest": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Description",
+            "description": "Text or voice transcript description"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Language code (hi, en, mr, bn, gu)",
+            "default": "hi"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "ProductAiDraftRequest"
+      },
+      "ProductAiDraftResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "craft": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Craft"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Materials"
+          },
+          "colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Colour"
+          },
+          "suggested_price": {
+            "type": "number",
+            "title": "Suggested Price",
+            "default": 0.0
+          },
+          "making_hours": {
+            "type": "number",
+            "title": "Making Hours",
+            "default": 0.0
+          },
+          "raw_transcript": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Transcript"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "category"
+        ],
+        "title": "ProductAiDraftResponse"
+      },
       "ProductCreate": {
         "properties": {
           "artisan_id": {
@@ -13638,29 +14153,6 @@
         ],
         "title": "SkillRecord"
       },
-      "SpeechSynthesisRequest": {
-        "properties": {
-          "text": {
-            "type": "string",
-            "title": "Text"
-          },
-          "target_language": {
-            "type": "string",
-            "title": "Target Language",
-            "default": "hi"
-          },
-          "voice_gender": {
-            "type": "string",
-            "title": "Voice Gender",
-            "default": "female"
-          }
-        },
-        "type": "object",
-        "required": [
-          "text"
-        ],
-        "title": "SpeechSynthesisRequest"
-      },
       "StoryConsentItem": {
         "properties": {
           "consent_type": {
@@ -13692,19 +14184,14 @@
           },
           "confidence": {
             "type": "number",
-            "title": "Confidence"
-          },
-          "mode": {
-            "type": "string",
-            "title": "Mode",
-            "default": "demo"
+            "title": "Confidence",
+            "default": 0.95
           }
         },
         "type": "object",
         "required": [
           "text",
-          "detected_language",
-          "confidence"
+          "detected_language"
         ],
         "title": "TranscriptionResponse"
       },
@@ -13871,6 +14358,82 @@
           "full_name"
         ],
         "title": "UnifiedSignupRequest"
+      },
+      "UpdateProfileRequest": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "preferred_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Language"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "craft_specialties": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Craft Specialties"
+          },
+          "shipping_address": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Address"
+          }
+        },
+        "type": "object",
+        "title": "UpdateProfileRequest"
       },
       "UserProfileResponse": {
         "properties": {

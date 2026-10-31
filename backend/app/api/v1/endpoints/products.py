@@ -1,19 +1,24 @@
 from math import ceil
 from typing import List, Optional
 from uuid import UUID, uuid4
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from app.adapters.llm import get_llm_adapter
+from app.adapters.stt import get_stt_adapter
 from app.adapters.supabase import SupabaseAdapter
 from app.api.deps import get_supabase, require_role, require_roles
 from app.core.logging import logger
 from app.schemas.auth import CurrentUser
 from app.schemas.product import (
     PaginatedProductResponse,
+    ProductAiDraftRequest,
+    ProductAiDraftResponse,
     ProductCreate,
     ProductResponse,
     ProductUpdate,
     ProductValidationRequest,
 )
 from app.services.audit import AuditService, audit_service
+from app.services.fairprice import calculate_fair_price
 
 router = APIRouter(prefix="/products", tags=["Products Catalog & Management"])
 
@@ -122,6 +127,77 @@ async def get_validation_queue(
     records = await db.query_records("products")
     queue_items = [p for p in records if p.get("status") in {"pending_validation", "approved", "rejected"}]
     return [_to_response(item) for item in queue_items]
+
+
+@router.post("/ai-draft", response_model=ProductAiDraftResponse)
+async def generate_product_ai_draft(
+    payload: ProductAiDraftRequest,
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
+):
+    """
+    Extracts structured craft attributes and FairPrice suggestion from artisan voice transcript or text.
+    Uses LLM adapter for structured extraction and domain FairPrice engine.
+    """
+    llm = get_llm_adapter()
+    extraction = await llm.extract_craft_attributes(payload.description, language=payload.language)
+
+    hours = extraction.estimated_labour_hours or 4.0
+    fp = calculate_fair_price(extraction)
+
+    craft_val = extraction.craft or "Traditional Craft"
+    title_val = extraction.title or f"Handcrafted {craft_val}"
+    category_val = "Textiles & Handlooms"
+    desc_lower = payload.description.lower()
+    if "warli" in desc_lower or "painting" in desc_lower:
+        category_val = "Paintings & Folk Art"
+    elif "pottery" in desc_lower or "terracotta" in desc_lower:
+        category_val = "Pottery & Terracotta"
+    elif "grass" in desc_lower or "sikki" in desc_lower:
+        category_val = "Natural Fiber & Grass Crafts"
+    elif "wood" in desc_lower or "metal" in desc_lower or "dhokra" in desc_lower:
+        category_val = "Wood & Metal Crafts"
+
+    desc_lines = [
+        f"Authentic handcrafted {craft_val} made by traditional Indian artisans.",
+        f"Materials: {', '.join(extraction.materials) if extraction.materials else 'Authentic natural materials'}.",
+    ]
+    if extraction.colour:
+        desc_lines.append(f"Colour: {extraction.colour}.")
+    desc_lines.append(f"Estimated craft making time: {hours:.1f} hours.")
+
+    return ProductAiDraftResponse(
+        title=title_val,
+        description=" ".join(desc_lines),
+        category=category_val,
+        craft=craft_val,
+        materials=extraction.materials or [],
+        colour=extraction.colour,
+        suggested_price=round(fp.suggested_price, 2),
+        making_hours=hours,
+        raw_transcript=payload.description,
+    )
+
+
+@router.post("/ai-draft-voice", response_model=ProductAiDraftResponse)
+async def generate_product_ai_draft_from_voice(
+    file: UploadFile = File(...),
+    language: str = Form("hi"),
+    current_user: CurrentUser = Depends(require_roles(["coordinator", "artisan"])),
+):
+    """
+    Transcribes artisan voice audio and generates structured craft draft with FairPrice suggestion.
+    """
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded audio file is empty.")
+
+    stt = get_stt_adapter()
+    transcript = await stt.transcribe(audio_bytes, language=language)
+
+    return await generate_product_ai_draft(
+        payload=ProductAiDraftRequest(description=transcript, language=language),
+        current_user=current_user,
+    )
 
 
 @router.get("/{product_id}", response_model=ProductResponse)

@@ -7,32 +7,47 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Palette, Typography, Spacing, Radii, Shadows } from '@/constants/theme';
+import { useAuth } from '@/hooks/use-auth';
+import { useArtisanProfile } from '@/hooks/queries/use-artisan-profile';
+import { useCreateProduct } from '@/hooks/queries/use-products';
 
 export default function ArtisanReviewScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     title?: string;
+    description?: string;
+    category?: string;
     fairPrice?: string;
     artisanShare?: string;
     materials?: string;
+    estimatedHours?: string;
     idempotencyId?: string;
     photoUri?: string;
+    photoPublicId?: string;
   }>();
   const { t, i18n } = useTranslation();
   const isHindi = i18n.language === 'hi';
 
+  const { user } = useAuth();
+  const { data: profile } = useArtisanProfile();
+  const createProduct = useCreateProduct();
+
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [productName, setProductName] = useState(params.title || 'Hand-embroidered cotton cushion cover');
   const [description, setDescription] = useState(
-    params.title
-      ? `Handcrafted artisan piece (${params.materials || 'Pure cotton and silk embroidery'})`
-      : 'Hand embroidered cushion cover in red thread, 40 cm square.'
+    params.description ||
+      (params.title
+        ? `Handcrafted artisan piece (${params.materials || 'Pure cotton and silk embroidery'})`
+        : 'Hand embroidered cushion cover in red thread, 40 cm square.')
   );
   const [materials, setMaterials] = useState(params.materials || 'Cotton, silk thread');
   const [dimensions, setDimensions] = useState('40 x 40 cm');
@@ -51,15 +66,43 @@ export default function ArtisanReviewScreen() {
     }, 4000);
   };
 
-  const handleSubmit = () => {
-    router.push({
-      pathname: '/artisan/submission-status',
-      params: {
-        idempotencyId: params.idempotencyId || `wamid.HBgM${Date.now()}`,
-        productName,
-        price,
-      },
-    } as any);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    const artisanId = profile?.artisan_id || user?.id;
+    if (!artisanId) {
+      Alert.alert(isHindi ? 'त्रुटि' : 'Error', 'Artisan session not found.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await createProduct.mutateAsync({
+        artisan_id: artisanId,
+        title: productName,
+        description,
+        category: params.category || 'Home Decor',
+        price: Number(price) || 1200,
+        image_url: params.photoUri || 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800',
+        cloudinary_public_id: params.photoPublicId,
+        materials,
+        dimensions,
+        production_lead_time_days: 7,
+      });
+
+      router.push({
+        pathname: '/artisan/submission-status',
+        params: {
+          idempotencyId: params.idempotencyId || `wamid.HBgM${Date.now()}`,
+          productName,
+          price,
+        },
+      } as any);
+    } catch (err: any) {
+      const msg = err?.message || 'Submission failed';
+      Alert.alert(isHindi ? 'प्रकाशन त्रुटि' : 'Submission Error', msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -323,13 +366,22 @@ export default function ArtisanReviewScreen() {
         {/* Bottom 56dp Primary Trigger Dock */}
         <View style={styles.bottomDock}>
           <TouchableOpacity
-            style={styles.submitBtn}
+            style={[styles.submitBtn, isSubmitting && { opacity: 0.7 }]}
             onPress={handleSubmit}
+            disabled={isSubmitting}
             accessibilityLabel="Submit for review"
             activeOpacity={0.88}
           >
-            <Ionicons name="checkmark" size={24} color={Palette.onPrimary} />
-            <Text style={styles.submitBtnText}>Submit for review</Text>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color={Palette.onPrimary} />
+            ) : (
+              <Ionicons name="checkmark" size={24} color={Palette.onPrimary} />
+            )}
+            <Text style={styles.submitBtnText}>
+              {isSubmitting
+                ? isHindi ? 'जमा कर रहे हैं...' : 'Submitting...'
+                : isHindi ? 'सत्यापन के लिए भेजें' : 'Submit for review'}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

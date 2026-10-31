@@ -136,8 +136,9 @@ async function request<T>(
 
   try {
     const authHeader = await getAuthHeader();
+    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(authHeader as Record<string, string>),
       ...((options.headers as Record<string, string>) || {}),
     };
@@ -148,7 +149,7 @@ async function request<T>(
       signal: controller.signal,
     };
     if (body !== undefined) {
-      init.body = JSON.stringify(body);
+      init.body = isFormData ? body : JSON.stringify(body);
     }
 
     const res = await fetch(`${API_BASE}${path}`, init);

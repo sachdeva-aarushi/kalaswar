@@ -10,7 +10,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { type SessionUser } from "@/lib/auth-client";
 
-export type KwRole = "admin" | "coordinator" | "artisan" | "buyer" | "customer";
+export type KwRole = "coordinator" | "artisan" | "buyer" | "customer";
 
 export interface AuthContextType {
   user: SessionUser | null;
@@ -40,31 +40,20 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo user email alias map to transparently resolve seed demo accounts
-const DEMO_EMAIL_ALIASES: Record<string, string> = {
-  "admin@kalaswar.demo": "admin.kalaswar@gmail.com",
-  "coordinator.sunita@kalaswar.demo": "coordinator.sunita@gmail.com",
-  "artisan.anita@kalaswar.demo": "artisan.anita@gmail.com",
-  "customer.priya@kalaswar.demo": "customer.priya@gmail.com",
-  "buyer.fabindia@kalaswar.demo": "buyer.fabindia@gmail.com",
-  "financier.sbi@kalaswar.demo": "financier.sbi@gmail.com",
-};
-
 /**
  * Determines highest priority role based on defined hierarchy:
- * admin > coordinator > artisan > buyer > customer
+ * coordinator > artisan > buyer > customer
  */
 export function determineHighestPriorityRole(
   roles: string[] = [],
   metadataRole?: string | null
 ): KwRole {
-  if (roles.includes("admin")) return "admin";
   if (roles.includes("coordinator")) return "coordinator";
   if (roles.includes("artisan")) return "artisan";
   if (roles.includes("buyer")) return "buyer";
   if (roles.includes("customer")) return "customer";
 
-  if (metadataRole && ["admin", "coordinator", "artisan", "buyer", "customer"].includes(metadataRole)) {
+  if (metadataRole && ["coordinator", "artisan", "buyer", "customer"].includes(metadataRole)) {
     return metadataRole as KwRole;
   }
 
@@ -73,7 +62,7 @@ export function determineHighestPriorityRole(
 
 /**
  * Resolves user role with precedence:
- * admin > coordinator > artisan > buyer > customer
+ * coordinator > artisan > buyer > customer
  */
 export async function resolveUserRole(userId: string, metadataRole?: string | null): Promise<KwRole> {
   try {
@@ -113,7 +102,6 @@ export async function resolveUserRole(userId: string, metadataRole?: string | nu
  * Maps a role to its landing destination per specification:
  * - artisan -> /workroom/artisan
  * - coordinator -> /workroom
- * - admin -> /workroom/admin
  * - buyer -> /shop
  * - customer -> /shop
  */
@@ -123,8 +111,6 @@ export function getRedirectForRole(role: string | null | undefined): string {
       return "/workroom/artisan";
     case "coordinator":
       return "/workroom";
-    case "admin":
-      return "/workroom/admin";
     case "buyer":
       return "/shop";
     case "customer":
@@ -187,30 +173,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn: AuthContextType["signIn"] = async ({ email, password }) => {
     setIsLoading(true);
-    let targetEmail: string = email.trim();
+    const targetEmail: string = email.trim();
 
-    // Transparent alias support for demo credentials
-    const alias = DEMO_EMAIL_ALIASES[targetEmail.toLowerCase()];
-    if (alias) {
-      targetEmail = alias;
-    }
-
-    let { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: targetEmail,
       password,
     });
-
-    // If alias fallback was needed or vice-versa
-    if (error && DEMO_EMAIL_ALIASES[email.trim().toLowerCase()] && targetEmail !== email.trim()) {
-      const retry = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (!retry.error) {
-        data = retry.data;
-        error = null;
-      }
-    }
 
     if (error || !data.user) {
       setIsLoading(false);

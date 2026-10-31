@@ -54,6 +54,15 @@ class UserProfileResponse(BaseModel):
     profile_details: Dict[str, Any] = Field(default_factory=dict)
 
 
+class UpdateProfileRequest(BaseModel):
+    display_name: Optional[str] = None
+    preferred_language: Optional[str] = None
+    phone: Optional[str] = None
+    bio: Optional[str] = None
+    craft_specialties: Optional[List[str]] = None
+    shipping_address: Optional[Dict[str, Any]] = None
+
+
 # -----------------------------------------------------------------------------
 # Signup Requests (Role determined server-side)
 # -----------------------------------------------------------------------------

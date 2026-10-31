@@ -1,4 +1,6 @@
 import { useLang, type Lang } from "@/lib/i18n";
+import { useAuth } from "@/features/auth";
+import { useUpdateProfile } from "@/features/auth/hooks";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +20,16 @@ const SHORT: Record<Lang, string> = { en: "EN", hi: "हिंदी", mr: "म�
 
 export function LanguageSelect({ tone = "dark" }: { tone?: "dark" | "light" }) {
   const { lang, setLang, t } = useLang();
+  const { user } = useAuth();
+  const updateProfile = useUpdateProfile();
+
+  const handleSelectLang = (newLang: Lang) => {
+    setLang(newLang);
+    if (user?.id) {
+      updateProfile.mutate({ preferred_language: newLang });
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,7 +51,7 @@ export function LanguageSelect({ tone = "dark" }: { tone?: "dark" | "light" }) {
         {OPTIONS.map((o) => (
           <DropdownMenuItem
             key={o.value}
-            onClick={() => setLang(o.value)}
+            onClick={() => handleSelectLang(o.value)}
             className={o.value === lang ? "bg-accent" : undefined}
             lang={o.value}
           >
