@@ -191,7 +191,7 @@ async def create_quality_check(
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Record a QA inspection verdict (pass, fail, conditional) for an order. Requires coordinator or admin role.
+    Record a QA inspection verdict (pass, fail, conditional) for an order. Requires coordinator role.
     """
     valid_results = {"pass", "fail", "conditional"}
     if payload.result not in valid_results:

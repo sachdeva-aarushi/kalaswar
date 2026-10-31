@@ -255,7 +255,7 @@ async def verify_material_freshness(
     """
     Flow (3) Inventory Freshness Verification:
     Updates material verification timestamp to now, resetting freshness flags.
-    Requires coordinator or admin role.
+    Requires coordinator role.
     """
     now_iso = datetime.now(timezone.utc).isoformat()
     actor_name = current_user.user_metadata.get("full_name") or current_user.email or "Coordinator"

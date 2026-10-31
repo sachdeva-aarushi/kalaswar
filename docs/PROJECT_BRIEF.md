@@ -26,7 +26,7 @@ Kalaswar is a voice-first livelihood operating system and direct-to-market platf
 ### The 5 Interfaces & Team Ownership
 | Interface | Target Audience | Primary Functionality | Owner |
 | :--- | :--- | :--- | :--- |
-| **1. Web Workroom** | SHG Coordinators, Admins, Artisans | Operational ERP: validation queue, assignments, inventory freshness, risk radar, QC dispatch gating, B2B quotes. | **Me** (Lead / Backend, Web, Mobile) |
+| **1. Web Workroom** | SHG Coordinators, Artisans | Operational ERP: validation queue, assignments, inventory freshness, risk radar, QC dispatch gating, B2B quotes. | **Me** (Lead / Backend, Web, Mobile) |
 | **2. Expo Mobile App** | Field Coordinators, CRPs, Artisans | Field intake, offline-first stock counting, on-device pre-dispatch quality assistance. | **Me** (Lead / Backend, Web, Mobile) |
 | **3. Gift Concierge & Storefront** | B2C Consumers & B2B Corporate Buyers | Product catalog, Living Craft Stories, guided bespoke intake wizard, 2-sided proposal approval. | **Me** (Lead / Backend, Web, Mobile) |
 | **4. WhatsApp Bot** | Grassroots Rural Artisans | Voice-first conversational cataloging, photo intake, Hindi audio prompts, draft approval, payout alerts. | **Teammate A** (WhatsApp / Conversational AI) |
@@ -81,14 +81,14 @@ Kalaswar utilizes a modular, decoupled architecture where business validation an
 
 ## 3. User Roles and Permissions
 
+Kalaswar defines **exactly four user types** with isolated workspaces, row-level security policies, and server-validated signup flows. **There is NO admin role** — platform infrastructure and database governance are managed at the DevOps level; nobody can self-register or elevate to an administrative role in the application.
+
 | Role | Target Persona | Key Capabilities & Authorization Boundaries |
 | :--- | :--- | :--- |
-| `admin` | Platform Administrator | Global read/write access, system-wide action audit log inspection (`/api/v1/audit/logs`), user role grants, platform demo-mode toggle. |
-| `coordinator` | SHG Cluster Lead / CRP | Manages cluster artisans, reviews and approves product drafts (`pending_validation` $\to$ `published`), runs skills-aware work assignments, updates inventory, gates shipments behind passing QC, issues B2B quotes. |
-| `artisan` | Rural Craftsperson | Submits product listings via voice/photo, views assigned tasks and milestones, logs craft progress, reviews wage allocations and simulated DBT transfers. |
-| `customer` | B2C Consumer | Browses published catalog, purchases products, submits custom concierge briefs, reviews and signs off on customized proposal versions. |
-| `buyer` | Corporate B2B Sourcing Lead | Submits enterprise RFPs, reviews versioned quotes, requests and approves pre-production samples, tracks PO fulfillment. |
-| `financier` | Institutional Bank / NBFC Lead | Inspects corporate POs for micro-factoring, tokenizes purchase orders, disburses 70% raw material advances, releases final escrow. |
+| `coordinator` | SHG Cluster Coordinator / SRLM Leader | Registers and manages SHG collective; approves/rejects artisan join requests; reviews listing validation queue (`pending_validation` $\to$ `published`); assigns production tasks; manages raw material inventory; gates dispatch behind QC; issues B2B custom proposals and quotes. |
+| `artisan` | Rural Craftsperson / Weaver | Onboards via phone number and joins an SHG; creates product drafts via photo and voice descriptions; approves AI-drafted craft stories; updates order production progress; inspects earnings and DBT payout ledger. |
+| `customer` | Individual Retail Customer | Browses published craft catalog with search and filters; views verified craft stories and digital passports; adds items to cart; completes checkout via Razorpay; tracks order journey events; uses Gift Concierge with MakePossible feasibility checks. |
+| `buyer` | Corporate B2B Wholesale Buyer | Registers with company name and GSTIN; submits custom corporate gifting briefs; reviews multi-versioned proposals and quotes; approves pre-production samples; confirms bulk wholesale purchase orders. |
 
 ---
 
@@ -347,10 +347,10 @@ In accordance with product principles, simulated modules are clearly badged in t
 | :--- | :--- | :--- | :--- |
 | **Catalog & Products** | Real Postgres storage, Cloudinary images, validation queue | None | *None (Live)* |
 | **Workroom Operations**| Real assignments, inventory freshness, risk radar, QC gating | None | *None (Live)* |
-| **Payment Gateway** | Real cart state and order transition logic | Simulated card / UPI payment processing | `"Simulated Payment (Demo Mode)"` |
-| **Artisan Payouts** | Real wage calculation and ledger records | Bank transfer execution via API mock | `"Simulated DBT Bank Transfer"` |
-| **ONDC Integration** | Real listing data schemas | External ONDC network gateway broadcast | `"ONDC Mock Connector"` |
-| **Blockchain L2** | Real Merkle tree generation and inclusion proofs | In-memory root anchoring (`MockChainAdapter`) | `"Demo Chain"` (badge on Passport) |
+| **Payment Gateway** | Real Razorpay Checkout (Test Mode & Webhook) | Production settlement with live banking keys | `"Test Payment / Razorpay Testnet"` |
+| **Artisan Payouts** | Real wage calculation, ledger records & DBT approval flow | National Automated Clearing House (NACH) / DBT API | `"Simulated DBT Bank Transfer"` |
+| **ONDC Integration** | Real Beckn / ONDC product and order schemas | External live ONDC staging network gateway broadcast | `"ONDC Mock Connector"` |
+| **Blockchain L2** | Real Merkle tree generation, leaf hashing and inclusion proofs | Public Polygon mainnet contract execution (live when RPC & key supplied) | `"Demo Chain"` (badge on Passport) |
 | **PO Factoring Escrow**| Real state machine transitions and audit records | Smart contract escrow vault lock/release | `"Demo Escrow"` / `"PO Factoring (Simulated)"` |
 
 ---
@@ -360,8 +360,9 @@ In accordance with product principles, simulated modules are clearly badged in t
 ### Prerequisites
 * Node.js v20+ & npm
 * Python 3.11+
-* Supabase project or local Supabase CLI
+* Supabase project or local Supabase instance
 * Cloudinary credentials
+* Sarvam AI / OpenAI credentials (for Indic voice & LLM extraction)
 
 ### Exact Execution Commands
 ```bash
@@ -372,11 +373,13 @@ python -m venv .venv
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# 2. Database Seeding (Seed script)
-python scripts/seed_demo_data.py
-# (Alternative from root: make seed)
+# 2. Database Bootstrap (Reference Data Only)
+# Populates authentic craft taxonomies, categories, Indian states, and languages.
+# Creates ZERO fake people, fake products, or mock orders.
+make bootstrap
+# (Alternative: python backend/scripts/bootstrap_reference_data.py)
 
-# 3. Web Application (React / Vite)
+# 3. Web Application (TanStack Start / Vite)
 cd web
 npm install --legacy-peer-deps
 npm run dev
@@ -390,15 +393,17 @@ npx expo start
 
 ### Environment Variable Names (Never Commit Values)
 * **Backend (`backend/.env`)**:
-  * `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+  * `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
   * `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+  * `SARVAM_API_KEY` (Primary Indic Speech-to-Text)
+  * `OPENAI_API_KEY` (Whisper STT fallback & GPT-4o-mini LLM extraction)
   * `INTERNAL_SERVICE_TOKEN`, `WHATSAPP_SHARED_SERVICE_TOKEN`
   * `CHAIN_ADAPTER_TYPE` (`mock` or `polygon`), `RPC_URL`, `DPP_CONTRACT_ADDRESS`, `DPP_PRIVATE_KEY`, `MERKLE_BATCH_SIZE`
-  * `AI_PROVIDER`, `GEMINI_API_KEY`, `STT_PROVIDER`, `SARVAM_API_KEY`
+  * `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`
 * **Web (`web/.env`)**:
   * `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_BASE_URL`
-* **Demo Logins**:
-  * Reference the pre-configured credentials table in [`README.md`](file:///d:/Sambhav/code/Hackathons/Kalaswar/kalaswar/README.md#development-demo-accounts) for Admin, Coordinator, Artisan, Customer, Buyer, and Financier accounts.
+* **Mobile (`mobile/.env`)**:
+  * `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
 ---
 

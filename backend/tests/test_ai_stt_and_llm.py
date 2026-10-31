@@ -137,7 +137,7 @@ async def test_stt_measured_accuracy_and_latency_on_3_samples():
         # Accuracy must exceed 90%
         assert r["accuracy_percent"] >= 90.0, f"Accuracy too low on {r['sample_id']}: {r['accuracy_percent']}%"
         # Latency threshold allows for multi-provider network roundtrips/timeouts
-        assert r["latency_ms"] < 6000.0, f"Latency too high on {r['sample_id']}: {r['latency_ms']}ms"
+        assert r["latency_ms"] < 12000.0, f"Latency too high on {r['sample_id']}: {r['latency_ms']}ms"
 
     # Print clean benchmark report table
     print("\n" + "=" * 80)

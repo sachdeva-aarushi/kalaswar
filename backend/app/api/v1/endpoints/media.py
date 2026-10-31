@@ -51,6 +51,14 @@ async def upload_media_file(
             detail="Uploaded file is empty.",
         )
 
+    # File size validation (10 MB limit)
+    MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
+    if len(file_bytes) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Uploaded image exceeds maximum allowable limit of 10 MB.",
+        )
+
     try:
         result = await adapter.upload_image(
             media_source=file_bytes,

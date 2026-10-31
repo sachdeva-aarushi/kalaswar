@@ -1041,14 +1041,13 @@ Disaggregate metrics only when safe, useful, consented to, and unlikely to expos
 
 ## Local Development and Deployment
 
-Commands depend on the repository's actual framework and package manager. Verify `package.json` before using these examples.
-
 ### Prerequisites
 
 - Node.js (v20+)
 - Python (3.11+)
-- Supabase CLI or project connection
-- Cloudinary account (unsigned preset for development)
+- Supabase project or local Supabase instance
+- Cloudinary credentials (cloud name, API key, API secret)
+- Sarvam AI & OpenAI API keys for Indic voice and LLM extraction
 
 ### Quickstart
 
@@ -1056,53 +1055,110 @@ Commands depend on the repository's actual framework and package manager. Verify
 git clone <your-repository-url>
 cd kalaswar
 
-# 1. Install Web dependencies
-cd web
-npm install --legacy-peer-deps
+# 1. Backend Setup & Startup
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\Activate.ps1 | Mac/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+
+# Start FastAPI backend server on http://localhost:8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 cd ..
 
-# 2. Database Seeding (Idempotent Demo Data)
-make seed
-# Or on Windows without make:
-# python backend/scripts/seed.py
+# 2. Database Bootstrap (Reference Data Only)
+# Seeds only foundational taxonomies: crafts, categories, Indian states, and languages.
+# Creates ZERO fake people, fake products, or mock orders.
+make bootstrap
+# (Or on Windows without make: python backend/scripts/bootstrap_reference_data.py)
 
-# 3. Start Web application
+# 3. Web Application (TanStack Start / Vite)
 cd web
+npm install --legacy-peer-deps
 npm run dev
+# Web runs at http://localhost:8082
+cd ..
+
+# 4. Mobile Application (Expo Scaffold)
+cd mobile
+npm install
+npx expo start
+# Mobile packager runs at http://localhost:8081
 ```
 
-### Development Demo Accounts
+### The Four Canonical User Types (No Admin)
 
-> **Notice:** The following accounts are pre-configured in `supabase/seed.sql` for **local development and hackathon evaluation only**. All mock accounts share a common development password. Never use these credentials in production environments.
+Kalaswar is architected around **exactly four user personas**, each with dedicated onboarding workflows, isolated dashboards, and strict row-level security policies. **There is NO admin role**: administrative control is reserved for direct database and cloud infrastructure access; nobody can self-register or elevate to an admin role.
 
-| Role | Email / Username | Password | Purpose & Scoped Permissions |
+| Role | Persona | Workspace Entry Point | Primary Capabilities |
 |---|---|---|---|
-| **Platform Admin** | `admin@kalaswar.demo` | `KalaswarDemo@2025` | Full administrative oversight across all SHG clusters and audit logs |
-| **SHG Coordinator** | `coordinator.sunita@kalaswar.demo` | `KalaswarDemo@2025` | Manages Dahanu Warli collective, artisan assignments, and quote approvals |
-| **Master Artisan** | `artisan.anita@kalaswar.demo` | `KalaswarDemo@2025` | Banarasi handloom weaver; views orders, logs production progress, reviews voice drafts |
-| **Retail Customer** | `customer.priya@kalaswar.demo` | `KalaswarDemo@2025` | Places retail and custom concierge orders; manages shopping cart |
-| **B2B Buyer** | `buyer.fabindia@kalaswar.demo` | `KalaswarDemo@2025` | FabIndia sourcing lead; submits RFPs, reviews quotations, approves samples |
-| **Micro-Financier** | `financier.sbi@kalaswar.demo` | `KalaswarDemo@2025` | NABARD / Bank lead; reviews PO factoring advances and DBT wage ledger |
+| `artisan` | Rural Craftsperson / Weaver | `/artisan/*` (Web) & Artisan Tab (Mobile) | Voice and photo product draft submission; craft story approvals; active order assignments; production milestone updates; earnings and DBT payout ledger. |
+| `coordinator` | SHG Cluster Coordinator | `/shg/*` (Web) & Coordinator Tab (Mobile) | Collective group profile; artisan join request approval/rejection; listing validation queue; skills-aware work allocation; raw materials inventory; QC dispatch gating; custom B2B proposals and quotes. |
+| `customer` | Individual Retail Shopper | `/shop` & `/account` (Web) & Shopper Tab (Mobile) | Catalog browsing with craft filters; verified living craft stories; digital passport QR viewer; cart and Razorpay test checkout; order lifecycle tracking; Gift Concierge with MakePossible feasibility. |
+| `buyer` | Corporate B2B Sourcing Lead | `/business/*` (Web) | Enterprise registration with GSTIN verification; custom bulk gifting briefs; multi-versioned quote review; pre-production sample sign-off; purchase order confirmation. |
 
-
-
-
+---
 
 ## Environment Configuration
 
-Create `.env.example` with variable names and blank or safe placeholder values. Never commit `.env`, `.env.local`, API keys, service-role keys, upload signatures, or production credentials.
+Copy `.env.example` templates to `.env` in respective directories. Never commit secrets to version control.
 
-| Variable | Exposure | Purpose |
+### Backend (`backend/.env`)
+
+| Variable | Requirement | Purpose |
 |---|---|---|
-| `VITE_SUPABASE_URL` | Client-visible | Supabase URL, if using Vite |
-| `VITE_SUPABASE_ANON_KEY` | Client-visible | Public/anonymous key; requires correct RLS |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only | Privileged server access |
-| `CLOUDINARY_CLOUD_NAME` | Depends on usage | Cloudinary account identifier |
-| `CLOUDINARY_API_KEY` | Server-side where signing | Cloudinary API operations |
-| `CLOUDINARY_API_SECRET` | Server-only | Signed media operations |
-| `AI_PROVIDER` | Server configuration | Selected provider adapter |
-| `AI_API_KEY` | Server-only | External AI credentials |
-| `AI_MODEL` | Server configuration | Supported model identifier |
+| `SUPABASE_URL` | Required | Supabase project URL |
+| `SUPABASE_KEY` | Required | Public anonymous API key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Required | Service role key for backend database queries |
+| `SUPABASE_JWT_SECRET` | Required | JWT secret for local token signature verification |
+| `CLOUDINARY_CLOUD_NAME` | Required | Cloudinary cloud account name |
+| `CLOUDINARY_API_KEY` | Required | Cloudinary API key for signed uploads |
+| `CLOUDINARY_API_SECRET` | Required | Cloudinary API secret for cryptographic upload signatures |
+| `SARVAM_API_KEY` | Required outside test | Primary Indic Speech-to-Text provider (Hindi, Marathi, etc.) |
+| `OPENAI_API_KEY` | Required outside test | Whisper STT fallback & GPT-4o-mini structured craft extraction |
+| `RAZORPAY_KEY_ID` | Optional (test keys) | Razorpay payment integration key |
+| `RAZORPAY_KEY_SECRET` | Optional (test keys) | Razorpay checkout secret |
+| `INTERNAL_SERVICE_TOKEN` | Required | Shared secret for internal teammate endpoints (`/internal/whatsapp/*`) |
+| `WHATSAPP_SHARED_SERVICE_TOKEN` | Required | Shared token for WhatsApp webhook authentication |
+| `CORS_ORIGINS` | Optional | Comma-separated list of allowed origins (defaults to local dev ports) |
+| `CHAIN_ADAPTER_TYPE` | Optional (`mock` / `polygon`) | Blockchain adapter mode |
+| `RPC_URL` | Optional | Polygon RPC endpoint (e.g. `https://polygon-rpc.com`) |
+| `DPP_CONTRACT_ADDRESS` | Optional | Deployed DPP smart contract address |
+| `DPP_PRIVATE_KEY` | Optional | Wallet private key for on-chain anchoring |
+| `MERKLE_BATCH_SIZE` | Optional | Merkle tree batch size (defaults to `500`) |
+
+### Web (`web/.env`)
+
+| Variable | Requirement | Purpose |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Required | Supabase project URL for client authentication |
+| `VITE_SUPABASE_ANON_KEY` | Required | Supabase anonymous API key |
+| `VITE_API_BASE_URL` | Required | Backend API base URL (`http://localhost:8000`) |
+
+### Mobile (`mobile/.env`)
+
+| Variable | Requirement | Purpose |
+|---|---|---|
+| `EXPO_PUBLIC_API_URL` | Required | Backend API base URL (`http://localhost:8000`) |
+| `EXPO_PUBLIC_SUPABASE_URL` | Required | Supabase URL |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Required | Supabase anonymous API key |
+
+---
+
+## Production Startup Checks
+
+To prevent silent failures in production, the backend executes strict credential verification during startup (`app.core.startup_checks`):
+* Outside `APP_ENV=test`, missing credentials for **Cloudinary** (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`), **Speech-to-Text** (`SARVAM_API_KEY` or `OPENAI_API_KEY`), or **LLM Extraction** (`OPENAI_API_KEY`) cause the server to refuse to start with an explicit, actionable error message.
+* Mock adapters and test fixtures are strictly restricted to `APP_ENV=test`.
+
+---
+
+## Current Simulation Boundaries
+
+To maintain full transparency, the following subsystems currently operate with clear simulation boundaries:
+
+1. **Direct Benefit Transfer (DBT) Payouts**: Real wage accounting and ledger balances are computed deterministically. Final banking disbursements execute through a simulated DBT webhook adapter until live NACH/PFMS credentials are provided.
+2. **ONDC Network Integration**: Real Beckn transaction and product schemas are generated and verified. Network broadcasting runs against an isolated mock connector adapter.
+3. **Blockchain Digital Product Passports**: Cryptographic SHA-256 Merkle tree generation, leaf hashing, and mathematical inclusion proofs are fully real and live. Anchoring to Polygon PoS smart contracts runs via `MockChainAdapter` unless live `RPC_URL`, `DPP_CONTRACT_ADDRESS`, and `DPP_PRIVATE_KEY` are configured.
 
 ## References
 

@@ -34,7 +34,6 @@ const NAV_ITEMS = [
   { to: "/workroom/b2b", label: "B2B Desk", icon: Briefcase },
   { to: "/workroom/artisans", label: "Artisans", icon: Users },
   { to: "/workroom/requests", label: "Requests", icon: ClipboardList },
-  { to: "/workroom/admin", label: "Admin", icon: ShieldCheck },
   { to: "/workroom/settings", label: "Settings", icon: Settings },
 ] as const;
 

@@ -6,9 +6,8 @@
  */
 
 const isDemoMode =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env?.["VITE_DEMO_MODE"] === "true") ||
-  true; // default to demo mode until credentials are configured
+  typeof import.meta !== "undefined" &&
+  import.meta.env?.["VITE_DEMO_MODE"] === "true";
 
 interface DemoModeBannerProps {
   /** Override message shown in the banner */

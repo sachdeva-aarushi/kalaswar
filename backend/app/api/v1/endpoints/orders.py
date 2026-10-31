@@ -300,7 +300,7 @@ async def update_order_status(
 ):
     """
     Transition order lifecycle status: pending -> in_production -> ready_for_dispatch -> delivered / delayed.
-    Requires coordinator or admin role. Appends an immutable order event.
+    Requires coordinator role. Appends an immutable order event.
     """
     allowed_statuses = {"pending", "in_production", "ready_for_dispatch", "delivered", "delayed"}
     if payload.status not in allowed_statuses:
@@ -389,7 +389,7 @@ async def get_assignment_suggestions(
     """
     Flow (2) Skills-Aware Assignment Suggestions:
     Ranks cluster artisans by craft technique match, open workload capacity, and QA pass record.
-    Requires coordinator or admin role.
+    Requires coordinator role.
     """
     target_craft = craft.lower() if craft else ""
     if order_id:
@@ -459,7 +459,7 @@ async def assign_artisan_to_order(
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Assign an artisan to an order for production. Requires coordinator or admin role.
+    Assign an artisan to an order for production. Requires coordinator role.
     """
     order = next((o for o in DEMO_ORDERS if str(o["id"]) == str(payload.order_id)), None)
     if not order:
@@ -525,7 +525,7 @@ async def delete_assignment(
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Remove an artisan assignment. Requires coordinator or admin role.
+    Remove an artisan assignment. Requires coordinator role.
     """
     idx = next((i for i, a in enumerate(DEMO_ASSIGNMENTS) if str(a["id"]) == str(assignment_id)), None)
     if idx is None:

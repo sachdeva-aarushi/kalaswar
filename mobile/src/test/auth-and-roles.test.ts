@@ -10,7 +10,6 @@ describe('Mobile Auth & Role Resolution', () => {
   it('normalizes database and profile roles to the 3 mobile tab roles', () => {
     // Coordinator roles
     expect(normalizeAppRole('coordinator')).toBe('coordinator');
-    expect(normalizeAppRole('admin')).toBe('coordinator');
     expect(normalizeAppRole('Cluster Coordinator')).toBe('coordinator');
 
     // Artisan roles

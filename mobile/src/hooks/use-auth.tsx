@@ -52,7 +52,6 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
 export const DEMO_PASSWORD = 'KalaswarDemo@2025';
 
 const DEMO_EMAIL_ALIASES: Record<string, string> = {
-  'admin@kalaswar.demo': 'admin.kalaswar@gmail.com',
   'coordinator.sunita@kalaswar.demo': 'coordinator.sunita@gmail.com',
   'artisan.anita@kalaswar.demo': 'artisan.anita@gmail.com',
   'customer.priya@kalaswar.demo': 'customer.priya@gmail.com',
@@ -66,7 +65,7 @@ const DEMO_EMAIL_ALIASES: Record<string, string> = {
 export function normalizeAppRole(rawRole?: string | null): AppRole {
   if (!rawRole) return 'shopper';
   const lower = rawRole.toLowerCase();
-  if (lower.includes('coord') || lower.includes('admin')) {
+  if (lower.includes('coord')) {
     return 'coordinator';
   }
   if (lower.includes('artisan') || lower.includes('weaver')) {

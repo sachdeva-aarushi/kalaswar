@@ -43,13 +43,13 @@ DEMO_AUDIT_LOGS: List[dict] = [
     },
     {
         "id": "aud00004-0000-0000-0000-000000000004",
-        "actor": "Platform Admin",
-        "action": "user_role_updated",
-        "entity": "user_role",
-        "entity_type": "user_role",
+        "actor": "SHG Coordinator",
+        "action": "artisan_membership_approved",
+        "entity": "group_memberships",
+        "entity_type": "group_memberships",
         "entity_id": "cccc0001-0000-0000-0000-000000000001",
         "actor_user_id": "aaaa0001-0000-0000-0000-000000000001",
-        "payload": {"target_email": "artisan.anita@kalaswar.demo", "role": "artisan", "cluster": "Bolpur Kantha Guild"},
+        "payload": {"target_phone": "+919876543210", "role": "artisan", "status": "approved"},
         "created_at": "2026-10-29T16:00:00Z",
     },
     {

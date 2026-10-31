@@ -10,7 +10,6 @@ describe("Auth Integration & Role Redirection", () => {
   it("maps roles to the exact required redirect targets", () => {
     expect(getRedirectForRole("artisan")).toBe("/workroom/artisan");
     expect(getRedirectForRole("coordinator")).toBe("/workroom");
-    expect(getRedirectForRole("admin")).toBe("/workroom/admin");
     expect(getRedirectForRole("buyer")).toBe("/shop");
     expect(getRedirectForRole("customer")).toBe("/shop");
     expect(getRedirectForRole(null)).toBe("/shop");
@@ -18,15 +17,14 @@ describe("Auth Integration & Role Redirection", () => {
   });
 
   it("handles role precedence correctly when user has multiple roles", () => {
-    // Exact precedence order: admin > coordinator > artisan > buyer > customer
-    expect(determineHighestPriorityRole(["customer", "admin"])).toBe("admin");
+    // Exact precedence order: coordinator > artisan > buyer > customer
+    expect(determineHighestPriorityRole(["customer", "coordinator"])).toBe("coordinator");
     expect(determineHighestPriorityRole(["artisan", "coordinator"])).toBe("coordinator");
     expect(determineHighestPriorityRole(["customer", "artisan"])).toBe("artisan");
     expect(determineHighestPriorityRole(["customer", "buyer"])).toBe("buyer");
     expect(determineHighestPriorityRole(["customer"])).toBe("customer");
 
     // Fallback to metadata
-    expect(determineHighestPriorityRole([], "admin")).toBe("admin");
     expect(determineHighestPriorityRole([], "coordinator")).toBe("coordinator");
     expect(determineHighestPriorityRole([], "artisan")).toBe("artisan");
     expect(determineHighestPriorityRole([], "buyer")).toBe("buyer");
@@ -36,7 +34,6 @@ describe("Auth Integration & Role Redirection", () => {
 
   it("maps demo user roles from README to their correct post-login paths", () => {
     const demoAccounts: Array<{ role: KwRole; expectedRedirect: string }> = [
-      { role: "admin", expectedRedirect: "/workroom/admin" },
       { role: "coordinator", expectedRedirect: "/workroom" },
       { role: "artisan", expectedRedirect: "/workroom/artisan" },
       { role: "customer", expectedRedirect: "/shop" },
