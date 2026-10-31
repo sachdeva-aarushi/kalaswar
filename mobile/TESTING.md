@@ -92,3 +92,4 @@ This document details the end-to-end verification checklist for the Kalaswar mob
 - [ ] Screen 13: Catalog Explore & Filter Search (`/shopper`)
 - [ ] Screen 14: Gift Concierge & Custom Order Inquiries (`/shopper/concierge`)
 - [ ] Screen 15: Customer Orders & Digital Product Passport (`/shopper/orders`)
+

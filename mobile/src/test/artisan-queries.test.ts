@@ -78,3 +78,4 @@ describe('Artisan Mobile Real API Queries & Error Handling', () => {
     expect(targetRoute.startsWith('/artisan/')).toBe(true);
   });
 });
+
