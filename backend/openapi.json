@@ -1040,6 +1040,116 @@
         }
       }
     },
+    "/api/v1/media/sign": {
+      "post": {
+        "tags": [
+          "Media Pipeline & Cloudinary Uploads"
+        ],
+        "summary": "Get Signed Upload Parameters",
+        "description": "Generates a cryptographically signed parameter set for direct client-to-Cloudinary uploads.\nIncludes f_auto,q_auto transformation guarantees.",
+        "operationId": "get_signed_upload_parameters_api_v1_media_sign_post",
+        "parameters": [
+          {
+            "name": "folder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "kalaswar/products",
+              "title": "Folder"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Signed Upload Parameters Api V1 Media Sign Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/upload": {
+      "post": {
+        "tags": [
+          "Media Pipeline & Cloudinary Uploads"
+        ],
+        "summary": "Upload Media File",
+        "description": "Backend-mediated image upload to Cloudinary.\nAccepts multipart file, applies f_auto,q_auto, and returns public_id and optimized URL.",
+        "operationId": "upload_media_file_api_v1_media_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_media_file_api_v1_media_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Upload Media File Api V1 Media Upload Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/fallback": {
+      "get": {
+        "tags": [
+          "Media Pipeline & Cloudinary Uploads"
+        ],
+        "summary": "Get Fallback Asset",
+        "description": "Returns SVG vector graphic fallback for missing or blocked images.",
+        "operationId": "get_fallback_asset_api_v1_media_fallback_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/audit/logs": {
       "post": {
         "tags": [
@@ -1146,7 +1256,7 @@
           "Products Catalog & Management"
         ],
         "summary": "List Products",
-        "description": "Public catalog endpoint with category filters, price bounds, full text search, and pagination.",
+        "description": "Public catalog endpoint with category filters, price bounds, full text search, and pagination.\nQueries the live database with zero mock fallbacks.",
         "operationId": "list_products_api_v1_products__get",
         "parameters": [
           {
@@ -1405,7 +1515,7 @@
           "Products Catalog & Management"
         ],
         "summary": "List Products",
-        "description": "Public catalog endpoint with category filters, price bounds, full text search, and pagination.",
+        "description": "Public catalog endpoint with category filters, price bounds, full text search, and pagination.\nQueries the live database with zero mock fallbacks.",
         "operationId": "list_products_api_v1_products_get",
         "parameters": [
           {
@@ -5222,7 +5332,7 @@
           "Living Craft Stories & Provenance"
         ],
         "summary": "List Craft Stories",
-        "description": "List cultural craft stories and artisan provenance narratives.\nPublic visitors see published stories; coordinators and admins see all.",
+        "description": "List cultural craft stories and artisan provenance narratives.\nPublic visitors see published stories; coordinators and artisans see all.",
         "operationId": "list_craft_stories_api_v1_craft_stories__get",
         "parameters": [
           {
@@ -5376,7 +5486,7 @@
           "Living Craft Stories & Provenance"
         ],
         "summary": "List Craft Stories",
-        "description": "List cultural craft stories and artisan provenance narratives.\nPublic visitors see published stories; coordinators and admins see all.",
+        "description": "List cultural craft stories and artisan provenance narratives.\nPublic visitors see published stories; coordinators and artisans see all.",
         "operationId": "list_craft_stories_api_v1_craft_stories_get",
         "parameters": [
           {
@@ -5572,7 +5682,7 @@
           "Living Craft Stories & Provenance"
         ],
         "summary": "Update Craft Story",
-        "description": "Update or approve/publish a craft story. Requires coordinator or admin role.",
+        "description": "Update or approve/publish a craft story. Requires coordinator role.",
         "operationId": "update_craft_story_api_v1_craft_stories__story_id__patch",
         "parameters": [
           {
@@ -7957,6 +8067,31 @@
           "file"
         ],
         "title": "Body_transcribe_audio_api_v1_voice_transcribe_post"
+      },
+      "Body_upload_media_file_api_v1_media_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Image file to upload (JPEG, PNG, WebP)"
+          },
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "default": "kalaswar/products"
+          },
+          "background_clean": {
+            "type": "boolean",
+            "title": "Background Clean",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_media_file_api_v1_media_upload_post"
       },
       "BuyerOnboardingRequest": {
         "properties": {

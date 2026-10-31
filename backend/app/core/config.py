@@ -1,4 +1,5 @@
-from typing import List, Union
+import os
+from typing import List, Optional, Union
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,6 +10,12 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PORT: int = 8000
     ENVIRONMENT: str = "development"
+    APP_ENV: Optional[str] = None
+
+    @property
+    def is_test(self) -> bool:
+        env = (self.APP_ENV or os.getenv("APP_ENV") or self.ENVIRONMENT or os.getenv("ENVIRONMENT") or "development").lower()
+        return env in ("test", "testing")
 
     # CORS configuration
     CORS_ORIGINS: List[str] = [
@@ -54,6 +61,7 @@ class Settings(BaseSettings):
     # AI & Speech Services
     OPENAI_API_KEY: str = ""
     SARVAM_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
 
     # Cloudinary Media Pipeline
     CLOUDINARY_CLOUD_NAME: str = ""

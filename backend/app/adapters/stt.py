@@ -17,7 +17,7 @@ class SttAdapter(abc.ABC):
 class MockSttAdapter(SttAdapter):
     """
     Deterministic mock STT adapter returning authentic artisan Hindi speech transcripts.
-    Used during development, automated testing, and when external AI keys are absent.
+    Strictly permitted during automated tests (APP_ENV=test).
     """
 
     def __init__(self, default_transcript: Optional[str] = None):
@@ -26,7 +26,7 @@ class MockSttAdapter(SttAdapter):
         )
 
     async def transcribe(self, audio_source: Union[str, bytes], language: str = "hi") -> str:
-        logger.info("[MockSttAdapter] Returning deterministic Hindi transcript.")
+        logger.info("[MockSttAdapter] Returning deterministic test transcript.")
         return self.default_transcript
 
 
@@ -42,8 +42,9 @@ class SarvamSttAdapter(SttAdapter):
 
     async def transcribe(self, audio_source: Union[str, bytes], language: str = "hi") -> str:
         if not self.api_key:
-            logger.warning("Sarvam API key not set; falling back to Mock STT.")
-            return await MockSttAdapter().transcribe(audio_source, language)
+            if settings.is_test:
+                return await MockSttAdapter().transcribe(audio_source, language)
+            raise RuntimeError("Sarvam STT failed: SARVAM_API_KEY is not configured.")
 
         logger.info("[SarvamSttAdapter] Transcribing audio with language=%s", language)
         headers = {
@@ -60,20 +61,23 @@ class SarvamSttAdapter(SttAdapter):
                     files = {"file": ("audio.wav", audio_source, "audio/wav")}
                     res = await client.post(self.endpoint, headers=headers, data=data, files=files)
                 elif isinstance(audio_source, str) and (audio_source.startswith("http://") or audio_source.startswith("https://")):
-                    # Fetch audio from URL first
                     audio_res = await client.get(audio_source, timeout=15.0)
                     files = {"file": ("audio.wav", audio_res.content, "audio/wav")}
                     res = await client.post(self.endpoint, headers=headers, data=data, files=files)
                 else:
-                    return await MockSttAdapter().transcribe(audio_source, language)
+                    if settings.is_test:
+                        return await MockSttAdapter().transcribe(audio_source, language)
+                    raise ValueError("Invalid audio source.")
 
                 res.raise_for_status()
                 result = res.json()
                 transcript = result.get("transcript") or result.get("text", "")
                 return transcript.strip()
         except Exception as e:
-            logger.error("[SarvamSttAdapter] Transcription error: %s. Falling back to mock.", e)
-            return await MockSttAdapter().transcribe(audio_source, language)
+            logger.error("[SarvamSttAdapter] Transcription error: %s", e)
+            if settings.is_test:
+                return await MockSttAdapter().transcribe(audio_source, language)
+            raise RuntimeError(f"Sarvam AI speech transcription failed: {e}")
 
 
 class WhisperSttAdapter(SttAdapter):
@@ -87,8 +91,9 @@ class WhisperSttAdapter(SttAdapter):
 
     async def transcribe(self, audio_source: Union[str, bytes], language: str = "hi") -> str:
         if not self.api_key:
-            logger.warning("OpenAI API key not set; falling back to Mock STT.")
-            return await MockSttAdapter().transcribe(audio_source, language)
+            if settings.is_test:
+                return await MockSttAdapter().transcribe(audio_source, language)
+            raise RuntimeError("Whisper STT failed: OPENAI_API_KEY is not configured.")
 
         logger.info("[WhisperSttAdapter] Transcribing audio with language=%s", language)
         headers = {"Authorization": f"Bearer {self.api_key}"}
@@ -107,18 +112,22 @@ class WhisperSttAdapter(SttAdapter):
                     files = {"file": ("audio.mp3", audio_res.content, "audio/mpeg")}
                     res = await client.post(self.endpoint, headers=headers, data=data, files=files)
                 else:
-                    return await MockSttAdapter().transcribe(audio_source, language)
+                    if settings.is_test:
+                        return await MockSttAdapter().transcribe(audio_source, language)
+                    raise ValueError("Invalid audio source.")
 
                 res.raise_for_status()
                 result = res.json()
                 return result.get("text", "").strip()
         except Exception as e:
-            logger.error("[WhisperSttAdapter] Transcription error: %s. Falling back to mock.", e)
-            return await MockSttAdapter().transcribe(audio_source, language)
+            logger.error("[WhisperSttAdapter] Transcription error: %s", e)
+            if settings.is_test:
+                return await MockSttAdapter().transcribe(audio_source, language)
+            raise RuntimeError(f"OpenAI Whisper speech transcription failed: {e}")
 
 
 def get_stt_adapter(provider: Optional[str] = None) -> SttAdapter:
-    """Factory creating appropriate SttAdapter based on requested provider and available API keys."""
+    """Factory creating appropriate SttAdapter. Mock adapter only permitted when APP_ENV=test."""
     if provider:
         p = provider.lower()
         if p == "sarvam" and settings.SARVAM_API_KEY:
@@ -126,11 +135,16 @@ def get_stt_adapter(provider: Optional[str] = None) -> SttAdapter:
         elif p == "whisper" and settings.OPENAI_API_KEY:
             return WhisperSttAdapter()
         elif p == "mock":
-            return MockSttAdapter()
+            if settings.is_test:
+                return MockSttAdapter()
+            raise RuntimeError("Mock STT adapter is forbidden outside of test mode (APP_ENV=test).")
 
-    # Automatic selection based on active keys
     if settings.SARVAM_API_KEY:
         return SarvamSttAdapter()
     elif settings.OPENAI_API_KEY:
         return WhisperSttAdapter()
-    return MockSttAdapter()
+
+    if settings.is_test:
+        return MockSttAdapter()
+
+    raise RuntimeError("No Speech-to-Text provider configured. Please provide SARVAM_API_KEY or OPENAI_API_KEY.")

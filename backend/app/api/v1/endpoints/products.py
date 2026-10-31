@@ -17,80 +17,6 @@ from app.services.audit import AuditService, audit_service
 
 router = APIRouter(prefix="/products", tags=["Products Catalog & Management"])
 
-# Fallback in-memory catalog for demo/testing resilience
-DEMO_PRODUCTS: List[dict] = [
-    {
-        "id": "11111111-0001-0000-0000-000000000001",
-        "artisan_id": "cccccccc-0001-0000-0000-000000000001",
-        "title": "Handcrafted Kantha Silk Cushion Cover",
-        "description": "Pure Murshidabad silk with hand-embroidered bird and floral motifs.",
-        "category": "Home Decor",
-        "price": 1450.0,
-        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/cushion_01.jpg",
-        "cloudinary_public_id": "cushion_01",
-        "availability": True,
-        "status": "published",
-        "gi_watermarked": True,
-        "created_at": "2026-10-25T10:00:00Z",
-    },
-    {
-        "id": "11111111-0002-0000-0000-000000000002",
-        "artisan_id": "cccccccc-0001-0000-0000-000000000001",
-        "title": "Kantha Embroidered Tussar Stole",
-        "description": "Traditional running stitch on wild forest tussar silk.",
-        "category": "Textiles & Apparel",
-        "price": 2850.0,
-        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/stole_01.jpg",
-        "cloudinary_public_id": "stole_01",
-        "availability": True,
-        "status": "published",
-        "gi_watermarked": True,
-        "created_at": "2026-10-25T11:00:00Z",
-    },
-    {
-        "id": "11111111-0003-0000-0000-000000000003",
-        "artisan_id": "cccccccc-0002-0000-0000-000000000002",
-        "title": "Warli Ceremonial Wall Hanging",
-        "description": "Authentic rice paste painting on mud-treated canvas celebrating harvest.",
-        "category": "Paintings & Folk Art",
-        "price": 3200.0,
-        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/warli_01.jpg",
-        "cloudinary_public_id": "warli_01",
-        "availability": True,
-        "status": "published",
-        "gi_watermarked": True,
-        "created_at": "2026-10-26T12:00:00Z",
-    },
-    {
-        "id": "11111111-0004-0000-0000-000000000004",
-        "artisan_id": "cccccccc-0001-0000-0000-000000000001",
-        "title": "Hand-woven Sikki Grass Multipurpose Box",
-        "description": "Golden grass intricately crafted with natural vegetable dyes by Bihar artisans.",
-        "category": "Natural Fiber Crafts",
-        "price": 950.0,
-        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/sikki_01.jpg",
-        "cloudinary_public_id": "sikki_01",
-        "availability": True,
-        "status": "pending_validation",
-        "gi_watermarked": False,
-        "created_at": "2026-10-29T08:30:00Z",
-    },
-    {
-        "id": "11111111-0005-0000-0000-000000000005",
-        "artisan_id": "cccccccc-0002-0000-0000-000000000002",
-        "title": "Terracotta Temple Hanging Diya",
-        "description": "Hand-turned terracotta with filigree perforations, approved for GI certification.",
-        "category": "Pottery & Terracotta",
-        "price": 1850.0,
-        "image_url": "https://res.cloudinary.com/navinfpx/image/upload/v1700000000/kalaswar/demo/terracotta_01.jpg",
-        "cloudinary_public_id": "terracotta_01",
-        "availability": True,
-        "status": "approved",
-        "gi_watermarked": True,
-        "created_at": "2026-10-28T14:15:00Z",
-    },
-]
-
 
 def _to_response(item: dict) -> ProductResponse:
     return ProductResponse(
@@ -127,27 +53,13 @@ async def list_products(
 ):
     """
     Public catalog endpoint with category filters, price bounds, full text search, and pagination.
+    Queries the live database with zero mock fallbacks.
     """
-    products: List[dict] = []
-    try:
-        remote_records = await db.query_records("products")
-        if remote_records:
-            products = remote_records
-    except Exception as e:
-        logger.warning("Falling back to local catalog store: %s", e)
-
-    # Merge or fallback
-    all_items = {str(p["id"]): dict(p) for p in DEMO_PRODUCTS}
-    for r in products:
-        all_items[str(r.get("id"))] = r
-
-    filtered = list(all_items.values())
+    records = await db.query_records("products")
+    filtered = [dict(r) for r in (records or [])]
 
     if status_filter:
         filtered = [p for p in filtered if str(p.get("status", "")).lower() == status_filter.lower()]
-    elif not status_filter and not artisan_id:
-        # Default public catalog view
-        pass
 
     if category:
         cat_lower = category.lower()
@@ -207,7 +119,8 @@ async def get_validation_queue(
     Listing Validation Queue: Returns items in pending_validation, approved, or rejected status.
     Requires coordinator role.
     """
-    queue_items = [p for p in DEMO_PRODUCTS if p.get("status") in {"pending_validation", "approved", "rejected"}]
+    records = await db.query_records("products")
+    queue_items = [p for p in records if p.get("status") in {"pending_validation", "approved", "rejected"}]
     return [_to_response(item) for item in queue_items]
 
 
@@ -219,16 +132,9 @@ async def get_product(
     """
     Retrieve single product detail by ID with GI provenance status.
     """
-    try:
-        records = await db.query_records("products", {"id": f"eq.{product_id}"})
-        if records:
-            return _to_response(records[0])
-    except Exception as e:
-        logger.warning("Product query error: %s", e)
-
-    for p in DEMO_PRODUCTS:
-        if str(p["id"]) == str(product_id):
-            return _to_response(p)
+    records = await db.query_records("products", {"id": f"eq.{product_id}"})
+    if records:
+        return _to_response(records[0])
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
 
@@ -287,24 +193,7 @@ async def create_product(
         "created_at": "2026-10-30T10:00:00Z",
     }
 
-    try:
-        db_payload = {
-            "id": str(new_id),
-            "artisan_id": str(product.artisan_id),
-            "name": product.title,
-            "description": product.description or "",
-            "category": product.category,
-            "price": product.price,
-            "image_url": product.image_url,
-            "image_public_id": product.cloudinary_public_id,
-            "availability": product.availability,
-            "status": initial_status,
-        }
-        await db.insert_record("products", db_payload)
-    except Exception as e:
-        logger.warning("Could not persist product to database: %s", e)
-
-    DEMO_PRODUCTS.append(item_record)
+    await db.insert_record("products", item_record)
 
     await audit.log_action(
         user_id=current_user.id,
@@ -341,24 +230,27 @@ async def validate_product(
             detail="A rejection reason is required when rejecting a listing",
         )
 
-    for p in DEMO_PRODUCTS:
-        if str(p["id"]) == str(product_id):
-            p["status"] = "approved" if payload.action == "approve" else "rejected"
-            if payload.reason:
-                p["rejection_reason"] = payload.reason
-            elif payload.action == "approve":
-                p["rejection_reason"] = None
+    records = await db.query_records("products", {"id": f"eq.{product_id}"})
+    if not records:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
 
-            await audit.log_action(
-                user_id=current_user.id,
-                action=f"product_{payload.action}d",
-                entity_type="product",
-                entity_id=str(product_id),
-                details={"action": payload.action, "reason": payload.reason, "title": p.get("title")},
-            )
-            return _to_response(p)
+    target_status = "approved" if payload.action == "approve" else "rejected"
+    updates = {
+        "status": target_status,
+        "rejection_reason": payload.reason if payload.action == "reject" else None,
+    }
+    updated = await db.update_records("products", {"id": f"eq.{product_id}"}, updates)
+    res_record = updated[0] if updated else records[0]
+    res_record.update(updates)
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
+    await audit.log_action(
+        user_id=current_user.id,
+        action=f"product_{payload.action}d",
+        entity_type="product",
+        entity_id=str(product_id),
+        details={"action": payload.action, "reason": payload.reason, "title": res_record.get("title")},
+    )
+    return _to_response(res_record)
 
 
 @router.post("/{product_id}/publish", response_model=ProductResponse)
@@ -373,26 +265,30 @@ async def publish_product(
     Enforces strict gating: Products in 'pending_validation' or 'rejected' status cannot be published.
     Requires coordinator role.
     """
-    for p in DEMO_PRODUCTS:
-        if str(p["id"]) == str(product_id):
-            current_status = p.get("status")
-            if current_status != "approved":
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Publication Gated: Product must be in 'approved' status before publishing. Current status: '{current_status}'.",
-                )
+    records = await db.query_records("products", {"id": f"eq.{product_id}"})
+    if not records:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
 
-            p["status"] = "published"
-            await audit.log_action(
-                user_id=current_user.id,
-                action="product_published",
-                entity_type="product",
-                entity_id=str(product_id),
-                details={"title": p.get("title")},
-            )
-            return _to_response(p)
+    p = records[0]
+    current_status = p.get("status")
+    if current_status != "approved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Publication Gated: Product must be in 'approved' status before publishing. Current status: '{current_status}'.",
+        )
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
+    updated = await db.update_records("products", {"id": f"eq.{product_id}"}, {"status": "published"})
+    res_record = updated[0] if updated else p
+    res_record["status"] = "published"
+
+    await audit.log_action(
+        user_id=current_user.id,
+        action="product_published",
+        entity_type="product",
+        entity_id=str(product_id),
+        details={"title": res_record.get("title")},
+    )
+    return _to_response(res_record)
 
 
 @router.patch("/{product_id}", response_model=ProductResponse)
@@ -413,6 +309,7 @@ async def update_product(
     db_updates = {}
     if "title" in update_data:
         db_updates["name"] = update_data["title"]
+        db_updates["title"] = update_data["title"]
     if "description" in update_data:
         db_updates["description"] = update_data["description"]
     if "category" in update_data:
@@ -426,25 +323,18 @@ async def update_product(
     if "availability" in update_data:
         db_updates["availability"] = update_data["availability"]
 
-    try:
-        await db.update_records("products", {"id": f"eq.{product_id}"}, db_updates)
-    except Exception as e:
-        logger.warning("DB update error on product %s: %s", product_id, e)
+    updated = await db.update_records("products", {"id": f"eq.{product_id}"}, db_updates)
+    if not updated:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_id}' not found")
 
-    # Update in memory
-    for p in DEMO_PRODUCTS:
-        if str(p["id"]) == str(product_id):
-            p.update(update_data)
-            await audit.log_action(
-                user_id=current_user.id,
-                action="product_updated",
-                entity_type="product",
-                entity_id=str(product_id),
-                details=update_data,
-            )
-            return _to_response(p)
-
-    return await get_product(product_id, db)
+    await audit.log_action(
+        user_id=current_user.id,
+        action="product_updated",
+        entity_type="product",
+        entity_id=str(product_id),
+        details=update_data,
+    )
+    return _to_response(updated[0])
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_200_OK)
@@ -457,15 +347,7 @@ async def delete_product(
     """
     Delete a product from the catalog. Requires coordinator role.
     """
-    try:
-        await db.delete_records("products", {"id": f"eq.{product_id}"})
-    except Exception as e:
-        logger.warning("DB delete error: %s", e)
-
-    for i, p in enumerate(DEMO_PRODUCTS):
-        if str(p["id"]) == str(product_id):
-            del DEMO_PRODUCTS[i]
-            break
+    await db.delete_records("products", {"id": f"eq.{product_id}"})
 
     await audit.log_action(
         user_id=current_user.id,

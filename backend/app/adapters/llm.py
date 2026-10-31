@@ -19,13 +19,12 @@ class LlmAdapter(abc.ABC):
 class MockLlmAdapter(LlmAdapter):
     """
     Deterministic Mock LLM adapter.
-    Extracts structured craft attributes based on keyword heuristics,
-    correctly simulating both complete transcripts and incomplete transcripts
-    requiring artisan follow-up questions.
+    Extracts structured craft attributes based on keyword heuristics.
+    Strictly permitted during automated tests (APP_ENV=test).
     """
 
     async def extract_craft_attributes(self, transcript: str, language: str = "hi") -> CraftExtractionResult:
-        logger.info("[MockLlmAdapter] Parsing transcript: '%s'", transcript)
+        logger.info("[MockLlmAdapter] Parsing transcript in test environment: '%s'", transcript)
         t_lower = transcript.lower()
 
         # Handle explicit incomplete test transcripts
@@ -81,7 +80,6 @@ class MockLlmAdapter(LlmAdapter):
             colour = "प्राकृतिक रंग (Natural)"
             hours = 4.0
 
-
         return CraftExtractionResult(
             title=title,
             craft=craft,
@@ -104,8 +102,9 @@ class OpenAiLlmAdapter(LlmAdapter):
 
     async def extract_craft_attributes(self, transcript: str, language: str = "hi") -> CraftExtractionResult:
         if not self.api_key:
-            logger.warning("OpenAI API key not set; falling back to Mock LLM.")
-            return await MockLlmAdapter().extract_craft_attributes(transcript, language)
+            if settings.is_test:
+                return await MockLlmAdapter().extract_craft_attributes(transcript, language)
+            raise RuntimeError("LLM extraction failed: OPENAI_API_KEY is not configured.")
 
         system_prompt = """You are Kalaswar's expert craft assistant for Indian rural artisans.
 Extract product details from the artisan's voice transcript.
@@ -136,7 +135,7 @@ NEVER GUESS. If the artisan did not mention a material or craft, leave that key 
         }
 
         try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
+            async with httpx.AsyncClient(timeout=15.0) as client:
                 res = await client.post(self.endpoint, headers=headers, json=body)
                 res.raise_for_status()
                 data = res.json()
@@ -151,15 +150,19 @@ NEVER GUESS. If the artisan did not mention a material or craft, leave that key 
                     confidence=0.92,
                 )
         except Exception as e:
-            logger.error("[OpenAiLlmAdapter] Extraction failure: %s. Falling back to Mock.", e)
-            return await MockLlmAdapter().extract_craft_attributes(transcript, language)
+            logger.error("[OpenAiLlmAdapter] Extraction failure: %s", e)
+            if settings.is_test:
+                return await MockLlmAdapter().extract_craft_attributes(transcript, language)
+            raise RuntimeError(f"OpenAI LLM craft extraction failed: {e}")
 
 
 def get_llm_adapter() -> LlmAdapter:
-    """Returns OpenAiLlmAdapter if credentials exist, otherwise MockLlmAdapter."""
+    """Returns OpenAiLlmAdapter if credentials exist. Mock only permitted in test mode."""
     if settings.OPENAI_API_KEY:
         return OpenAiLlmAdapter()
-    return MockLlmAdapter()
+    if settings.is_test:
+        return MockLlmAdapter()
+    raise RuntimeError("No LLM provider configured. Please provide OPENAI_API_KEY or GEMINI_API_KEY.")
 
 
 def generate_clarification_question(missing_fields: List[str], language: str = "hi") -> str:

@@ -11,34 +11,6 @@ from app.services.audit import AuditService, audit_service
 
 router = APIRouter(prefix="/craft-stories", tags=["Living Craft Stories & Provenance"])
 
-DEMO_STORIES: List[dict] = [
-    {
-        "id": "aaaa1111-0001-0000-0000-000000000001",
-        "product_id": "11111111-0001-0000-0000-000000000001",
-        "artisan_id": "cccccccc-0001-0000-0000-000000000001",
-        "artisan_name": "Radha Devi",
-        "shg_id": "bbbbbbbb-0001-0000-0000-000000000001",
-        "title": "Songs in the Running Stitch: The Living Heritage of Santiniketan Kantha",
-        "body": "Kantha embroidery in Bolpur is an heirloom art passed across four generations of rural women. "
-        "Each stitch is sewn by hand using discarded silk saris and lac-dyed threads, depicting monsoon lotus blossoms.",
-        "language": "en",
-        "status": "published",
-        "source_notes": "Recorded during evening artisan circle in Bolpur workshop.",
-        "original_notes": "हम इसे बारिश के दिनों में बैठ कर बनाते हैं जब खेतों में काम कम होता है।",
-        "ai_assisted": True,
-        "approved_by": "Coordinator Amit",
-        "approved_at": "2026-10-25T15:00:00Z",
-        "created_at": "2026-10-24T10:00:00Z",
-        "updated_at": "2026-10-25T15:00:00Z",
-        "consents": [
-            {"consent_type": "maker_name", "granted": True},
-            {"consent_type": "maker_photo", "granted": True},
-            {"consent_type": "voice_transcript", "granted": True},
-            {"consent_type": "marketing_reuse", "granted": True},
-        ],
-    }
-]
-
 
 def _build_story_response(s: dict) -> CraftStoryResponse:
     return CraftStoryResponse(
@@ -73,9 +45,10 @@ async def list_craft_stories(
 ):
     """
     List cultural craft stories and artisan provenance narratives.
-    Public visitors see published stories; coordinators and admins see all.
+    Public visitors see published stories; coordinators and artisans see all.
     """
-    stories = list(DEMO_STORIES)
+    records = await db.query_records("craft_stories")
+    stories = [dict(s) for s in (records or [])]
 
     if product_id:
         stories = [s for s in stories if str(s.get("product_id")) == str(product_id)]
@@ -83,7 +56,7 @@ async def list_craft_stories(
     if artisan_id:
         stories = [s for s in stories if str(s.get("artisan_id")) == str(artisan_id)]
 
-    # If unauthenticated or buyer, default to published only unless specific role
+    # If unauthenticated or customer, default to published only unless specific role
     is_staff = user and user.has_any_role(["coordinator", "artisan"])
     if status_filter:
         stories = [s for s in stories if s.get("status") == status_filter]
@@ -101,10 +74,10 @@ async def get_craft_story(
     """
     Retrieve single craft story with maker consent profile.
     """
-    story = next((s for s in DEMO_STORIES if str(s["id"]) == str(story_id)), None)
-    if not story:
+    records = await db.query_records("craft_stories", {"id": f"eq.{story_id}"})
+    if not records:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Craft story '{story_id}' not found")
-    return _build_story_response(story)
+    return _build_story_response(records[0])
 
 
 @router.post("", response_model=CraftStoryResponse, status_code=status.HTTP_201_CREATED)
@@ -138,22 +111,9 @@ async def create_craft_story(
         "updated_at": now_iso,
         "consents": [c.model_dump() for c in payload.consents],
     }
-    DEMO_STORIES.append(record)
 
     try:
-        await db.insert_record("craft_stories", {
-            "id": str(new_id),
-            "product_id": str(payload.product_id) if payload.product_id else None,
-            "artisan_id": str(payload.artisan_id) if payload.artisan_id else None,
-            "shg_id": str(payload.shg_id) if payload.shg_id else None,
-            "title": payload.title,
-            "body": payload.body,
-            "language": payload.language,
-            "status": "draft",
-            "source_notes": payload.source_notes,
-            "original_notes": payload.original_notes,
-            "ai_assisted": payload.ai_assisted,
-        })
+        await db.insert_record("craft_stories", record)
     except Exception as e:
         logger.warning("DB craft story insert warning: %s", e)
 
@@ -177,21 +137,22 @@ async def update_craft_story(
     audit: AuditService = Depends(lambda: audit_service),
 ):
     """
-    Update or approve/publish a craft story. Requires coordinator or admin role.
+    Update or approve/publish a craft story. Requires coordinator role.
     """
-    story = next((s for s in DEMO_STORIES if str(s["id"]) == str(story_id)), None)
-    if not story:
+    records = await db.query_records("craft_stories", {"id": f"eq.{story_id}"})
+    if not records:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Craft story '{story_id}' not found")
 
+    story = dict(records[0])
     now_iso = datetime.now(timezone.utc).isoformat()
     update_data = payload.model_dump(exclude_unset=True)
 
     if payload.status == "published":
-        story["approved_by"] = current_user.email
-        story["approved_at"] = now_iso
+        update_data["approved_by"] = current_user.email
+        update_data["approved_at"] = now_iso
 
+    update_data["updated_at"] = now_iso
     story.update(update_data)
-    story["updated_at"] = now_iso
 
     try:
         await db.update_records("craft_stories", {"id": f"eq.{story_id}"}, update_data)

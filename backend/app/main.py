@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,16 @@ from app.core.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
+from app.core.startup_checks import verify_production_credentials_on_startup
 from app.schemas.common import HealthResponse
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Verify production credentials when running outside test
+    verify_production_credentials_on_startup()
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -28,6 +38,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Exception Handlers for consistent standard error envelope
