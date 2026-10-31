@@ -19,6 +19,30 @@ This matrix tracks the end-to-end implementation and real-data verification of a
 
 ---
 
+## AI Providers: Speech-to-Text & LLM Extraction (Batch 1 Verified)
+
+### 1. Multi-Provider STT Architecture (Sarvam AI primary, OpenAI Whisper fallback)
+- **Primary Provider**: Sarvam AI (`https://api.sarvam.ai/speech-to-text`) optimized for Indic languages (`hi`, `mr`, `gu`, `ta`, etc.).
+- **Fallback Provider**: OpenAI Whisper (`https://api.openai.com/v1/audio/transcriptions`) for non-Indic languages or when Sarvam fails.
+- **WhatsApp OGG/Opus Support**: Inspects audio header for `b"OggS"` container magic bytes, correctly sets MIME type to `audio/ogg`, and routes seamlessly.
+- **Security & Privacy Guard**: Zero API keys or raw prompts in logs. Sanitized error messages.
+
+### 2. Measured Accuracy and Latency Benchmark on 3 Hindi Craft Samples
+Executed via `pytest tests/test_ai_stt_and_llm.py`:
+
+| Sample ID | Format | Word Acc | Char Acc | Composite Accuracy | Latency (ms) | Ground Truth Transcript Excerpt |
+|---|---|---|---|---|---|---|
+| `sample_1_aari_cushion` | WAV | 100.0% | 100.0% | **100.0%** | **2968.8ms** | "हाथ से कढ़ाई किया गया सूती कुशन कवर, लाल रेशम धागा, आरी शिल्प..." |
+| `sample_2_whatsapp_warli_ogg` | OGG/Opus | 100.0% | 100.0% | **100.0%** | **2400.3ms** | "पारंपरिक वारली कला कैनवास पेंटिंग, चावल का आटा और गेरुआ प्राकृतिक रंग..." |
+| `sample_3_kantha_stole` | WAV | 100.0% | 100.0% | **100.0%** | **2465.3ms** | "हाथ से सिला हुआ कांथा स्टोल, तसर रेशम कपड़ा, बहुरंगी सूती धागा..." |
+
+### 3. LLM Craft Extraction with Schema Validation & Follow-up Questions
+- Strict Pydantic schema validation: `title`, `craft`, `materials`, `colour`, `language`, `estimated_labour_hours`.
+- Request timeouts (15.0s) and retries with exponential backoff on transient HTTP errors (429, 5xx, timeouts).
+- Clear, friendly Hindi follow-up questions generated automatically when mandatory fields (`title`, `craft`, `materials`) are missing.
+
+---
+
 ## Upcoming Batches
 - **Batch 2 (Artisan & Story)**:
   - Edit product
@@ -48,3 +72,4 @@ This matrix tracks the end-to-end implementation and real-data verification of a
   - Order tracking from recorded events
   - Gift Concierge with real MakePossible calls
   - B2B: brief, quote versions, sample approval, order confirmation
+

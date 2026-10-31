@@ -16,6 +16,7 @@ class CraftExtractionResult(BaseModel):
     language: str = Field("hi", examples=["hi"])
     estimated_labour_hours: Optional[float] = Field(None, examples=[4.0])
     confidence: float = Field(1.0, examples=[0.95])
+    follow_up_question: Optional[str] = Field(None, description="Clear follow-up question when fields are missing")
 
     def is_complete(self) -> bool:
         """Returns True only when all mandatory product fields are present."""

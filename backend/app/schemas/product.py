@@ -67,3 +67,6 @@ class ProductAiDraftResponse(BaseModel):
     suggested_price: float = 0.0
     making_hours: float = 0.0
     raw_transcript: Optional[str] = None
+    follow_up_question: Optional[str] = None
+    is_complete: bool = True
+    missing_fields: List[str] = Field(default_factory=list)

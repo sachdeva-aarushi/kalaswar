@@ -2,11 +2,14 @@ import os
 import sys
 import uuid
 import pytest
-from fastapi.testclient import TestClient
+
+os.environ["APP_ENV"] = "test"
+os.environ["ENVIRONMENT"] = "test"
 
 # Ensure backend root is on Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from fastapi.testclient import TestClient
 from app.core.config import settings
 from app.core.security import create_test_token
 from app.main import app

@@ -175,6 +175,9 @@ async def generate_product_ai_draft(
         suggested_price=round(fp.suggested_price, 2),
         making_hours=hours,
         raw_transcript=payload.description,
+        follow_up_question=extraction.follow_up_question,
+        is_complete=extraction.is_complete(),
+        missing_fields=extraction.missing_fields(),
     )
 
 
